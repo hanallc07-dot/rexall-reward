@@ -18,13 +18,6 @@
     .card-gradient {
       background: linear-gradient(135deg, #059669 0%, #047857 55%, #065f46 100%);
     }
-    .no-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-    .no-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col bg-slate-50 text-slate-900">
@@ -32,7 +25,6 @@
   <!-- Top Navigation Header -->
   <header class="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-slate-200">
     <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between gap-2">
-      <!-- Brand Identity -->
       <div class="flex items-center gap-2.5 min-w-0">
         <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
@@ -45,7 +37,6 @@
         </div>
       </div>
 
-      <!-- Sync Status & Admin Console Trigger -->
       <div class="flex items-center gap-2 shrink-0">
         <span id="syncStatusBadge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-800">
           <span id="syncStatusDot" class="w-2 h-2 rounded-full bg-amber-500"></span>
@@ -89,7 +80,6 @@
       </div>
 
       <div class="mt-4 space-y-3 text-center">
-        <!-- Optional Ad Photo / Flyer -->
         <div id="adSponsorPhotoWrapper" class="hidden rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 max-h-52 flex items-center justify-center">
           <img
             id="adSponsorPhotoImg"
@@ -190,7 +180,7 @@
           </form>
         </div>
 
-        <!-- Step 2: New Member Registration Screen (Shown only if phone is not registered) -->
+        <!-- Step 2: New Member Registration Screen -->
         <div id="registerStep" class="hidden">
           <div class="mt-3 px-3.5 py-2.5 rounded-xl bg-emerald-50 border border-emerald-200/80 text-center">
             <p class="text-xs font-bold text-emerald-900">New Member Registration</p>
@@ -280,12 +270,7 @@
 
     <!-- ==================== VIEW 2: CUSTOMER LOYALTY DASHBOARD ==================== -->
     <section id="dashboardView" class="hidden space-y-5 max-w-2xl mx-auto">
-
-      <!-- Digital Loyalty Card -->
       <div class="card-gradient rounded-3xl p-6 sm:p-7 text-white shadow-lg relative overflow-hidden">
-        <div class="absolute -right-10 -top-10 w-40 h-40 rounded-full bg-white/10 pointer-events-none"></div>
-        <div class="absolute -left-12 -bottom-14 w-44 h-44 rounded-full bg-black/10 pointer-events-none"></div>
-
         <div class="relative flex items-start justify-between gap-3">
           <div>
             <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white/20 text-emerald-50">
@@ -299,9 +284,6 @@
                 onclick="openChangePhoneModal()"
                 class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-white/15 hover:bg-white/25 text-[11px] font-semibold text-white transition active:scale-95"
               >
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                </svg>
                 <span>Change Number</span>
               </button>
             </div>
@@ -316,7 +298,6 @@
           </button>
         </div>
 
-        <!-- Points Balance Display -->
         <div class="relative mt-6 pt-5 border-t border-white/15 flex flex-wrap items-end justify-between gap-4">
           <div>
             <p class="text-[11px] font-bold uppercase tracking-wider text-emerald-100">Available Balance</p>
@@ -334,7 +315,6 @@
           </div>
         </div>
 
-        <!-- Next Reward Progress Bar -->
         <div class="relative mt-5">
           <div class="flex items-center justify-between text-[11px] font-semibold text-emerald-100 mb-1.5">
             <span id="nextRewardLabel">Next Reward: $1 Off (100 pts)</span>
@@ -346,17 +326,13 @@
         </div>
       </div>
 
-      <!-- Customer Reward Tiers Overview (Read-Only) -->
+      <!-- Reward Tiers -->
       <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-5 sm:p-6">
-        <div class="flex items-center justify-between gap-2 mb-4">
-          <div>
-            <h3 class="text-base font-bold text-slate-900">Your Reward Tiers</h3>
-            <p class="text-xs text-slate-500">Ask cashier at checkout to apply your unlocked discount</p>
-          </div>
+        <div class="mb-4">
+          <h3 class="text-base font-bold text-slate-900">Your Reward Tiers</h3>
+          <p class="text-xs text-slate-500">Ask cashier at checkout to apply your unlocked discount</p>
         </div>
-
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <!-- Tier 1: 100 pts = $1 -->
           <div id="redeemCard100" class="p-4 rounded-2xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
             <div class="flex items-center justify-between w-full">
               <span class="text-lg font-extrabold text-emerald-700">$1 OFF</span>
@@ -364,8 +340,6 @@
             </div>
             <p id="redeemStatus100" class="text-xs text-slate-500 mt-2 font-medium">Available at checkout</p>
           </div>
-
-          <!-- Tier 2: 500 pts = $5 -->
           <div id="redeemCard500" class="p-4 rounded-2xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
             <div class="flex items-center justify-between w-full">
               <span class="text-lg font-extrabold text-emerald-700">$5 OFF</span>
@@ -373,8 +347,6 @@
             </div>
             <p id="redeemStatus500" class="text-xs text-slate-500 mt-2 font-medium">Available at checkout</p>
           </div>
-
-          <!-- Tier 3: 1000 pts = $10 -->
           <div id="redeemCard1000" class="p-4 rounded-2xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
             <div class="flex items-center justify-between w-full">
               <span class="text-lg font-extrabold text-emerald-700">$10 OFF</span>
@@ -385,45 +357,34 @@
         </div>
       </div>
 
-      <!-- Refer-a-Friend Program Card -->
+      <!-- Referral Card -->
       <div class="bg-gradient-to-br from-amber-50 via-white to-emerald-50/70 rounded-3xl border border-amber-200/80 shadow-sm p-5 sm:p-6">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div class="flex items-start gap-3.5">
-            <div class="w-11 h-11 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0 mt-0.5">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
+          <div>
+            <div class="flex flex-wrap items-center gap-2">
+              <h3 class="text-base font-extrabold text-slate-900">Refer a Friend, Earn +25 Pts</h3>
+              <span id="cardReferralCountBadge" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800">
+                0 Friends Referred
+              </span>
+              <span id="cardReferredByBadge" class="hidden px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-900">
+                Referred by Friend
+              </span>
             </div>
-            <div>
-              <div class="flex flex-wrap items-center gap-2">
-                <h3 class="text-base font-extrabold text-slate-900">Refer a Friend, Earn +25 Pts</h3>
-                <span id="cardReferralCountBadge" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800">
-                  0 Friends Referred
-                </span>
-                <span id="cardReferredByBadge" class="hidden px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-900">
-                  Referred by Friend
-                </span>
-              </div>
-              <p class="text-xs text-slate-600 mt-1 leading-relaxed">
-                Share your referral link or have your friend enter your phone number (<strong id="cardReferralPhoneHint" class="text-slate-800">555-000-0000</strong>) when they register. <strong class="text-emerald-700">You AND your friend both receive +25 Bonus Points!</strong>
-              </p>
-            </div>
+            <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+              Have your friend enter your phone number (<strong id="cardReferralPhoneHint" class="text-slate-800">555-000-0000</strong>) when registering. <strong class="text-emerald-700">You AND your friend both receive +25 Bonus Points!</strong>
+            </p>
           </div>
-
           <button
             type="button"
             onclick="copyCustomerReferralLink()"
-            class="px-4 py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-xs transition active:scale-95 shrink-0 flex items-center justify-center gap-2"
+            class="px-4 py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-xs transition active:scale-95 shrink-0"
           >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 0 002-2v-8a2 0 00-2-2h-8a2 0 00-2 2v8a2 0 002 2z" />
-            </svg>
-            <span>Copy Invite Link</span>
+            Copy Invite Link
           </button>
         </div>
       </div>
 
-      <!-- Customer Activity History -->
+      <!-- Activity History -->
       <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-5 sm:p-6">
         <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
           <h3 class="text-base font-bold text-slate-900">Your Points &amp; Discount History</h3>
@@ -433,10 +394,7 @@
             <button type="button" onclick="setHistoryFilter('REDEEMED')" id="filterRedeemedBtn" class="px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition">Redeemed</button>
           </div>
         </div>
-
-        <div id="customerHistoryList" class="divide-y divide-slate-100">
-          <!-- Populated dynamically -->
-        </div>
+        <div id="customerHistoryList" class="divide-y divide-slate-100"></div>
       </div>
     </section>
   </main>
@@ -455,770 +413,6 @@
       </button>
     </div>
   </footer>
-
-  <!-- ==================== MODAL: CHANGE PHONE NUMBER ==================== -->
-  <div id="changePhoneModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-xl border border-slate-200">
-      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-        <h3 class="text-base font-bold text-slate-900">Change Customer Phone Number</h3>
-        <button type="button" onclick="closeChangePhoneModal()" class="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-      </div>
-      <form onsubmit="handleCustomerChangePhone(event)" class="mt-4 space-y-4">
-        <div>
-          <label for="changePhoneNewInput" class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">
-            New Phone Number
-          </label>
-          <input
-            type="tel"
-            id="changePhoneNewInput"
-            required
-            placeholder="e.g., 216-555-8899"
-            class="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm font-semibold text-slate-900 focus:outline-none focus:bg-white focus:border-emerald-500"
-          />
-        </div>
-        <div class="flex items-center justify-end gap-2 pt-2">
-          <button type="button" onclick="closeChangePhoneModal()" class="px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50">
-            Cancel
-          </button>
-          <button type="submit" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs">
-            Transfer Points
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- ==================== MODAL: FIRST-TIME CUSTOMER 25 BONUS POINTS POP-UP ==================== -->
-  <div id="welcomeBonusModal" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-sm w-full p-6 sm:p-7 shadow-2xl border border-emerald-200 text-center relative overflow-hidden">
-      <div class="absolute inset-x-0 top-0 h-2 bg-gradient-to-r from-emerald-500 via-amber-400 to-emerald-600"></div>
-
-      <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 text-white flex items-center justify-center mx-auto mb-4 shadow-md">
-        <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
-        </svg>
-      </div>
-
-      <span class="inline-block px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-amber-100 text-amber-900">
-        First-Time Member Gift
-      </span>
-
-      <h3 class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-2.5">
-        Welcome, <span id="welcomeBonusCustomerName" class="text-emerald-700">Member</span>!
-      </h3>
-
-      <p class="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
-        Thank you for joining <span class="font-bold text-slate-800">Rexall Discount Reward</span>! As a bonus for first-time customers, we’ve added:
-      </p>
-
-      <div class="my-4 py-3.5 px-4 rounded-2xl bg-emerald-50 border border-emerald-200/90">
-        <p id="welcomeBonusPointsHeadline" class="text-3xl font-extrabold text-emerald-700 tracking-tight">+25 Bonus Points</p>
-        <p id="welcomeBonusPointsSubtext" class="text-[11px] font-semibold text-emerald-800 mt-0.5">Added automatically to your loyalty card</p>
-      </div>
-
-      <p id="welcomeBonusReferralNote" class="hidden text-xs font-semibold text-amber-900 bg-amber-50 border border-amber-200/90 rounded-xl py-2 px-3 mb-4">
-        +25 Referral Bonus Points added to both you and your friend!
-      </p>
-
-      <button
-        type="button"
-        onclick="closeWelcomeBonusModal()"
-        class="w-full py-3.5 px-5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-sm transition active:scale-[0.99]"
-      >
-        Awesome, View My Card!
-      </button>
-    </div>
-  </div>
-
-  <!-- ==================== MODAL: ADMIN BACKUP & CASHIER POS ==================== -->
-  <div id="adminModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-5 sm:p-6 shadow-2xl border border-slate-200">
-      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-        <div>
-          <h2 class="text-base sm:text-lg font-extrabold text-slate-900">Store Admin &amp; Cashier Console</h2>
-          <p class="text-[11px] text-slate-500">Rexall Discount Reward &bull; Cloud &amp; Offline Management</p>
-        </div>
-        <button type="button" onclick="closeAdminModal()" class="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-      </div>
-
-      <!-- Step 1: Admin Two-Step Verification Gate (Admin Name + PIN) -->
-      <div id="adminPinGate" class="py-5 max-w-sm mx-auto">
-        <div class="text-center">
-          <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center mx-auto mb-3">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
-          </div>
-          <h3 class="text-base font-bold text-slate-900">Two-Step Admin Verification</h3>
-          <p class="text-xs text-slate-500 mt-1">Enter both your authorized <strong>Admin Name</strong> and <strong>6-Digit Secret PIN</strong>.</p>
-        </div>
-
-        <form id="adminLoginForm" onsubmit="unlockAdminPanel(event)" class="mt-4 space-y-3">
-          <div>
-            <label for="adminUnlockNameInput" class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1">
-              1. Admin Name
-            </label>
-            <input
-              type="text"
-              id="adminUnlockNameInput"
-              autocomplete="name"
-              required
-              placeholder="Enter Admin Name"
-              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-semibold text-slate-900 focus:outline-none focus:bg-white focus:border-emerald-500"
-            />
-          </div>
-
-          <div>
-            <label for="adminUnlockPinInput" class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1">
-              2. 6-Digit Store Secret PIN
-            </label>
-            <input
-              type="password"
-              id="adminUnlockPinInput"
-              inputmode="numeric"
-              maxlength="6"
-              pattern="\d{6}"
-              required
-              placeholder="••••••"
-              class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-center text-lg font-bold tracking-[0.35em] text-slate-900 focus:outline-none focus:bg-white focus:border-emerald-500"
-            />
-          </div>
-
-          <button
-            type="submit"
-            class="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-xs transition"
-          >
-            Verify &amp; Unlock Admin
-          </button>
-        </form>
-
-        <div class="mt-3 text-center">
-          <button
-            type="button"
-            onclick="openForgotPinPanel()"
-            class="text-xs font-semibold text-emerald-700 hover:text-emerald-800 underline underline-offset-2"
-          >
-            Forgot PIN or Admin Name? Reset via hanallc07@gmail.com
-          </button>
-        </div>
-      </div>
-
-      <!-- Step 1B: Forgot PIN / Admin Recovery Panel -->
-      <div id="adminForgotPinGate" class="hidden py-5 max-w-sm mx-auto space-y-4">
-        <div class="text-center">
-          <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-700 flex items-center justify-center mx-auto mb-3">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-            </svg>
-          </div>
-          <h3 class="text-base font-bold text-slate-900">Admin PIN Recovery &amp; Reset</h3>
-          <p class="text-xs text-slate-600 mt-1">
-            Send a 6-digit recovery code &amp; current credentials to <span class="font-bold text-slate-900">hanallc07@gmail.com</span>.
-          </p>
-        </div>
-
-        <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200/80 space-y-2.5 text-center">
-          <button
-            type="button"
-            onclick="sendAdminPinToEmail()"
-            class="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-            </svg>
-            <span>Send PIN &amp; Reset Code to hanallc07@gmail.com</span>
-          </button>
-          <p id="recoverySentStatus" class="hidden text-[11px] text-emerald-700 font-semibold">
-            Recovery email prepared for hanallc07@gmail.com! Enter the 6-digit recovery code below to set a new Admin Name &amp; PIN.
-          </p>
-        </div>
-
-        <form onsubmit="handleResetAdminWithCode(event)" class="space-y-3 pt-1">
-          <div>
-            <label for="recoveryCodeInput" class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1">
-              6-Digit Email Recovery Code
-            </label>
-            <input
-              type="text"
-              id="recoveryCodeInput"
-              inputmode="numeric"
-              maxlength="6"
-              pattern="\d{6}"
-              required
-              placeholder="Enter 6-digit code"
-              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-center font-mono font-bold tracking-widest text-sm text-slate-900 focus:outline-none focus:bg-white focus:border-emerald-500"
-            />
-          </div>
-
-          <div>
-            <label for="resetAdminNameInput" class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1">
-              New Admin Name
-            </label>
-            <input
-              type="text"
-              id="resetAdminNameInput"
-              required
-              placeholder="e.g., Hana Admin"
-              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm font-semibold text-slate-900 focus:outline-none focus:bg-white focus:border-emerald-500"
-            />
-          </div>
-
-          <div>
-            <label for="resetAdminNewPinInput" class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1">
-              New 6-Digit Secret PIN
-            </label>
-            <input
-              type="text"
-              id="resetAdminNewPinInput"
-              inputmode="numeric"
-              maxlength="6"
-              pattern="\d{6}"
-              required
-              placeholder="Enter new 6-digit PIN"
-              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-center font-mono font-bold tracking-widest text-sm text-slate-900 focus:outline-none focus:bg-white focus:border-emerald-500"
-            />
-          </div>
-
-          <div class="flex items-center gap-2 pt-1">
-            <button
-              type="button"
-              onclick="backToAdminGate()"
-              class="py-2.5 px-3.5 rounded-xl border border-slate-200 text-slate-700 font-semibold text-xs hover:bg-slate-50 transition"
-            >
-              &larr; Back
-            </button>
-            <button
-              type="submit"
-              class="flex-1 py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm transition"
-            >
-              Reset Admin &amp; Unlock
-            </button>
-          </div>
-        </form>
-      </div>
-
-      <!-- Step 2: Unlocked Admin Content -->
-      <div id="adminUnlockedContent" class="hidden pt-5 space-y-6">
-
-        <!-- Store Overview Stats -->
-        <div class="grid grid-cols-3 gap-2.5 sm:gap-3">
-          <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/70">
-            <p class="text-[11px] font-bold uppercase text-slate-500">Members</p>
-            <p id="statTotalCustomers" class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-0.5">0</p>
-          </div>
-          <div class="p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-200/70">
-            <p class="text-[11px] font-bold uppercase text-emerald-700">Active Pts</p>
-            <p id="statTotalPoints" class="text-xl sm:text-2xl font-extrabold text-emerald-800 mt-0.5">0</p>
-          </div>
-          <div class="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200/70">
-            <p class="text-[11px] font-bold uppercase text-amber-800">Redeemed</p>
-            <p id="statTotalRedeemed" class="text-xl sm:text-2xl font-extrabold text-amber-900 mt-0.5">$0</p>
-          </div>
-        </div>
-
-        <!-- Store Cashier POS: Add / Redeem Customer Points -->
-        <div class="bg-emerald-50/60 p-4 sm:p-5 rounded-2xl border border-emerald-200 space-y-4">
-          <div class="flex items-center justify-between gap-2">
-            <div>
-              <h3 class="font-bold text-slate-900 text-sm sm:text-base">Cashier Checkout: Add / Redeem Points</h3>
-              <p class="text-xs text-slate-600 mt-0.5">Look up a customer by phone or name to add purchase points ($1 = 2 pts) or apply a discount.</p>
-            </div>
-          </div>
-
-          <!-- Customer Lookup Search -->
-          <div class="relative">
-            <input
-              type="text"
-              id="adminPosSearchInput"
-              oninput="searchPosCustomers()"
-              placeholder="Type customer phone number or name..."
-              class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-xs sm:text-sm font-medium text-slate-900 focus:outline-none focus:border-emerald-500"
-            />
-            <div id="adminPosSearchResults" class="hidden mt-1.5 bg-white border border-slate-200 rounded-xl shadow-md divide-y divide-slate-100 max-h-44 overflow-y-auto"></div>
-          </div>
-
-          <!-- Selected Customer POS Action Card -->
-          <div id="adminPosSelectedBox" class="hidden bg-white p-4 rounded-2xl border border-emerald-200/80 space-y-4">
-            <div class="flex items-center justify-between gap-2 pb-3 border-b border-slate-100">
-              <div>
-                <p id="posSelectedName" class="text-sm sm:text-base font-extrabold text-slate-900">Customer Name</p>
-                <p id="posSelectedPhone" class="text-xs text-slate-500">555-000-0000</p>
-              </div>
-              <div class="text-right">
-                <span id="posSelectedPoints" class="inline-block px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs sm:text-sm font-extrabold">0 pts</span>
-                <p id="posSelectedValue" class="text-[11px] text-slate-500 mt-0.5">$0.00 value</p>
-              </div>
-            </div>
-
-            <!-- Add Purchase Points Form -->
-            <form onsubmit="handleAdminPosAddPoints(event)" class="flex flex-col sm:flex-row gap-2.5">
-              <div class="flex-1">
-                <label for="posPurchaseAmountInput" class="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">
-                  Eligible Purchase Total ($1 = 2 pts)
-                </label>
-                <input
-                  type="number"
-                  id="posPurchaseAmountInput"
-                  step="0.01"
-                  min="0.50"
-                  required
-                  placeholder="e.g., 45.00"
-                  oninput="updatePosPointsPreview()"
-                  class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-semibold text-slate-900 focus:outline-none focus:bg-white focus:border-emerald-500"
-                />
-              </div>
-              <div class="flex items-end">
-                <button
-                  type="submit"
-                  class="w-full sm:w-auto py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm shadow-xs transition active:scale-95"
-                >
-                  + Add <span id="posLivePointsPreview">0</span> pts
-                </button>
-              </div>
-            </form>
-
-            <!-- Instant Discount Redemption Buttons -->
-            <div>
-              <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Redeem Instant Discount</p>
-              <div class="grid grid-cols-3 gap-2">
-                <button
-                  type="button"
-                  id="posRedeemBtn100"
-                  onclick="handleAdminPosRedeem(100, 1)"
-                  class="py-2.5 px-2 rounded-xl border border-slate-200 bg-slate-50 hover:border-emerald-500 hover:bg-emerald-50 text-center transition disabled:opacity-40 disabled:pointer-events-none"
-                >
-                  <span class="block text-xs sm:text-sm font-extrabold text-emerald-700">$1 OFF</span>
-                  <span class="block text-[10px] font-semibold text-slate-500">100 pts</span>
-                </button>
-                <button
-                  type="button"
-                  id="posRedeemBtn500"
-                  onclick="handleAdminPosRedeem(500, 5)"
-                  class="py-2.5 px-2 rounded-xl border border-slate-200 bg-slate-50 hover:border-emerald-500 hover:bg-emerald-50 text-center transition disabled:opacity-40 disabled:pointer-events-none"
-                >
-                  <span class="block text-xs sm:text-sm font-extrabold text-emerald-700">$5 OFF</span>
-                  <span class="block text-[10px] font-semibold text-slate-500">500 pts</span>
-                </button>
-                <button
-                  type="button"
-                  id="posRedeemBtn1000"
-                  onclick="handleAdminPosRedeem(1000, 10)"
-                  class="py-2.5 px-2 rounded-xl border border-slate-200 bg-slate-50 hover:border-emerald-500 hover:bg-emerald-50 text-center transition disabled:opacity-40 disabled:pointer-events-none"
-                >
-                  <span class="block text-xs sm:text-sm font-extrabold text-emerald-700">$10 OFF</span>
-                  <span class="block text-[10px] font-semibold text-slate-500">1,000 pts</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- Permanent Delete Selected Customer -->
-            <div class="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
-              <span class="text-[11px] text-slate-500">Need to remove this account permanently?</span>
-              <button
-                type="button"
-                onclick="requestDeleteCustomer(selectedPosPhone)"
-                class="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 text-xs font-bold transition active:scale-95"
-              >
-                Delete Customer Everywhere
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Points Expiration Policy & Auto-Deduction Manager -->
-        <div class="bg-rose-50/50 p-4 rounded-2xl border border-rose-200/80 space-y-3">
-          <div class="flex flex-wrap items-center justify-between gap-2">
-            <div>
-              <h3 class="font-bold text-slate-900 text-sm">Inactive Points Expiration Policy (0-Point Floor)</h3>
-              <p class="text-xs text-slate-600 mt-0.5">
-                Automatically deduct points from inactive accounts without ever going below <strong>0 pts</strong>.
-              </p>
-            </div>
-            <label class="inline-flex items-center gap-2 bg-white px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-800 cursor-pointer">
-              <input type="checkbox" id="expEnabledInput" onchange="saveExpirationSettings()" class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
-              <span>Expiration Active</span>
-            </label>
-          </div>
-
-          <form onsubmit="saveExpirationSettings(event)" class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 items-end">
-            <div class="sm:col-span-4">
-              <label for="expInactiveDaysInput" class="block text-[10px] font-bold uppercase text-slate-600 mb-1">
-                Inactive After (Days)
-              </label>
-              <input
-                type="number"
-                id="expInactiveDaysInput"
-                min="1"
-                max="3650"
-                value="90"
-                required
-                class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-900 focus:outline-none focus:border-emerald-500"
-              />
-            </div>
-            <div class="sm:col-span-4">
-              <label for="expPointsLossInput" class="block text-[10px] font-bold uppercase text-slate-600 mb-1">
-                Points Deducted / Cycle
-              </label>
-              <input
-                type="number"
-                id="expPointsLossInput"
-                min="1"
-                max="100000"
-                value="25"
-                required
-                class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-900 focus:outline-none focus:border-emerald-500"
-              />
-            </div>
-            <div class="sm:col-span-4 flex gap-1.5">
-              <button
-                type="submit"
-                class="flex-1 py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition"
-              >
-                Save Policy
-              </button>
-              <button
-                type="button"
-                onclick="runPointsExpirationCheck(true)"
-                class="py-2 px-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition shrink-0"
-                title="Check all customers now and expire overdue points"
-              >
-                Run Now
-              </button>
-            </div>
-          </form>
-        </div>
-
-        <!-- Zero-Credit New Member Email Alert (hanallc07@gmail.com) -->
-        <div class="bg-sky-50/70 p-4 rounded-2xl border border-sky-200/80 space-y-3">
-          <div class="flex flex-wrap items-center justify-between gap-2">
-            <div>
-              <h3 class="font-bold text-slate-900 text-sm">Silent New Member Email Alerts (hanallc07@gmail.com)</h3>
-              <p class="text-xs text-slate-600 mt-0.5">
-                Silently emails you every new member's <strong>Name &amp; Phone Number</strong> in the background—<strong>invisible to customers</strong> &amp; uses <strong>0 Netlify credits</strong>.
-              </p>
-            </div>
-            <label class="inline-flex items-center gap-2 bg-white px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-800 cursor-pointer">
-              <input type="checkbox" id="emailAlertEnabledInput" onchange="saveEmailAlertSettings()" class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
-              <span>Silent Auto-Email</span>
-            </label>
-          </div>
-          <div class="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-sky-200/60">
-            <span class="text-[11px] text-slate-600">
-              First time? Click <strong>Send Test Email</strong> once and click <em>Activate</em> in the email sent to <strong>hanallc07@gmail.com</strong>.
-            </span>
-            <button
-              type="button"
-              onclick="sendSilentTestEmail()"
-              class="px-3 py-1.5 rounded-xl bg-sky-700 hover:bg-sky-800 text-white text-xs font-bold transition shrink-0"
-            >
-              Send Test Email
-            </button>
-          </div>
-        </div>
-
-        <!-- Local Store Multi-Ad, Photo, Duration & Priority Manager -->
-        <div class="bg-amber-50/60 p-4 rounded-2xl border border-amber-200 space-y-4">
-          <div class="flex flex-wrap items-center justify-between gap-2">
-            <div>
-              <h3 class="font-bold text-slate-900 text-sm">Local Store Pop-Up Ads, Photos &amp; Priority</h3>
-              <p class="text-xs text-slate-600 mt-0.5">
-                Add multiple paid ads with photos, choose 5s/10s/15s/20s duration, and set Priority #1 to run first.
-              </p>
-            </div>
-            <label class="inline-flex items-center gap-2 bg-white px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-800 cursor-pointer">
-              <input type="checkbox" id="adGlobalEnabledInput" onchange="toggleGlobalAdsEnabled()" class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
-              <span>Ads Enabled</span>
-            </label>
-          </div>
-
-          <!-- Active Ads Priority Queue List -->
-          <div class="space-y-2">
-            <div class="flex items-center justify-between">
-              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-600">Scheduled Ads (Sorted by Priority #1 First)</span>
-              <button
-                type="button"
-                onclick="resetAdEditorForm()"
-                class="text-xs font-bold text-emerald-700 hover:text-emerald-800"
-              >
-                + New Ad
-              </button>
-            </div>
-            <div id="adminAdListContainer" class="space-y-2">
-              <!-- Populated dynamically -->
-            </div>
-          </div>
-
-          <!-- Add / Edit Local Ad Form -->
-          <form onsubmit="saveAdItem(event)" class="bg-white p-3.5 rounded-2xl border border-amber-200/80 space-y-3">
-            <input type="hidden" id="adEditIdInput" value="" />
-            <div class="flex items-center justify-between">
-              <span id="adFormModeLabel" class="text-xs font-extrabold text-slate-800">Add New Local Advertisement</span>
-              <select
-                id="adBillingStatusInput"
-                class="px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200 text-xs font-bold text-slate-800 focus:outline-none focus:border-emerald-500"
-              >
-                <option value="PAID">Paid Active</option>
-                <option value="DUE">Payment Due</option>
-                <option value="PAUSED">Paused</option>
-              </select>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
-              <div class="sm:col-span-6">
-                <label for="adSponsorNameInput" class="block text-[10px] font-bold uppercase text-slate-600 mb-1">
-                  Local Store / Advertiser Name
-                </label>
-                <input
-                  type="text"
-                  id="adSponsorNameInput"
-                  required
-                  placeholder="e.g., Lorain Fresh Bakery"
-                  class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-900 focus:outline-none focus:bg-white focus:border-emerald-500"
-                />
-              </div>
-              <div class="sm:col-span-3">
-                <label for="adDurationInput" class="block text-[10px] font-bold uppercase text-slate-600 mb-1">
-                  Display Time
-                </label>
-                <select
-                  id="adDurationInput"
-                  class="w-full px-2.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-900 focus:outline-none focus:bg-white focus:border-emerald-500"
-                >
-                  <option value="5">5 Seconds</option>
-                  <option value="10">10 Seconds</option>
-                  <option value="15">15 Seconds</option>
-                  <option value="20">20 Seconds</option>
-                </select>
-              </div>
-              <div class="sm:col-span-3">
-                <label for="adPriorityInput" class="block text-[10px] font-bold uppercase text-slate-600 mb-1">
-                  Priority (1 = First)
-                </label>
-                <input
-                  type="number"
-                  id="adPriorityInput"
-                  min="1"
-                  max="99"
-                  value="1"
-                  required
-                  class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-900 focus:outline-none focus:bg-white focus:border-emerald-500"
-                />
-              </div>
-            </div>
-
-            <!-- Ad Photo Upload or Image URL -->
-            <div class="space-y-1.5">
-              <label class="block text-[10px] font-bold uppercase text-slate-600">
-                Ad Photo / Flyer (Upload from Phone/PC or Paste Image URL)
-              </label>
-              <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
-                <div class="sm:col-span-5">
-                  <label class="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-dashed border-emerald-400 bg-emerald-50/60 hover:bg-emerald-50 text-emerald-800 text-xs font-bold cursor-pointer transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    <span>Upload Photo</span>
-                    <input type="file" id="adPhotoFileInput" accept="image/*" onchange="handleAdPhotoUpload(event)" class="hidden" />
-                  </label>
-                </div>
-                <div class="sm:col-span-7">
-                  <input
-                    type="text"
-                    id="adPhotoUrlInput"
-                    oninput="updateAdPhotoPreview()"
-                    placeholder="Or paste image URL (https://...)"
-                    class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-900 focus:outline-none focus:bg-white focus:border-emerald-500"
-                  />
-                </div>
-              </div>
-              <div id="adAdminPhotoPreviewBox" class="hidden relative rounded-xl overflow-hidden border border-slate-200 bg-slate-50 max-h-28 flex items-center justify-center">
-                <img id="adAdminPhotoPreviewImg" src="" alt="Ad preview" class="max-h-28 w-auto object-contain" />
-                <button
-                  type="button"
-                  onclick="clearAdPhotoInput()"
-                  class="absolute top-1.5 right-1.5 px-2 py-0.5 rounded-lg bg-slate-900/80 text-white text-[10px] font-bold"
-                >
-                  Remove Photo
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <label for="adMessageInput" class="block text-[10px] font-bold uppercase text-slate-600 mb-1">
-                Ad Offer / Promo Message
-              </label>
-              <input
-                type="text"
-                id="adMessageInput"
-                placeholder="e.g., 10% off fresh pastries with your Rexall reward card!"
-                class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-900 focus:outline-none focus:bg-white focus:border-emerald-500"
-              />
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-              <div>
-                <label for="adPhoneInput" class="block text-[10px] font-bold uppercase text-slate-600 mb-1">
-                  Store Phone / Address
-                </label>
-                <input
-                  type="text"
-                  id="adPhoneInput"
-                  placeholder="9810 Lorain Ave • 216-555-0144"
-                  class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-900 focus:outline-none focus:bg-white focus:border-emerald-500"
-                />
-              </div>
-              <div>
-                <label for="adMonthlyFeeInput" class="block text-[10px] font-bold uppercase text-slate-600 mb-1">
-                  Ad Charge ($ / Mo)
-                </label>
-                <input
-                  type="number"
-                  id="adMonthlyFeeInput"
-                  step="1"
-                  min="0"
-                  value="150"
-                  class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-900 focus:outline-none focus:bg-white focus:border-emerald-500"
-                />
-              </div>
-              <div>
-                <label for="adInvoiceEmailInput" class="block text-[10px] font-bold uppercase text-slate-600 mb-1">
-                  Billing Email
-                </label>
-                <input
-                  type="email"
-                  id="adInvoiceEmailInput"
-                  placeholder="advertiser@store.com"
-                  class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-900 focus:outline-none focus:bg-white focus:border-emerald-500"
-                />
-              </div>
-            </div>
-
-            <div class="flex flex-wrap items-center gap-2 pt-1">
-              <button type="submit" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition">
-                Save Ad
-              </button>
-              <button type="button" onclick="previewCurrentAdForm()" class="px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition">
-                Preview Ad
-              </button>
-              <button type="button" onclick="emailAdvertiserInvoice()" class="px-3.5 py-2 rounded-xl border border-amber-300 bg-amber-100/70 hover:bg-amber-100 text-amber-950 text-xs font-bold transition">
-                Email Ad Invoice
-              </button>
-            </div>
-          </form>
-        </div>
-
-        <!-- Change Admin Name & 6-Digit Store Secret PIN -->
-        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-3">
-          <div>
-            <h3 class="font-bold text-slate-900 text-sm">Two-Step Admin Credentials (Name &amp; 6-Digit PIN)</h3>
-            <p class="text-xs text-slate-500 mt-0.5">
-              Authorized Name: <span id="currentAdminNameDisplay" class="font-bold text-slate-800">aaravarayah</span> &bull;
-              Current PIN: <span id="currentPinDisplay" class="font-mono font-bold text-slate-800">123456</span>
-            </p>
-          </div>
-          <form onsubmit="handleUpdateAdminCredentials(event)" class="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
-            <div class="sm:col-span-5">
-              <input
-                type="text"
-                id="newAdminNameInput"
-                required
-                placeholder="Authorized Admin Name"
-                class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-xs sm:text-sm font-semibold text-slate-900 focus:outline-none focus:border-emerald-500"
-              />
-            </div>
-            <div class="sm:col-span-4">
-              <input
-                type="text"
-                id="newPinInput"
-                inputmode="numeric"
-                maxlength="6"
-                pattern="\d{6}"
-                required
-                placeholder="6-digit PIN"
-                class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-xs sm:text-sm font-mono font-bold tracking-widest text-slate-900 focus:outline-none focus:border-emerald-500"
-              />
-            </div>
-            <div class="sm:col-span-3">
-              <button type="submit" class="w-full py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition">
-                Save Credentials
-              </button>
-            </div>
-          </form>
-        </div>
-
-        <!-- Admin Transfer Customer Phone Number -->
-        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-3">
-          <div>
-            <h3 class="font-bold text-slate-900 text-sm">Transfer Customer Points to a New Phone Number</h3>
-            <p class="text-xs text-slate-500 mt-0.5">Move all points &amp; history from an old phone number to a new one.</p>
-          </div>
-          <form onsubmit="handleAdminTransferPhone(event)" class="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
-            <div class="sm:col-span-4">
-              <input
-                type="tel"
-                id="adminOldPhoneInput"
-                required
-                placeholder="Old Phone Number"
-                class="w-full px-3 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-medium text-slate-900 focus:outline-none focus:border-emerald-500"
-              />
-            </div>
-            <div class="sm:col-span-4">
-              <input
-                type="tel"
-                id="adminNewPhoneInput"
-                required
-                placeholder="New Phone Number"
-                class="w-full px-3 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-medium text-slate-900 focus:outline-none focus:border-emerald-500"
-              />
-            </div>
-            <div class="sm:col-span-4">
-              <button type="submit" class="w-full py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition">
-                Transfer Balance
-              </button>
-            </div>
-          </form>
-        </div>
-
-        <!-- Private Member Directory (Admin Only) -->
-        <div>
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
-            <h3 class="font-bold text-slate-900 text-sm">Private Customer Directory</h3>
-            <div class="flex items-center gap-2">
-              <input
-                type="text"
-                id="adminSearchInput"
-                oninput="renderAdminDirectory()"
-                placeholder="Search name or phone..."
-                class="px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:outline-none focus:border-emerald-500"
-              />
-              <button
-                type="button"
-                onclick="downloadCSVBackup()"
-                class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition shrink-0"
-              >
-                Export CSV
-              </button>
-            </div>
-          </div>
-
-          <div class="border border-slate-200 rounded-2xl overflow-hidden">
-            <div class="max-h-60 overflow-y-auto divide-y divide-slate-100" id="adminCustomerList">
-              <!-- Populated dynamically -->
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </div>
 
   <!-- ==================== MODAL: HOST DOWN CONVENIENCE POP-UP ==================== -->
   <div id="hostDownPopupModal" class="fixed inset-0 z-50 hidden bg-slate-950/75 backdrop-blur-xs flex items-center justify-center p-4">
@@ -1247,87 +441,166 @@
     </div>
   </div>
 
-  <!-- ==================== MODAL: CONFIRM PERMANENT CUSTOMER DELETION ==================== -->
-  <div id="deleteCustomerModal" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-rose-200 text-center space-y-4">
-      <div class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center mx-auto">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-        </svg>
+  <!-- ==================== MODAL: CHANGE PHONE NUMBER ==================== -->
+  <div id="changePhoneModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-xl border border-slate-200">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <h3 class="text-base font-bold text-slate-900">Change Customer Phone Number</h3>
+        <button type="button" onclick="closeChangePhoneModal()" class="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100">&times;</button>
       </div>
-      <div>
-        <h3 class="text-base sm:text-lg font-extrabold text-slate-900">Delete Customer Permanently?</h3>
-        <p id="deleteCustomerModalText" class="text-xs text-slate-600 mt-1.5 leading-relaxed">
-          This will permanently delete this member and all of their points and transaction history from your local device and cloud database.
-        </p>
+      <form onsubmit="handleCustomerChangePhone(event)" class="mt-4 space-y-4">
+        <div>
+          <label for="changePhoneNewInput" class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">New Phone Number</label>
+          <input type="tel" id="changePhoneNewInput" required placeholder="e.g., 216-555-8899" class="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm font-semibold text-slate-900" />
+        </div>
+        <div class="flex items-center justify-end gap-2 pt-2">
+          <button type="button" onclick="closeChangePhoneModal()" class="px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700">Cancel</button>
+          <button type="submit" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold">Transfer Points</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: FIRST-TIME BONUS POP-UP ==================== -->
+  <div id="welcomeBonusModal" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 sm:p-7 shadow-2xl border border-emerald-200 text-center">
+      <span class="inline-block px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-amber-100 text-amber-900">First-Time Member Gift</span>
+      <h3 class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-2.5">Welcome, <span id="welcomeBonusCustomerName" class="text-emerald-700">Member</span>!</h3>
+      <p class="text-xs sm:text-sm text-slate-600 mt-2">Thank you for joining <span class="font-bold text-slate-800">Rexall Discount Reward</span>! We added:</p>
+      <div class="my-4 py-3.5 px-4 rounded-2xl bg-emerald-50 border border-emerald-200/90">
+        <p id="welcomeBonusPointsHeadline" class="text-3xl font-extrabold text-emerald-700">+25 Bonus Points</p>
+        <p id="welcomeBonusPointsSubtext" class="text-[11px] font-semibold text-emerald-800 mt-0.5">Added automatically to your loyalty card</p>
       </div>
-      <div class="flex items-center gap-2.5 pt-1">
-        <button
-          type="button"
-          onclick="closeDeleteCustomerModal()"
-          class="flex-1 py-2.5 px-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition"
-        >
-          Cancel
-        </button>
-        <button
-          type="button"
-          onclick="confirmDeleteCustomerEverywhere()"
-          class="flex-1 py-2.5 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-xs transition"
-        >
-          Yes, Delete All
-        </button>
+      <p id="welcomeBonusReferralNote" class="hidden text-xs font-semibold text-amber-900 bg-amber-50 border border-amber-200/90 rounded-xl py-2 px-3 mb-4">
+        +25 Referral Bonus Points added to both you and your friend!
+      </p>
+      <button type="button" onclick="closeWelcomeBonusModal()" class="w-full py-3.5 px-5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm">
+        Awesome, View My Card!
+      </button>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: ADMIN CONSOLE ==================== -->
+  <div id="adminModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-5 sm:p-6 shadow-2xl border border-slate-200">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div>
+          <h2 class="text-base sm:text-lg font-extrabold text-slate-900">Store Admin &amp; Cashier Console</h2>
+          <p class="text-[11px] text-slate-500">Rexall Discount Reward &bull; Cloud &amp; Offline Management</p>
+        </div>
+        <button type="button" onclick="closeAdminModal()" class="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100">&times;</button>
+      </div>
+
+      <div id="adminPinGate" class="py-5 max-w-sm mx-auto">
+        <div class="text-center">
+          <h3 class="text-base font-bold text-slate-900">Two-Step Admin Verification</h3>
+          <p class="text-xs text-slate-500 mt-1">Enter your <strong>Admin Name</strong> and <strong>6-Digit Secret PIN</strong>.</p>
+        </div>
+        <form id="adminLoginForm" onsubmit="unlockAdminPanel(event)" class="mt-4 space-y-3">
+          <div>
+            <label for="adminUnlockNameInput" class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1">Admin Name</label>
+            <input type="text" id="adminUnlockNameInput" required placeholder="Enter Admin Name" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-semibold" />
+          </div>
+          <div>
+            <label for="adminUnlockPinInput" class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1">6-Digit PIN</label>
+            <input type="password" id="adminUnlockPinInput" inputmode="numeric" maxlength="6" pattern="\d{6}" required placeholder="••••••" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-center text-lg font-bold tracking-[0.35em]" />
+          </div>
+          <button type="submit" class="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm">Verify &amp; Unlock Admin</button>
+        </form>
+      </div>
+
+      <div id="adminForgotPinGate" class="hidden py-5 max-w-sm mx-auto space-y-3">
+        <button type="button" onclick="backToAdminGate()" class="text-xs font-bold text-slate-600">&larr; Back</button>
+      </div>
+
+      <div id="adminUnlockedContent" class="hidden pt-5 space-y-5">
+        <div class="grid grid-cols-3 gap-2.5">
+          <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/70">
+            <p class="text-[11px] font-bold uppercase text-slate-500">Members</p>
+            <p id="statTotalCustomers" class="text-xl font-extrabold text-slate-900 mt-0.5">0</p>
+          </div>
+          <div class="p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-200/70">
+            <p class="text-[11px] font-bold uppercase text-emerald-700">Active Pts</p>
+            <p id="statTotalPoints" class="text-xl font-extrabold text-emerald-800 mt-0.5">0</p>
+          </div>
+          <div class="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200/70">
+            <p class="text-[11px] font-bold uppercase text-amber-800">Redeemed</p>
+            <p id="statTotalRedeemed" class="text-xl font-extrabold text-amber-900 mt-0.5">$0</p>
+          </div>
+        </div>
+
+        <div class="bg-emerald-50/60 p-4 rounded-2xl border border-emerald-200 space-y-3">
+          <h3 class="font-bold text-slate-900 text-sm">Cashier Checkout: Add / Redeem Points</h3>
+          <input type="text" id="adminPosSearchInput" oninput="searchPosCustomers()" placeholder="Type customer phone or name..." class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-xs sm:text-sm" />
+          <div id="adminPosSearchResults" class="hidden bg-white border border-slate-200 rounded-xl divide-y divide-slate-100 max-h-40 overflow-y-auto"></div>
+          <div id="adminPosSelectedBox" class="hidden bg-white p-4 rounded-2xl border border-emerald-200 space-y-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <p id="posSelectedName" class="text-sm font-extrabold text-slate-900">Member</p>
+                <p id="posSelectedPhone" class="text-xs text-slate-500">555-000-0000</p>
+              </div>
+              <span id="posSelectedPoints" class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-extrabold">0 pts</span>
+            </div>
+            <p id="posSelectedValue" class="text-[11px] text-slate-500">$0.00 value</p>
+            <form onsubmit="handleAdminPosAddPoints(event)" class="flex gap-2">
+              <input type="number" id="posPurchaseAmountInput" step="0.01" min="0.50" required placeholder="Purchase $" oninput="updatePosPointsPreview()" class="flex-1 px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-sm font-semibold" />
+              <button type="submit" class="px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold">+ Add <span id="posLivePointsPreview">0</span> pts</button>
+            </form>
+            <div class="grid grid-cols-3 gap-2">
+              <button type="button" id="posRedeemBtn100" onclick="handleAdminPosRedeem(100, 1)" class="py-2 rounded-xl border bg-slate-50 text-xs font-bold">$1 Off (100)</button>
+              <button type="button" id="posRedeemBtn500" onclick="handleAdminPosRedeem(500, 5)" class="py-2 rounded-xl border bg-slate-50 text-xs font-bold">$5 Off (500)</button>
+              <button type="button" id="posRedeemBtn1000" onclick="handleAdminPosRedeem(1000, 10)" class="py-2 rounded-xl border bg-slate-50 text-xs font-bold">$10 Off (1000)</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="border border-slate-200 rounded-2xl overflow-hidden">
+          <div class="p-3 bg-slate-50 border-b flex items-center justify-between gap-2">
+            <span class="text-xs font-bold text-slate-800">Customer Directory</span>
+            <div class="flex items-center gap-2">
+              <input type="text" id="adminSearchInput" oninput="renderAdminDirectory()" placeholder="Search..." class="px-2.5 py-1 rounded-lg border text-xs bg-white" />
+              <button type="button" onclick="downloadCSVBackup()" class="px-3 py-1 rounded-lg bg-slate-900 text-white text-xs font-bold">CSV</button>
+            </div>
+          </div>
+          <div class="max-h-52 overflow-y-auto divide-y divide-slate-100" id="adminCustomerList"></div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- ==================== MODAL: WERE YOU REFERRED BY ANYBODY? ==================== -->
-  <div id="referralAskModal" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-amber-200 text-center space-y-4 relative overflow-hidden">
-      <div class="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-amber-400 via-emerald-500 to-amber-400"></div>
-
-      <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center mx-auto">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-        </svg>
+  <!-- ==================== MODAL: CONFIRM DELETE ==================== -->
+  <div id="deleteCustomerModal" class="fixed inset-0 z-50 hidden bg-slate-950/70 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-rose-200 text-center space-y-4">
+      <h3 class="text-base font-extrabold text-slate-900">Delete Customer Permanently?</h3>
+      <p id="deleteCustomerModalText" class="text-xs text-slate-600"></p>
+      <div class="flex items-center gap-2.5">
+        <button type="button" onclick="closeDeleteCustomerModal()" class="flex-1 py-2.5 rounded-xl border text-xs font-bold">Cancel</button>
+        <button type="button" onclick="confirmDeleteCustomerEverywhere()" class="flex-1 py-2.5 rounded-xl bg-rose-600 text-white text-xs font-bold">Yes, Delete</button>
       </div>
+    </div>
+  </div>
 
-      <div>
-        <h3 class="text-base sm:text-lg font-extrabold text-slate-900">Were You Referred by Anybody?</h3>
-        <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">
-          If a friend invited you to <strong class="text-slate-800">Rexall Discount Reward</strong>, enter their phone number so <strong class="text-emerald-700">both of you earn +25 Bonus Points</strong>!
-        </p>
-      </div>
-
-      <div class="flex flex-col sm:flex-row items-center gap-2.5 pt-1">
-        <button
-          type="button"
-          onclick="chooseHasReferrer()"
-          class="w-full sm:flex-1 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition active:scale-95"
-        >
-          Yes, Enter Number
-        </button>
-        <button
-          type="button"
-          onclick="chooseNoReferrerAndRegister()"
-          class="w-full sm:flex-1 py-3 px-4 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-800 text-xs font-bold transition active:scale-95"
-        >
-          No, Proceed
-        </button>
+  <!-- ==================== MODAL: REFERRAL PROMPT ==================== -->
+  <div id="referralAskModal" class="fixed inset-0 z-50 hidden bg-slate-950/70 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-amber-200 text-center space-y-4">
+      <h3 class="text-base font-extrabold text-slate-900">Were You Referred by Anybody?</h3>
+      <p class="text-xs text-slate-600">Enter your friend's phone number so <strong>both of you earn +25 Bonus Points</strong>!</p>
+      <div class="flex gap-2.5">
+        <button type="button" onclick="chooseHasReferrer()" class="flex-1 py-3 rounded-xl bg-emerald-600 text-white text-xs font-bold">Yes, Enter Number</button>
+        <button type="button" onclick="chooseNoReferrerAndRegister()" class="flex-1 py-3 rounded-xl border bg-slate-50 text-slate-800 text-xs font-bold">No, Proceed</button>
       </div>
     </div>
   </div>
 
   <!-- Toast Notification Banner -->
-  <div id="toastBanner" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 hidden max-w-md w-[92%] px-4 py-3 rounded-2xl shadow-lg text-xs sm:text-sm font-semibold text-white flex items-center justify-between gap-3 transition-all">
+  <div id="toastBanner" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 hidden max-w-md w-[92%] px-4 py-3 rounded-2xl shadow-lg text-xs sm:text-sm font-semibold text-white">
     <span id="toastMessage">Notification</span>
   </div>
 
-  <!-- Firebase SDK (Compat v10 for single-file HTML reliability) -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
   <script>
-    // Pre-installed Firebase Configuration for rexall-reward
     const FIREBASE_CONFIG = {
       apiKey: "AIzaSyD_eAv4AHiYCg6zif08hbv4pvYxtlic3j8",
       authDomain: "rexall-reward.firebaseapp.com",
@@ -1337,12 +610,12 @@
       appId: "1:822129140931:web:4be79d901dc16422836e76"
     };
 
-    // Points Rate ($1 Spent = 2 Loyalty Points; 100 pts = $1 Off)
     const POINTS_PER_DOLLAR = 2;
     const FIRST_TIME_BONUS_POINTS = 25;
     const REFERRAL_BONUS_POINTS = 25;
+    const OWNER_RECOVERY_EMAIL = 'hanallc07@gmail.com';
 
-    // Multi-Host Redundancy Mirrors (All connected to the same Firebase database)
+    // Priority order: #1 GitHub Pages -> #2 Cloudflare -> #3 Netlify
     const BACKUP_HOST_MIRRORS = [
       { name: 'GitHub Pages', url: 'https://hanallc07-dot.github.io/rexall-reward/' },
       { name: 'Cloudflare', url: 'https://rexall-reward.hanallc07.workers.dev/' },
@@ -1351,7 +624,6 @@
 
     let pendingFailoverMirror = null;
 
-    // Local Storage Keys
     const STORAGE_KEYS = {
       CUSTOMERS: 'rexall_loyalty_customers_v1',
       TRANSACTIONS: 'rexall_loyalty_txns_v1',
@@ -1363,10 +635,6 @@
       EXPIRATION_CONFIG: 'rexall_loyalty_expiration_config_v1'
     };
 
-    // Owner Recovery Email
-    const OWNER_RECOVERY_EMAIL = 'hanallc07@gmail.com';
-
-    // Application State
     let db = null;
     let customers = {};
     let transactions = [];
@@ -1375,18 +643,9 @@
     let activePhone = null;
     let selectedPosPhone = null;
     let currentHistoryFilter = 'ALL';
-    let generatedRecoveryCode = null;
-    let knownCustomerKeys = new Set();
     let alertConfig = { enabled: true };
-    let adConfig = {
-      enabled: false,
-      ads: []
-    };
-    let expirationConfig = {
-      enabled: false,
-      inactiveDays: 90,
-      pointsPerCycle: 25
-    };
+    let adConfig = { enabled: false, ads: [] };
+    let expirationConfig = { enabled: false, inactiveDays: 90, pointsPerCycle: 25 };
     let pendingDeletePhone = null;
     let skipReferralPromptOnce = false;
     let activeAdQueue = [];
@@ -1395,7 +654,6 @@
     let adSecondsRemaining = 5;
     let toastTimeout = null;
 
-    // ==================== MULTI-HOST AUTOMATIC FAILOVER ====================
     function getCurrentMirrorLabel() {
       const origin = window.location.origin.toLowerCase();
       if (origin.includes('github.io')) return 'GitHub Pages';
@@ -1408,12 +666,7 @@
       try {
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), 3500);
-        await fetch(targetUrl, {
-          method: 'HEAD',
-          mode: 'no-cors',
-          cache: 'no-store',
-          signal: controller.signal
-        });
+        await fetch(targetUrl, { method: 'HEAD', mode: 'no-cors', cache: 'no-store', signal: controller.signal });
         clearTimeout(timer);
         return true;
       } catch (err) {
@@ -1452,6 +705,28 @@
       }
     }
 
+    async function routeToFirstHealthyMirror(showPopupIfCurrentDown = false) {
+      for (const mirror of BACKUP_HOST_MIRRORS) {
+        const ok = await checkHostIsReachable(mirror.url);
+        if (ok) {
+          try {
+            const currentUrl = new URL(window.location.href);
+            const targetUrl = new URL(mirror.url);
+            if (currentUrl.origin.toLowerCase() === targetUrl.origin.toLowerCase() && currentUrl.pathname === targetUrl.pathname) {
+              return;
+            }
+          } catch (e) {}
+
+          if (showPopupIfCurrentDown) {
+            openHostDownPopup(mirror);
+          } else {
+            window.location.href = buildMirrorRedirectUrl(mirror.url);
+          }
+          return;
+        }
+      }
+    }
+
     async function switchToHealthyBackupServer(manualTrigger = false, showConveniencePopup = false) {
       const currentOrigin = window.location.origin.toLowerCase();
       const candidates = BACKUP_HOST_MIRRORS.filter((m) => {
@@ -1462,9 +737,7 @@
         }
       });
 
-      if (manualTrigger) {
-        showToast('Checking running backup web app...');
-      }
+      if (manualTrigger) showToast('Checking running backup web app...');
 
       for (const mirror of candidates) {
         const ok = await checkHostIsReachable(mirror.url);
@@ -1478,54 +751,40 @@
         }
       }
 
-      if (manualTrigger) {
-        showToast('All backup hosts checked—current connection is active.');
-      }
+      if (manualTrigger) showToast('All backup hosts checked—current connection is active.');
     }
 
     function monitorHostHealthAndAutoFailover() {
       const badge = document.getElementById('currentHostBadge');
       if (badge) badge.textContent = getCurrentMirrorLabel();
-
       if (!window.location.protocol.startsWith('http')) return;
 
       try {
         const params = new URLSearchParams(window.location.search);
         if (params.get('target') === 'first-healthy') {
-          switchToHealthyBackupServer(false, false);
+          routeToFirstHealthyMirror(false);
           return;
         }
         if (params.get('switched') === '1') {
           showToast(`Connected via ${getCurrentMirrorLabel()}—you can log in or register now.`);
         }
-      } catch (e) {
-        // Ignore URL param errors
-      }
+      } catch (e) {}
 
       fetch(window.location.href.split('#')[0], { method: 'HEAD', cache: 'no-store' })
         .then((res) => {
-          if (!res.ok && res.status >= 400) {
-            switchToHealthyBackupServer(false, true);
-          }
+          if (!res.ok && res.status >= 400) routeToFirstHealthyMirror(true);
         })
-        .catch(() => {
-          switchToHealthyBackupServer(false, true);
-        });
+        .catch(() => routeToFirstHealthyMirror(true));
     }
 
-    // ==================== UTILITY HELPERS ====================
     function normalizePhone(raw) {
       return String(raw || '').replace(/\D/g, '');
     }
 
     function formatPhoneDisplay(raw) {
       const digits = normalizePhone(raw);
-      if (digits.length === 10) {
-        return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
-      }
-      if (digits.length === 11 && digits.startsWith('1')) {
-        return `+1 ${digits.slice(1, 4)}-${digits.slice(4, 7)}-${digits.slice(7)}`;
-      }
+      if (digits.length === 10) return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+      if (digits.length === 11 && digits.startsWith('1')) return `+1 ${digits.slice(1, 4)}-${digits.slice(4, 7)}-${digits.slice(7)}`;
       return raw || '';
     }
 
@@ -1542,19 +801,10 @@
       const banner = document.getElementById('toastBanner');
       const msgEl = document.getElementById('toastMessage');
       if (!banner || !msgEl) return;
-
       msgEl.textContent = message;
-      banner.classList.remove('hidden', 'bg-slate-900', 'bg-emerald-700', 'bg-rose-600');
-      if (type === 'error') {
-        banner.classList.add('bg-rose-600');
-      } else {
-        banner.classList.add('bg-slate-900');
-      }
-
+      banner.className = `fixed bottom-5 left-1/2 -translate-x-1/2 z-50 max-w-md w-[92%] px-4 py-3 rounded-2xl shadow-lg text-xs sm:text-sm font-semibold text-white ${type === 'error' ? 'bg-rose-600' : 'bg-slate-900'}`;
       if (toastTimeout) clearTimeout(toastTimeout);
-      toastTimeout = setTimeout(() => {
-        banner.classList.add('hidden');
-      }, 3600);
+      toastTimeout = setTimeout(() => banner.classList.add('hidden'), 3600);
     }
 
     function updateSyncStatus(isOnline, label) {
@@ -1562,67 +812,42 @@
       const dot = document.getElementById('syncStatusDot');
       const text = document.getElementById('syncStatusText');
       if (!badge || !dot || !text) return;
-
       text.textContent = label;
       badge.className = isOnline
         ? 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800'
         : 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-800';
-      dot.className = isOnline
-        ? 'w-2 h-2 rounded-full bg-emerald-500'
-        : 'w-2 h-2 rounded-full bg-amber-500';
+      dot.className = isOnline ? 'w-2 h-2 rounded-full bg-emerald-500' : 'w-2 h-2 rounded-full bg-amber-500';
     }
 
-    // ==================== LOCAL STORAGE PERSISTENCE ====================
     function loadStateFromStorage() {
       try {
-        const storedCustomers = localStorage.getItem(STORAGE_KEYS.CUSTOMERS);
-        const storedTxns = localStorage.getItem(STORAGE_KEYS.TRANSACTIONS);
-        const storedPin = localStorage.getItem(STORAGE_KEYS.PIN);
-        const storedAdminName = localStorage.getItem(STORAGE_KEYS.ADMIN_NAME);
-        const storedAlerts = localStorage.getItem(STORAGE_KEYS.ALERT_CONFIG);
-        const storedAd = localStorage.getItem(STORAGE_KEYS.AD_CONFIG);
-        const storedExpiration = localStorage.getItem(STORAGE_KEYS.EXPIRATION_CONFIG);
-        const storedActive = localStorage.getItem(STORAGE_KEYS.ACTIVE_PHONE);
+        const c = localStorage.getItem(STORAGE_KEYS.CUSTOMERS);
+        const t = localStorage.getItem(STORAGE_KEYS.TRANSACTIONS);
+        const p = localStorage.getItem(STORAGE_KEYS.PIN);
+        const a = localStorage.getItem(STORAGE_KEYS.ADMIN_NAME);
+        const al = localStorage.getItem(STORAGE_KEYS.ALERT_CONFIG);
+        const ad = localStorage.getItem(STORAGE_KEYS.AD_CONFIG);
+        const ex = localStorage.getItem(STORAGE_KEYS.EXPIRATION_CONFIG);
+        const act = localStorage.getItem(STORAGE_KEYS.ACTIVE_PHONE);
 
-        if (storedCustomers) {
-          customers = JSON.parse(storedCustomers) || {};
-          knownCustomerKeys = new Set(Object.keys(customers));
+        if (c) customers = JSON.parse(c) || {};
+        if (t) transactions = JSON.parse(t) || [];
+        if (p && /^\d{6}$/.test(p)) secretPin = p;
+        if (a && a.trim()) adminName = a.trim();
+        if (al) alertConfig = JSON.parse(al) || { enabled: true };
+        if (ad) {
+          const parsed = JSON.parse(ad);
+          adConfig = parsed && Array.isArray(parsed.ads) ? parsed : { enabled: false, ads: [] };
         }
-        if (storedTxns) {
-          transactions = JSON.parse(storedTxns) || [];
+        if (ex) {
+          const parsedEx = JSON.parse(ex);
+          if (parsedEx) expirationConfig = { ...expirationConfig, ...parsedEx };
         }
-        if (storedPin && /^\d{6}$/.test(storedPin)) {
-          secretPin = storedPin;
+        if (act) {
+          const norm = normalizePhone(act);
+          if (norm && customers[norm]) activePhone = norm;
         }
-        if (storedAdminName && storedAdminName.trim()) {
-          adminName = storedAdminName.trim();
-        }
-        if (storedAlerts) {
-          alertConfig = JSON.parse(storedAlerts) || { enabled: false };
-        }
-        if (storedAd) {
-          const parsedAd = JSON.parse(storedAd);
-          adConfig = normalizeAdConfigStructure(parsedAd);
-        }
-        if (storedExpiration) {
-          const parsedExp = JSON.parse(storedExpiration);
-          if (parsedExp && typeof parsedExp === 'object') {
-            expirationConfig = {
-              enabled: Boolean(parsedExp.enabled),
-              inactiveDays: Math.max(1, Number(parsedExp.inactiveDays || 90)),
-              pointsPerCycle: Math.max(1, Number(parsedExp.pointsPerCycle || 25))
-            };
-          }
-        }
-        if (storedActive) {
-          const normActive = normalizePhone(storedActive);
-          if (normActive && customers[normActive]) {
-            activePhone = normActive;
-          }
-        }
-      } catch (err) {
-        console.error('Failed to load local storage state:', err);
-      }
+      } catch (err) {}
     }
 
     function saveStateToStorage() {
@@ -1634,17 +859,11 @@
         localStorage.setItem(STORAGE_KEYS.ALERT_CONFIG, JSON.stringify(alertConfig));
         localStorage.setItem(STORAGE_KEYS.AD_CONFIG, JSON.stringify(adConfig));
         localStorage.setItem(STORAGE_KEYS.EXPIRATION_CONFIG, JSON.stringify(expirationConfig));
-        if (activePhone) {
-          localStorage.setItem(STORAGE_KEYS.ACTIVE_PHONE, activePhone);
-        } else {
-          localStorage.removeItem(STORAGE_KEYS.ACTIVE_PHONE);
-        }
-      } catch (err) {
-        console.error('Failed to save local storage state:', err);
-      }
+        if (activePhone) localStorage.setItem(STORAGE_KEYS.ACTIVE_PHONE, activePhone);
+        else localStorage.removeItem(STORAGE_KEYS.ACTIVE_PHONE);
+      } catch (err) {}
     }
 
-    // ==================== FIREBASE CLOUD SYNC ====================
     async function persistCustomerToCloud(phoneKey, customerObj) {
       if (!db || !phoneKey || !customerObj) return;
       try {
@@ -1656,22 +875,15 @@
           referralCount: Number(customerObj.referralCount || 0),
           referredBy: customerObj.referredBy || '',
           createdAt: customerObj.createdAt || new Date().toISOString(),
-          lastActivityAt: customerObj.lastActivityAt || customerObj.updatedAt || customerObj.createdAt || new Date().toISOString(),
-          lastExpirationAt: customerObj.lastExpirationAt || '',
+          lastActivityAt: customerObj.lastActivityAt || new Date().toISOString(),
           updatedAt: new Date().toISOString()
         }, { merge: true });
-      } catch (err) {
-        console.error('Firestore customer write failed:', err);
-      }
+      } catch (err) {}
     }
 
     async function deleteCustomerFromCloud(phoneKey) {
       if (!db || !phoneKey) return;
-      try {
-        await db.collection('rexall_customers').doc(phoneKey).delete();
-      } catch (err) {
-        console.error('Firestore customer delete failed:', err);
-      }
+      try { await db.collection('rexall_customers').doc(phoneKey).delete(); } catch (err) {}
     }
 
     async function deleteCustomerTransactionsFromCloud(phoneKey) {
@@ -1683,9 +895,7 @@
           snap.forEach((doc) => batch.delete(doc.ref));
           await batch.commit();
         }
-      } catch (err) {
-        console.error('Firestore customer transactions delete failed:', err);
-      }
+      } catch (err) {}
     }
 
     async function persistTransactionToCloud(txnObj) {
@@ -1700,69 +910,24 @@
           note: txnObj.note || '',
           timestamp: txnObj.timestamp || new Date().toISOString()
         }, { merge: true });
-      } catch (err) {
-        console.error('Firestore transaction write failed:', err);
-      }
-    }
-
-    async function persistStoreSettingsToCloud() {
-      if (!db) return;
-      try {
-        await db.collection('rexall_settings').doc('store_config').set({
-          adminName: adminName,
-          secretPin: secretPin,
-          alertConfig: alertConfig,
-          adConfig: adConfig,
-          expirationConfig: expirationConfig,
-          updatedAt: new Date().toISOString()
-        }, { merge: true });
-      } catch (err) {
-        console.error('Firestore store settings write failed:', err);
-      }
+      } catch (err) {}
     }
 
     function initFirebaseSync() {
       try {
-        if (!window.firebase) {
-          updateSyncStatus(false, 'Local Only');
-          return;
-        }
-        if (!firebase.apps.length) {
-          firebase.initializeApp(FIREBASE_CONFIG);
-        }
+        if (!window.firebase) { updateSyncStatus(false, 'Local Only'); return; }
+        if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
         db = firebase.firestore();
         updateSyncStatus(true, 'Cloud Synced');
 
         db.collection('rexall_settings').doc('store_config').onSnapshot((doc) => {
           if (doc.exists) {
-            const data = doc.data() || {};
-            if (data.adminName && String(data.adminName).trim()) {
-              adminName = String(data.adminName).trim();
-            }
-            if (data.secretPin && /^\d{6}$/.test(String(data.secretPin))) {
-              secretPin = String(data.secretPin);
-            }
-            if (data.alertConfig && typeof data.alertConfig === 'object') {
-              alertConfig = data.alertConfig;
-            }
-            if (data.adConfig && typeof data.adConfig === 'object') {
-              adConfig = normalizeAdConfigStructure(data.adConfig);
-            }
-            if (data.expirationConfig && typeof data.expirationConfig === 'object') {
-              expirationConfig = {
-                enabled: Boolean(data.expirationConfig.enabled),
-                inactiveDays: Math.max(1, Number(data.expirationConfig.inactiveDays || 90)),
-                pointsPerCycle: Math.max(1, Number(data.expirationConfig.pointsPerCycle || 25))
-              };
-            }
+            const d = doc.data() || {};
+            if (d.adminName) adminName = String(d.adminName).trim();
+            if (d.secretPin && /^\d{6}$/.test(String(d.secretPin))) secretPin = String(d.secretPin);
+            if (d.adConfig && typeof d.adConfig === 'object') adConfig = d.adConfig;
             saveStateToStorage();
-            refreshAdminCredentialsUI();
-            populateAlertSettingsForm();
-            populateAdSettingsForm();
-            populateExpirationSettingsForm();
           }
-        }, (err) => {
-          console.error('Settings listener error:', err);
         });
 
         db.collection('rexall_customers').onSnapshot((snapshot) => {
@@ -1779,32 +944,17 @@
                 referralCount: Number(d.referralCount || 0),
                 referredBy: d.referredBy || '',
                 createdAt: d.createdAt || new Date().toISOString(),
-                lastActivityAt: d.lastActivityAt || d.updatedAt || d.createdAt || new Date().toISOString(),
-                lastExpirationAt: d.lastExpirationAt || ''
+                lastActivityAt: d.lastActivityAt || new Date().toISOString()
               };
             }
           });
-
           customers = cloudCustomers;
-          knownCustomerKeys = new Set(Object.keys(customers));
           saveStateToStorage();
-
-          runPointsExpirationCheck(false);
-
-          if (activePhone && customers[activePhone]) {
-            renderDashboard();
-          } else if (activePhone && !customers[activePhone]) {
-            activePhone = null;
-            saveStateToStorage();
-            showLoginView();
-          }
+          if (activePhone && customers[activePhone]) renderDashboard();
           if (!document.getElementById('adminUnlockedContent').classList.contains('hidden')) {
             renderAdminStatsAndDirectory();
             refreshSelectedPosCustomer();
           }
-        }, (err) => {
-          console.error('Customers listener error:', err);
-          updateSyncStatus(false, 'Local Only');
         });
 
         db.collection('rexall_transactions').orderBy('timestamp', 'desc').limit(500).onSnapshot((snapshot) => {
@@ -1823,29 +973,17 @@
           });
           transactions = cloudTxns;
           saveStateToStorage();
-          if (activePhone && customers[activePhone]) {
-            renderCustomerHistory();
-          }
-        }, (err) => {
-          console.error('Transactions listener error:', err);
+          if (activePhone && customers[activePhone]) renderCustomerHistory();
         });
       } catch (err) {
-        console.error('Firebase init failed:', err);
         updateSyncStatus(false, 'Local Only');
       }
     }
 
-    // ==================== CUSTOMER LOGIN & REGISTRATION ====================
     async function handlePhoneCheck(event) {
       event.preventDefault();
-      const rawPhone = document.getElementById('inputPhoneNumber').value;
-      const normPhone = normalizePhone(rawPhone);
-
-      if (normPhone.length < 7) {
-        showToast('Please enter a valid 10-digit phone number.', 'error');
-        return;
-      }
-
+      const normPhone = normalizePhone(document.getElementById('inputPhoneNumber').value);
+      if (normPhone.length < 7) { showToast('Please enter a valid phone number.', 'error'); return; }
       if (customers[normPhone]) {
         activePhone = normPhone;
         saveStateToStorage();
@@ -1853,63 +991,21 @@
         showToast(`Welcome back, ${customers[normPhone].name}!`);
         return;
       }
-
-      if (db) {
-        try {
-          const docSnap = await db.collection('rexall_customers').doc(normPhone).get();
-          if (docSnap.exists) {
-            const d = docSnap.data() || {};
-            customers[normPhone] = {
-              name: d.name || 'Member',
-              phone: normPhone,
-              points: Math.max(0, Number(d.points || 0)),
-              totalRedeemedDollars: Number(d.totalRedeemedDollars || 0),
-              referralCount: Number(d.referralCount || 0),
-              referredBy: d.referredBy || '',
-              createdAt: d.createdAt || new Date().toISOString(),
-              lastActivityAt: d.lastActivityAt || d.updatedAt || d.createdAt || new Date().toISOString(),
-              lastExpirationAt: d.lastExpirationAt || ''
-            };
-            activePhone = normPhone;
-            saveStateToStorage();
-            showDashboardView();
-            showToast(`Welcome back, ${customers[normPhone].name}!`);
-            return;
-          }
-        } catch (err) {
-          console.error('Firestore phone lookup error:', err);
-        }
-      }
-
       document.getElementById('phoneLookupStep').classList.add('hidden');
       document.getElementById('registerStep').classList.remove('hidden');
       document.getElementById('regPhoneNumber').value = formatPhoneDisplay(normPhone);
-      const refInput = document.getElementById('regReferrerPhone');
-      if (refInput && !refInput.dataset.fromUrl) {
-        refInput.value = '';
-      }
-      skipReferralPromptOnce = false;
       document.getElementById('regFullName').focus();
     }
 
     function backToPhoneLookup() {
       skipReferralPromptOnce = false;
-      const refInput = document.getElementById('regReferrerPhone');
-      if (refInput && !refInput.dataset.fromUrl) {
-        refInput.value = '';
-      }
       document.getElementById('registerStep').classList.add('hidden');
       document.getElementById('phoneLookupStep').classList.remove('hidden');
-      document.getElementById('inputPhoneNumber').focus();
     }
 
     function chooseHasReferrer() {
       document.getElementById('referralAskModal').classList.add('hidden');
-      const refInput = document.getElementById('regReferrerPhone');
-      if (refInput) {
-        refInput.classList.add('ring-2', 'ring-amber-400', 'border-amber-400', 'bg-amber-50/40');
-        refInput.focus();
-      }
+      document.getElementById('regReferrerPhone').focus();
     }
 
     function chooseNoReferrerAndRegister() {
@@ -1921,108 +1017,41 @@
     async function handleNewRegistration(event) {
       event.preventDefault();
       const fullName = document.getElementById('regFullName').value.trim();
-      const rawPhone = document.getElementById('regPhoneNumber').value;
-      const normPhone = normalizePhone(rawPhone);
-      const rawReferrer = document.getElementById('regReferrerPhone').value;
-      const normReferrer = normalizePhone(rawReferrer);
-
-      if (!fullName) {
-        showToast('Please enter your full name.', 'error');
-        return;
-      }
-      if (normPhone.length < 7) {
-        showToast('Please enter a valid phone number.', 'error');
-        return;
-      }
-
+      const normPhone = normalizePhone(document.getElementById('regPhoneNumber').value);
+      const normReferrer = normalizePhone(document.getElementById('regReferrerPhone').value);
+      if (!fullName || normPhone.length < 7) return;
       if (!normReferrer && !skipReferralPromptOnce) {
         document.getElementById('referralAskModal').classList.remove('hidden');
         return;
       }
-
       await executeCustomerRegistration();
     }
 
     async function executeCustomerRegistration() {
       skipReferralPromptOnce = false;
       const fullName = document.getElementById('regFullName').value.trim();
-      const rawPhone = document.getElementById('regPhoneNumber').value;
-      const normPhone = normalizePhone(rawPhone);
-      const rawReferrer = document.getElementById('regReferrerPhone').value;
-      const normReferrer = normalizePhone(rawReferrer);
-
+      const normPhone = normalizePhone(document.getElementById('regPhoneNumber').value);
+      const normReferrer = normalizePhone(document.getElementById('regReferrerPhone').value);
       if (!fullName || normPhone.length < 7) return;
 
-      if (customers[normPhone]) {
-        activePhone = normPhone;
-        saveStateToStorage();
-        showDashboardView();
-        showToast('This phone number is already registered—signed you in!');
-        return;
-      }
-      if (db) {
-        try {
-          const existingSnap = await db.collection('rexall_customers').doc(normPhone).get();
-          if (existingSnap.exists) {
-            const d = existingSnap.data() || {};
-            customers[normPhone] = {
-              name: d.name || fullName,
-              phone: normPhone,
-              points: Math.max(0, Number(d.points || 0)),
-              totalRedeemedDollars: Number(d.totalRedeemedDollars || 0),
-              referralCount: Number(d.referralCount || 0),
-              referredBy: d.referredBy || '',
-              createdAt: d.createdAt || new Date().toISOString(),
-              lastActivityAt: d.lastActivityAt || d.updatedAt || d.createdAt || new Date().toISOString(),
-              lastExpirationAt: d.lastExpirationAt || ''
-            };
-            activePhone = normPhone;
-            saveStateToStorage();
-            showDashboardView();
-            showToast('This phone number is already registered—signed you in!');
-            return;
-          }
-        } catch (err) {
-          console.error('Duplicate check failed:', err);
-        }
-      }
-
       let validReferrer = null;
-      if (normReferrer) {
-        if (normReferrer === normPhone) {
-          showToast('You cannot use your own phone number as a referral.', 'error');
-          return;
-        }
-        if (customers[normReferrer]) {
-          validReferrer = customers[normReferrer];
-        } else {
-          showToast('That referrer phone number is not registered yet—check the number or tap No.', 'error');
-          return;
-        }
+      if (normReferrer && normReferrer !== normPhone && customers[normReferrer]) {
+        validReferrer = customers[normReferrer];
       }
 
-      const formattedPhone = formatPhoneDisplay(normPhone);
-      const newCustomerStartingPoints = FIRST_TIME_BONUS_POINTS + (validReferrer ? REFERRAL_BONUS_POINTS : 0);
       const nowIso = new Date().toISOString();
-
-      const newCustomer = {
+      const totalStartPts = FIRST_TIME_BONUS_POINTS + (validReferrer ? REFERRAL_BONUS_POINTS : 0);
+      const newCust = {
         name: fullName,
-        fullName: fullName,
         phone: normPhone,
-        formattedPhone: formattedPhone,
-        points: newCustomerStartingPoints,
+        points: totalStartPts,
         totalRedeemedDollars: 0,
         referralCount: 0,
         referredBy: validReferrer ? normReferrer : '',
-        referredByName: validReferrer ? (validReferrer.name || formatPhoneDisplay(normReferrer)) : '',
         createdAt: nowIso,
-        lastActivityAt: nowIso,
-        lastExpirationAt: '',
-        updatedAt: nowIso
+        lastActivityAt: nowIso
       };
-
-      customers[normPhone] = newCustomer;
-      knownCustomerKeys.add(normPhone);
+      customers[normPhone] = newCust;
 
       const welcomeTxn = {
         id: `${Date.now()}_welcome_${normPhone}`,
@@ -2035,67 +1064,26 @@
       };
       transactions.unshift(welcomeTxn);
 
-      await persistCustomerToCloud(normPhone, newCustomer);
+      await persistCustomerToCloud(normPhone, newCust);
       await persistTransactionToCloud(welcomeTxn);
 
       if (validReferrer) {
-        const newRefTxn = {
-          id: `${Date.now()}_refnew_${normPhone}`,
-          phone: normPhone,
-          type: 'EARNED',
-          pointsDelta: REFERRAL_BONUS_POINTS,
-          dollars: 0,
-          note: `Referral Bonus (Invited by ${validReferrer.name})`,
-          timestamp: nowIso
-        };
-        transactions.unshift(newRefTxn);
-        await persistTransactionToCloud(newRefTxn);
-
         validReferrer.points = Number(validReferrer.points || 0) + REFERRAL_BONUS_POINTS;
         validReferrer.referralCount = Number(validReferrer.referralCount || 0) + 1;
-        validReferrer.lastActivityAt = nowIso;
-        validReferrer.updatedAt = nowIso;
-        customers[normReferrer] = validReferrer;
-
-        const referrerTxn = {
-          id: `${Date.now()}_refhost_${normReferrer}_${normPhone}`,
-          phone: normReferrer,
-          type: 'EARNED',
-          pointsDelta: REFERRAL_BONUS_POINTS,
-          dollars: 0,
-          note: `Refer-a-Friend Bonus (${fullName} joined)`,
-          timestamp: nowIso
-        };
-        transactions.unshift(referrerTxn);
-
         await persistCustomerToCloud(normReferrer, validReferrer);
-        await persistTransactionToCloud(referrerTxn);
       }
 
       activePhone = normPhone;
       saveStateToStorage();
       showDashboardView();
       openWelcomeBonusModal(fullName, Boolean(validReferrer));
-
-      if (!alertConfig || alertConfig.enabled !== false) {
-        sendSilentNewMemberEmail(newCustomer);
-      }
     }
 
-    function openWelcomeBonusModal(customerName, hasReferralBonus) {
-      document.getElementById('welcomeBonusCustomerName').textContent = customerName || 'Member';
-      const totalPts = FIRST_TIME_BONUS_POINTS + (hasReferralBonus ? REFERRAL_BONUS_POINTS : 0);
-      document.getElementById('welcomeBonusPointsHeadline').textContent = `+${totalPts} Bonus Points`;
-      document.getElementById('welcomeBonusPointsSubtext').textContent = hasReferralBonus
-        ? '25 Welcome Bonus + 25 Referral Bonus added!'
-        : 'Added automatically to your loyalty card';
-
-      const refNote = document.getElementById('welcomeBonusReferralNote');
-      if (hasReferralBonus) {
-        refNote.classList.remove('hidden');
-      } else {
-        refNote.classList.add('hidden');
-      }
+    function openWelcomeBonusModal(name, hasRef) {
+      document.getElementById('welcomeBonusCustomerName').textContent = name;
+      const total = FIRST_TIME_BONUS_POINTS + (hasRef ? REFERRAL_BONUS_POINTS : 0);
+      document.getElementById('welcomeBonusPointsHeadline').textContent = `+${total} Bonus Points`;
+      document.getElementById('welcomeBonusReferralNote').classList.toggle('hidden', !hasRef);
       document.getElementById('welcomeBonusModal').classList.remove('hidden');
     }
 
@@ -2105,17 +1093,7 @@
 
     function switchCustomer() {
       activePhone = null;
-      skipReferralPromptOnce = false;
       saveStateToStorage();
-      document.getElementById('inputPhoneNumber').value = '';
-      document.getElementById('regFullName').value = '';
-      document.getElementById('regPhoneNumber').value = '';
-      const refInput = document.getElementById('regReferrerPhone');
-      if (refInput) {
-        delete refInput.dataset.fromUrl;
-        refInput.value = '';
-        refInput.classList.remove('ring-2', 'ring-amber-400', 'border-amber-400', 'bg-amber-50/40');
-      }
       backToPhoneLookup();
       showLoginView();
     }
@@ -2131,939 +1109,202 @@
       renderDashboard();
     }
 
-    // ==================== CUSTOMER DASHBOARD & REFERRAL ====================
     function renderDashboard() {
-      if (!activePhone || !customers[activePhone]) {
-        showLoginView();
-        return;
-      }
-
+      if (!activePhone || !customers[activePhone]) { showLoginView(); return; }
       const cust = customers[activePhone];
       const pts = Math.max(0, Number(cust.points || 0));
-      const dollarVal = (pts / 100).toFixed(2);
-      const redeemedVal = Number(cust.totalRedeemedDollars || 0).toFixed(2);
-
-      document.getElementById('cardCustomerName').textContent = cust.name || 'Member';
+      document.getElementById('cardCustomerName').textContent = cust.name;
       document.getElementById('cardCustomerPhone').textContent = formatPhoneDisplay(cust.phone);
       document.getElementById('cardPointsBalance').textContent = pts.toLocaleString();
-      document.getElementById('cardCashValue').textContent = `Redeemable Value: $${dollarVal}`;
-      document.getElementById('cardTotalRedeemed').textContent = `$${redeemedVal}`;
+      document.getElementById('cardCashValue').textContent = `Redeemable Value: $${(pts / 100).toFixed(2)}`;
+      document.getElementById('cardTotalRedeemed').textContent = `$${Number(cust.totalRedeemedDollars || 0).toFixed(2)}`;
+      document.getElementById('cardReferralPhoneHint').textContent = formatPhoneDisplay(cust.phone);
+      document.getElementById('cardReferralCountBadge').textContent = `${Number(cust.referralCount || 0)} Friends Referred`;
 
-      const refPhoneHintEl = document.getElementById('cardReferralPhoneHint');
-      const refCountBadgeEl = document.getElementById('cardReferralCountBadge');
-      const referredByBadgeEl = document.getElementById('cardReferredByBadge');
-      if (refPhoneHintEl) {
-        refPhoneHintEl.textContent = formatPhoneDisplay(cust.phone);
-      }
-      if (refCountBadgeEl) {
-        const refCount = Number(cust.referralCount || 0);
-        refCountBadgeEl.textContent = `${refCount} ${refCount === 1 ? 'Friend' : 'Friends'} Referred`;
-      }
-      if (referredByBadgeEl) {
-        const refByPhone = normalizePhone(cust.referredBy);
-        if (refByPhone) {
-          const referrerObj = customers[refByPhone];
-          const referrerLabel = referrerObj?.name || cust.referredByName || 'Member';
-          referredByBadgeEl.textContent = `Referred by ${referrerLabel} (${formatPhoneDisplay(refByPhone)})`;
-          referredByBadgeEl.classList.remove('hidden');
-        } else {
-          referredByBadgeEl.classList.add('hidden');
-        }
-      }
-
-      const expNoticeEl = document.getElementById('cardExpirationNotice');
-      if (expNoticeEl) {
-        if (expirationConfig.enabled && pts > 0) {
-          const lastAct = new Date(cust.lastActivityAt || cust.updatedAt || cust.createdAt || Date.now()).getTime();
-          const deadlineMs = lastAct + expirationConfig.inactiveDays * 24 * 60 * 60 * 1000;
-          const daysLeft = Math.max(0, Math.ceil((deadlineMs - Date.now()) / (24 * 60 * 60 * 1000)));
-          expNoticeEl.textContent =
-            daysLeft > 0
-              ? `Shop within ${daysLeft}d to keep pts`
-              : `Inactive: -${expirationConfig.pointsPerCycle} pts/cycle`;
-        } else {
-          expNoticeEl.textContent = 'Points Never Expire';
-        }
-      }
-
-      let targetPts = 100;
-      let rewardName = '$1 Off';
-      if (pts >= 100 && pts < 500) {
-        targetPts = 500;
-        rewardName = '$5 Off';
-      } else if (pts >= 500) {
-        targetPts = 1000;
-        rewardName = '$10 Off';
-      }
-
+      const targetPts = pts < 100 ? 100 : pts < 500 ? 500 : 1000;
+      const rewardName = targetPts === 100 ? '$1 Off' : targetPts === 500 ? '$5 Off' : '$10 Off';
       const pct = Math.min(100, Math.round((pts / targetPts) * 100));
-      document.getElementById('nextRewardLabel').textContent = `Next Reward: ${rewardName} (${targetPts.toLocaleString()} pts)`;
+      document.getElementById('nextRewardLabel').textContent = `Next Reward: ${rewardName} (${targetPts} pts)`;
       document.getElementById('nextRewardPercent').textContent = `${pct}%`;
       document.getElementById('nextRewardProgress').style.width = `${pct}%`;
 
-      updateTierCardState(100, pts);
-      updateTierCardState(500, pts);
-      updateTierCardState(1000, pts);
+      [100, 500, 1000].forEach((tier) => {
+        const card = document.getElementById(`redeemCard${tier}`);
+        const st = document.getElementById(`redeemStatus${tier}`);
+        if (pts >= tier) {
+          card.className = 'p-4 rounded-2xl border-2 border-emerald-500 bg-emerald-50/70 flex flex-col justify-between';
+          st.textContent = 'Unlocked! Ready at checkout';
+          st.className = 'text-xs text-emerald-800 mt-2 font-bold';
+        } else {
+          card.className = 'p-4 rounded-2xl border border-slate-200 bg-slate-50 flex flex-col justify-between';
+          st.textContent = `${tier - pts} more pts needed`;
+          st.className = 'text-xs text-slate-500 mt-2 font-medium';
+        }
+      });
+
       renderCustomerHistory();
-    }
-
-    function updateTierCardState(tierPts, currentPts) {
-      const card = document.getElementById(`redeemCard${tierPts}`);
-      const status = document.getElementById(`redeemStatus${tierPts}`);
-      if (!card || !status) return;
-
-      if (currentPts >= tierPts) {
-        card.className = 'p-4 rounded-2xl border-2 border-emerald-500 bg-emerald-50/70 flex flex-col justify-between';
-        status.textContent = 'Unlocked! Ready at checkout';
-        status.className = 'text-xs text-emerald-800 mt-2 font-bold';
-      } else {
-        card.className = 'p-4 rounded-2xl border border-slate-200 bg-slate-50 flex flex-col justify-between';
-        status.textContent = `${(tierPts - currentPts).toLocaleString()} more pts needed`;
-        status.className = 'text-xs text-slate-500 mt-2 font-medium';
-      }
     }
 
     function copyCustomerReferralLink() {
       if (!activePhone) return;
-      const baseUrl = window.location.href.split('?')[0];
-      const inviteUrl = `${baseUrl}?ref=${encodeURIComponent(activePhone)}`;
-      const shareText = `Join Rexall Discount Reward using my phone number (${formatPhoneDisplay(activePhone)}) or link and we BOTH get +25 Bonus Points! ${inviteUrl}`;
-
-      const tempInput = document.createElement('textarea');
-      tempInput.value = shareText;
-      document.body.appendChild(tempInput);
-      tempInput.select();
-      try {
-        document.execCommand('copy');
-        showToast('Invite link & referral code copied! Share it with a friend.');
-      } catch (err) {
-        showToast('Copy failed—share your phone number with your friend at sign-up!', 'error');
-      }
-      document.body.removeChild(tempInput);
+      const inviteUrl = `${window.location.href.split('?')[0]}?ref=${encodeURIComponent(activePhone)}`;
+      navigator.clipboard?.writeText(inviteUrl).catch(() => {});
+      showToast('Invite link copied!');
     }
 
     function setHistoryFilter(filter) {
       currentHistoryFilter = filter;
-      ['ALL', 'EARNED', 'REDEEMED'].forEach((key) => {
-        const btn = document.getElementById(`filter${key.charAt(0) + key.slice(1).toLowerCase()}Btn`);
-        if (!btn) return;
-        btn.className =
-          key === filter
-            ? 'px-2.5 py-1 rounded-lg text-xs font-semibold bg-white text-slate-900 shadow-2xs transition'
-            : 'px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition';
-      });
       renderCustomerHistory();
     }
 
     function renderCustomerHistory() {
       const listEl = document.getElementById('customerHistoryList');
       if (!listEl || !activePhone) return;
-
-      const userTxns = transactions.filter((t) => {
-        if (normalizePhone(t.phone) !== activePhone) return false;
-        if (currentHistoryFilter === 'ALL') return true;
-        return t.type === currentHistoryFilter;
-      });
-
-      if (userTxns.length === 0) {
-        listEl.innerHTML = `<p class="py-6 text-center text-xs text-slate-400">No activity recorded in this category yet.</p>`;
+      const rows = transactions.filter((t) => normalizePhone(t.phone) === activePhone && (currentHistoryFilter === 'ALL' || t.type === currentHistoryFilter));
+      if (!rows.length) {
+        listEl.innerHTML = '<p class="py-6 text-center text-xs text-slate-400">No activity yet.</p>';
         return;
       }
-
-      listEl.innerHTML = userTxns
-        .map((t) => {
-          const isPositive = Number(t.pointsDelta || 0) >= 0;
-          const dateStr = new Date(t.timestamp || Date.now()).toLocaleDateString([], {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric'
-          });
-          return `
-            <div class="py-3 flex items-center justify-between gap-3">
-              <div class="min-w-0">
-                <p class="text-xs sm:text-sm font-semibold text-slate-900 truncate">${escapeHtml(t.note || 'Store Activity')}</p>
-                <p class="text-[11px] text-slate-400">${escapeHtml(dateStr)}</p>
-              </div>
-              <span class="px-2.5 py-1 rounded-full text-xs font-extrabold shrink-0 ${
-                isPositive ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
-              }">
-                ${isPositive ? '+' : ''}${Number(t.pointsDelta || 0)} pts
-              </span>
-            </div>
-          `;
-        })
-        .join('');
+      listEl.innerHTML = rows.map((t) => {
+        const pos = Number(t.pointsDelta || 0) >= 0;
+        return `<div class="py-3 flex items-center justify-between gap-3">
+          <div><p class="text-xs sm:text-sm font-semibold text-slate-900">${escapeHtml(t.note)}</p></div>
+          <span class="px-2.5 py-1 rounded-full text-xs font-extrabold ${pos ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">${pos ? '+' : ''}${t.pointsDelta} pts</span>
+        </div>`;
+      }).join('');
     }
 
-    // ==================== CHANGE PHONE NUMBER ====================
-    function openChangePhoneModal() {
-      if (!activePhone) return;
-      document.getElementById('changePhoneNewInput').value = '';
-      document.getElementById('changePhoneModal').classList.remove('hidden');
-    }
-
-    function closeChangePhoneModal() {
-      document.getElementById('changePhoneModal').classList.add('hidden');
-    }
-
-    async function handleCustomerChangePhone(event) {
-      event.preventDefault();
-      if (!activePhone || !customers[activePhone]) return;
+    function openChangePhoneModal() { document.getElementById('changePhoneModal').classList.remove('hidden'); }
+    function closeChangePhoneModal() { document.getElementById('changePhoneModal').classList.add('hidden'); }
+    async function handleCustomerChangePhone(e) {
+      e.preventDefault();
       const newNorm = normalizePhone(document.getElementById('changePhoneNewInput').value);
-      if (newNorm.length < 7) {
-        showToast('Please enter a valid new phone number.', 'error');
-        return;
-      }
-      if (newNorm === activePhone) {
-        closeChangePhoneModal();
-        return;
-      }
-      if (customers[newNorm]) {
-        showToast('That new phone number already belongs to another account.', 'error');
-        return;
-      }
-
-      await transferCustomerPhoneRecord(activePhone, newNorm);
+      if (!activePhone || !customers[activePhone] || newNorm.length < 7 || customers[newNorm]) return;
+      const oldCust = customers[activePhone];
+      delete customers[activePhone];
+      customers[newNorm] = { ...oldCust, phone: newNorm };
       activePhone = newNorm;
       saveStateToStorage();
+      await persistCustomerToCloud(newNorm, customers[newNorm]);
       closeChangePhoneModal();
       renderDashboard();
-      showToast(`Points transferred to ${formatPhoneDisplay(newNorm)}!`);
+      showToast('Phone number updated!');
     }
 
-    async function transferCustomerPhoneRecord(oldPhone, newPhone) {
-      const cust = customers[oldPhone];
-      if (!cust) return;
-
-      const updatedCust = {
-        ...cust,
-        phone: newPhone,
-        formattedPhone: formatPhoneDisplay(newPhone),
-        updatedAt: new Date().toISOString()
-      };
-
-      delete customers[oldPhone];
-      customers[newPhone] = updatedCust;
-      knownCustomerKeys.delete(oldPhone);
-      knownCustomerKeys.add(newPhone);
-
-      transactions.forEach((t) => {
-        if (normalizePhone(t.phone) === oldPhone) {
-          t.phone = newPhone;
-        }
-      });
-
-      saveStateToStorage();
-      await persistCustomerToCloud(newPhone, updatedCust);
-      await deleteCustomerFromCloud(oldPhone);
-    }
-
-    // ==================== ADMIN CONSOLE & TWO-STEP AUTH ====================
     function openAdminModal() {
       document.getElementById('adminModal').classList.remove('hidden');
-      backToAdminGate();
+      document.getElementById('adminPinGate').classList.remove('hidden');
+      document.getElementById('adminUnlockedContent').classList.add('hidden');
     }
-
-    function closeAdminModal() {
-      document.getElementById('adminModal').classList.add('hidden');
-    }
-
+    function closeAdminModal() { document.getElementById('adminModal').classList.add('hidden'); }
     function backToAdminGate() {
       document.getElementById('adminPinGate').classList.remove('hidden');
       document.getElementById('adminForgotPinGate').classList.add('hidden');
-      document.getElementById('adminUnlockedContent').classList.add('hidden');
-      document.getElementById('adminUnlockNameInput').value = '';
-      document.getElementById('adminUnlockPinInput').value = '';
     }
 
-    function unlockAdminPanel(event) {
-      event.preventDefault();
-      const enteredName = document.getElementById('adminUnlockNameInput').value.trim().toLowerCase();
-      const enteredPin = document.getElementById('adminUnlockPinInput').value.trim();
-
-      if (enteredName !== adminName.trim().toLowerCase() || enteredPin !== secretPin) {
-        showToast('Invalid Admin Name or 6-Digit PIN.', 'error');
+    function unlockAdminPanel(e) {
+      e.preventDefault();
+      const n = document.getElementById('adminUnlockNameInput').value.trim().toLowerCase();
+      const p = document.getElementById('adminUnlockPinInput').value.trim();
+      if (n !== adminName.toLowerCase() || p !== secretPin) {
+        showToast('Invalid Admin Name or PIN.', 'error');
         return;
       }
-
       document.getElementById('adminPinGate').classList.add('hidden');
-      document.getElementById('adminForgotPinGate').classList.add('hidden');
       document.getElementById('adminUnlockedContent').classList.remove('hidden');
-
-      refreshAdminCredentialsUI();
-      populateAlertSettingsForm();
-      populateAdSettingsForm();
-      populateExpirationSettingsForm();
       renderAdminStatsAndDirectory();
-      showToast('Admin Console unlocked.');
     }
 
-    function refreshAdminCredentialsUI() {
-      const nameDisp = document.getElementById('currentAdminNameDisplay');
-      const pinDisp = document.getElementById('currentPinDisplay');
-      const nameInput = document.getElementById('newAdminNameInput');
-      const pinInput = document.getElementById('newPinInput');
-      if (nameDisp) nameDisp.textContent = adminName;
-      if (pinDisp) pinDisp.textContent = secretPin;
-      if (nameInput) nameInput.value = adminName;
-      if (pinInput) pinInput.value = secretPin;
+    function searchPosCustomers() {
+      const q = document.getElementById('adminPosSearchInput').value.trim().toLowerCase();
+      const nq = normalizePhone(q);
+      const box = document.getElementById('adminPosSearchResults');
+      if (!q) { box.classList.add('hidden'); return; }
+      const list = Object.values(customers).filter((c) => (c.name || '').toLowerCase().includes(q) || (nq && c.phone.includes(nq)));
+      box.innerHTML = list.slice(0, 6).map((c) => `<button type="button" onclick="selectPosCustomer('${escapeHtml(c.phone)}')" class="w-full px-3.5 py-2 text-left hover:bg-emerald-50 flex justify-between text-xs font-bold"><span>${escapeHtml(c.name)} (${escapeHtml(formatPhoneDisplay(c.phone))})</span><span class="text-emerald-700">${c.points} pts</span></button>`).join('');
+      box.classList.remove('hidden');
     }
 
-    async function handleUpdateAdminCredentials(event) {
-      event.preventDefault();
-      const newName = document.getElementById('newAdminNameInput').value.trim();
-      const newPin = document.getElementById('newPinInput').value.trim();
+    function selectPosCustomer(phoneKey) {
+      selectedPosPhone = normalizePhone(phoneKey);
+      document.getElementById('adminPosSearchResults').classList.add('hidden');
+      refreshSelectedPosCustomer();
+    }
 
-      if (!newName || !/^\d{6}$/.test(newPin)) {
-        showToast('Enter a valid Admin Name and a 6-digit numeric PIN.', 'error');
-        return;
-      }
+    function refreshSelectedPosCustomer() {
+      const box = document.getElementById('adminPosSelectedBox');
+      if (!selectedPosPhone || !customers[selectedPosPhone]) { box.classList.add('hidden'); return; }
+      const c = customers[selectedPosPhone];
+      document.getElementById('posSelectedName').textContent = c.name;
+      document.getElementById('posSelectedPhone').textContent = formatPhoneDisplay(c.phone);
+      document.getElementById('posSelectedPoints').textContent = `${c.points} pts`;
+      document.getElementById('posSelectedValue').textContent = `$${(c.points / 100).toFixed(2)} value`;
+      box.classList.remove('hidden');
+    }
 
-      adminName = newName;
-      secretPin = newPin;
+    function updatePosPointsPreview() {
+      const amt = Number(document.getElementById('posPurchaseAmountInput').value || 0);
+      document.getElementById('posLivePointsPreview').textContent = String(amt > 0 ? Math.round(amt * POINTS_PER_DOLLAR) : 0);
+    }
+
+    async function handleAdminPosAddPoints(e) {
+      e.preventDefault();
+      if (!selectedPosPhone || !customers[selectedPosPhone]) return;
+      const amt = Number(document.getElementById('posPurchaseAmountInput').value || 0);
+      const pts = Math.round(amt * POINTS_PER_DOLLAR);
+      customers[selectedPosPhone].points += pts;
+      const txn = { id: `${Date.now()}_${selectedPosPhone}`, phone: selectedPosPhone, type: 'EARNED', pointsDelta: pts, dollars: amt, note: `Purchase ($${amt.toFixed(2)})`, timestamp: new Date().toISOString() };
+      transactions.unshift(txn);
       saveStateToStorage();
-      await persistStoreSettingsToCloud();
-      refreshAdminCredentialsUI();
-      showToast('Admin Name and 6-Digit PIN updated & synced!');
-    }
-
-    function openForgotPinPanel() {
-      document.getElementById('adminPinGate').classList.add('hidden');
-      document.getElementById('adminForgotPinGate').classList.remove('hidden');
-      document.getElementById('recoverySentStatus').classList.add('hidden');
-    }
-
-    function sendAdminPinToEmail() {
-      generatedRecoveryCode = String(Math.floor(100000 + Math.random() * 900000));
-      const subject = encodeURIComponent('Rexall Discount Reward - Admin PIN & Recovery Code');
-      const body = encodeURIComponent(
-        `Rexall Discount Reward Store Admin Recovery:\n\n` +
-        `Current Admin Name: ${adminName}\n` +
-        `Current 6-Digit PIN: ${secretPin}\n` +
-        `6-Digit Reset Verification Code: ${generatedRecoveryCode}\n\n` +
-        `Enter this 6-digit reset verification code on the Admin Recovery screen to set a new Admin Name and PIN.`
-      );
-      window.open(`mailto:${OWNER_RECOVERY_EMAIL}?subject=${subject}&body=${body}`, '_blank');
-      document.getElementById('recoverySentStatus').classList.remove('hidden');
-      showToast(`Recovery email opened for ${OWNER_RECOVERY_EMAIL}`);
-    }
-
-    async function handleResetAdminWithCode(event) {
-      event.preventDefault();
-      const code = document.getElementById('recoveryCodeInput').value.trim();
-      const newName = document.getElementById('resetAdminNameInput').value.trim();
-      const newPin = document.getElementById('resetAdminNewPinInput').value.trim();
-
-      if (!generatedRecoveryCode || code !== generatedRecoveryCode) {
-        showToast('Please send the recovery email first and enter the exact 6-digit code.', 'error');
-        return;
-      }
-      if (!newName || !/^\d{6}$/.test(newPin)) {
-        showToast('Enter a valid Admin Name and 6-digit PIN.', 'error');
-        return;
-      }
-
-      adminName = newName;
-      secretPin = newPin;
-      generatedRecoveryCode = null;
-      saveStateToStorage();
-      await persistStoreSettingsToCloud();
-
-      document.getElementById('adminForgotPinGate').classList.add('hidden');
-      document.getElementById('adminUnlockedContent').classList.remove('hidden');
-      refreshAdminCredentialsUI();
-      populateAdSettingsForm();
-      populateExpirationSettingsForm();
+      await persistCustomerToCloud(selectedPosPhone, customers[selectedPosPhone]);
+      await persistTransactionToCloud(txn);
+      document.getElementById('posPurchaseAmountInput').value = '';
+      updatePosPointsPreview();
+      refreshSelectedPosCustomer();
       renderAdminStatsAndDirectory();
-      showToast('Admin Name & PIN reset successfully!');
+      if (activePhone === selectedPosPhone) renderDashboard();
+      showToast(`Added +${pts} pts!`);
     }
 
-    function populateAlertSettingsForm() {
-      const enabledEl = document.getElementById('emailAlertEnabledInput');
-      if (enabledEl) enabledEl.checked = !alertConfig || alertConfig.enabled !== false;
-    }
-
-    async function saveEmailAlertSettings() {
-      const enabledEl = document.getElementById('emailAlertEnabledInput');
-      alertConfig = {
-        enabled: enabledEl ? enabledEl.checked : true
-      };
+    async function handleAdminPosRedeem(cost, dollars) {
+      if (!selectedPosPhone || !customers[selectedPosPhone] || customers[selectedPosPhone].points < cost) return;
+      customers[selectedPosPhone].points -= cost;
+      customers[selectedPosPhone].totalRedeemedDollars = Number(customers[selectedPosPhone].totalRedeemedDollars || 0) + dollars;
+      const txn = { id: `${Date.now()}_r_${selectedPosPhone}`, phone: selectedPosPhone, type: 'REDEEMED', pointsDelta: -cost, dollars, note: `$${dollars} Discount`, timestamp: new Date().toISOString() };
+      transactions.unshift(txn);
       saveStateToStorage();
-      await persistStoreSettingsToCloud();
-      showToast(
-        alertConfig.enabled
-          ? 'Silent background email alerts enabled for hanallc07@gmail.com (0 Netlify credits).'
-          : 'Silent background email alerts paused.'
-      );
-    }
-
-    async function sendSilentNewMemberEmail(cust) {
-      if (!cust) return;
-      const memberName = cust.name || cust.fullName || 'Member';
-      const memberPhone = formatPhoneDisplay(cust.phone);
-      const pts = Math.max(0, Number(cust.points || 0));
-      const refInfo = cust.referredBy
-        ? `${cust.referredByName || 'Member'} (${formatPhoneDisplay(cust.referredBy)})`
-        : 'None';
-      const joinedDate = new Date(cust.createdAt || Date.now()).toLocaleString();
-
-      try {
-        await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(OWNER_RECOVERY_EMAIL)}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          body: JSON.stringify({
-            _subject: `New Rexall Member Registered: ${memberName} (${memberPhone})`,
-            _captcha: 'false',
-            _template: 'table',
-            Customer_Name: memberName,
-            Phone_Number: memberPhone,
-            Starting_Points: `${pts} pts`,
-            Referred_By: refInfo,
-            Registered_At: joinedDate,
-            Store: 'Rexall Discount Reward (9807 Lorain Ave)'
-          })
-        });
-      } catch (err) {
-        console.warn('Silent email notification skipped:', err);
-      }
-    }
-
-    async function sendSilentTestEmail() {
-      showToast('Sending activation/test email to hanallc07@gmail.com...');
-      try {
-        const res = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(OWNER_RECOVERY_EMAIL)}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          body: JSON.stringify({
-            _subject: 'Rexall Discount Reward - Email Notifications Connected!',
-            _captcha: 'false',
-            _template: 'table',
-            Status: 'Silent New Customer Alerts Active',
-            Recipient: OWNER_RECOVERY_EMAIL,
-            Note: 'If this is your first email, click the Activate button inside the email from FormSubmit so future member registrations arrive automatically.'
-          })
-        });
-        if (res.ok) {
-          showToast('Test email sent! Check hanallc07@gmail.com (and spam folder once to activate).');
-        } else {
-          showToast('Could not reach email relay—check internet connection.', 'error');
-        }
-      } catch (err) {
-        showToast('Network error sending test email.', 'error');
-      }
-    }
-
-    function sendMemberInfoEmail(cust, event) {
-      if (event) event.stopPropagation();
-      if (!cust) return;
-      const memberName = cust.name || cust.fullName || 'Member';
-      const memberPhone = formatPhoneDisplay(cust.phone);
-      const pts = Math.max(0, Number(cust.points || 0));
-      const refInfo = cust.referredBy
-        ? `${cust.referredByName || 'Member'} (${formatPhoneDisplay(cust.referredBy)})`
-        : 'None';
-      const joinedDate = new Date(cust.createdAt || Date.now()).toLocaleString();
-
-      const subject = encodeURIComponent(`New Rexall Member: ${memberName} (${memberPhone})`);
-      const body = encodeURIComponent(
-        `New Customer Registered on Rexall Discount Reward:\n\n` +
-        `Full Name: ${memberName}\n` +
-        `Phone Number: ${memberPhone}\n` +
-        `Current Points: ${pts} pts\n` +
-        `Referred By: ${refInfo}\n` +
-        `Registered At: ${joinedDate}\n`
-      );
-      window.open(`mailto:${OWNER_RECOVERY_EMAIL}?subject=${subject}&body=${body}`, '_blank');
-    }
-
-    // ==================== POINTS EXPIRATION SYSTEM (0-POINT FLOOR) ====================
-    function populateExpirationSettingsForm() {
-      const enabledEl = document.getElementById('expEnabledInput');
-      const daysEl = document.getElementById('expInactiveDaysInput');
-      const lossEl = document.getElementById('expPointsLossInput');
-      if (enabledEl) enabledEl.checked = Boolean(expirationConfig.enabled);
-      if (daysEl) daysEl.value = String(expirationConfig.inactiveDays || 90);
-      if (lossEl) lossEl.value = String(expirationConfig.pointsPerCycle || 25);
-    }
-
-    async function saveExpirationSettings(event) {
-      if (event) event.preventDefault();
-      const enabledEl = document.getElementById('expEnabledInput');
-      const daysEl = document.getElementById('expInactiveDaysInput');
-      const lossEl = document.getElementById('expPointsLossInput');
-
-      expirationConfig = {
-        enabled: enabledEl ? enabledEl.checked : false,
-        inactiveDays: Math.max(1, Number(daysEl?.value || 90)),
-        pointsPerCycle: Math.max(1, Number(lossEl?.value || 25))
-      };
-
-      saveStateToStorage();
-      await persistStoreSettingsToCloud();
-      if (activePhone && customers[activePhone]) renderDashboard();
-      showToast(
-        expirationConfig.enabled
-          ? `Expiration active: -${expirationConfig.pointsPerCycle} pts after ${expirationConfig.inactiveDays} inactive days (0 floor).`
-          : 'Points expiration paused.'
-      );
-    }
-
-    async function runPointsExpirationCheck(manualTrigger = false) {
-      if (!expirationConfig || !expirationConfig.enabled) {
-        if (manualTrigger) {
-          showToast('Turn on "Expiration Active" first to run an expiration check.', 'error');
-        }
-        return;
-      }
-
-      const nowMs = Date.now();
-      const cycleMs = Math.max(1, Number(expirationConfig.inactiveDays || 90)) * 24 * 60 * 60 * 1000;
-      const lossPerCycle = Math.max(1, Number(expirationConfig.pointsPerCycle || 25));
-      let affectedCount = 0;
-
-      for (const phoneKey of Object.keys(customers)) {
-        const cust = customers[phoneKey];
-        if (!cust) continue;
-
-        const currentPts = Math.max(0, Number(cust.points || 0));
-        if (currentPts <= 0) continue;
-
-        const lastActivityMs = new Date(cust.lastActivityAt || cust.updatedAt || cust.createdAt || nowMs).getTime();
-        const lastExpMs = cust.lastExpirationAt ? new Date(cust.lastExpirationAt).getTime() : 0;
-        const referenceMs = Math.max(lastActivityMs, lastExpMs);
-
-        if (nowMs - referenceMs >= cycleMs) {
-          const cyclesElapsed = Math.floor((nowMs - referenceMs) / cycleMs);
-          const rawDeduction = cyclesElapsed * lossPerCycle;
-          const actualDeduction = Math.min(currentPts, rawDeduction);
-
-          if (actualDeduction > 0) {
-            cust.points = Math.max(0, currentPts - actualDeduction);
-            cust.lastExpirationAt = new Date(nowMs).toISOString();
-            cust.updatedAt = new Date(nowMs).toISOString();
-
-            const expTxn = {
-              id: `${nowMs}_exp_${phoneKey}_${Math.random().toString(36).slice(2, 6)}`,
-              phone: phoneKey,
-              type: 'REDEEMED',
-              pointsDelta: -actualDeduction,
-              dollars: 0,
-              note: `Points Expired (${expirationConfig.inactiveDays}+ days inactive)`,
-              timestamp: new Date(nowMs).toISOString()
-            };
-
-            transactions.unshift(expTxn);
-            affectedCount += 1;
-
-            await persistCustomerToCloud(phoneKey, cust);
-            await persistTransactionToCloud(expTxn);
-          }
-        }
-      }
-
-      if (affectedCount > 0) {
-        saveStateToStorage();
-        if (activePhone && customers[activePhone]) renderDashboard();
-        if (!document.getElementById('adminUnlockedContent').classList.contains('hidden')) {
-          renderAdminStatsAndDirectory();
-          refreshSelectedPosCustomer();
-        }
-        if (manualTrigger) {
-          showToast(`Expired inactive points for ${affectedCount} ${affectedCount === 1 ? 'member' : 'members'} (0-point floor applied).`);
-        }
-      } else if (manualTrigger) {
-        showToast('All active point balances are within the activity window. 0 accounts expired.');
-      }
-    }
-
-    // ==================== PERMANENT CUSTOMER DELETION (LOCAL + FIRESTORE) ====================
-    function requestDeleteCustomer(phoneKey, event) {
-      if (event) event.stopPropagation();
-      const normKey = normalizePhone(phoneKey);
-      if (!normKey || !customers[normKey]) return;
-
-      pendingDeletePhone = normKey;
-      const cust = customers[normKey];
-      const textEl = document.getElementById('deleteCustomerModalText');
-      if (textEl) {
-        textEl.textContent = `Permanently delete ${cust.name} (${formatPhoneDisplay(normKey)}) and all ${Number(cust.points || 0)} points & history from everywhere in your database? This cannot be undone.`;
-      }
-      document.getElementById('deleteCustomerModal').classList.remove('hidden');
-    }
-
-    function closeDeleteCustomerModal() {
-      pendingDeletePhone = null;
-      document.getElementById('deleteCustomerModal').classList.add('hidden');
-    }
-
-    async function confirmDeleteCustomerEverywhere() {
-      const targetPhone = pendingDeletePhone;
-      closeDeleteCustomerModal();
-      if (!targetPhone || !customers[targetPhone]) return;
-
-      const deletedName = customers[targetPhone].name || formatPhoneDisplay(targetPhone);
-
-      delete customers[targetPhone];
-      knownCustomerKeys.delete(targetPhone);
-      transactions = transactions.filter((t) => normalizePhone(t.phone) !== targetPhone);
-
-      if (activePhone === targetPhone) {
-        activePhone = null;
-        showLoginView();
-      }
-      if (selectedPosPhone === targetPhone) {
-        selectedPosPhone = null;
-        document.getElementById('adminPosSelectedBox').classList.add('hidden');
-        document.getElementById('adminPosSearchInput').value = '';
-      }
-
-      saveStateToStorage();
-      await deleteCustomerFromCloud(targetPhone);
-      await deleteCustomerTransactionsFromCloud(targetPhone);
-
+      await persistCustomerToCloud(selectedPosPhone, customers[selectedPosPhone]);
+      await persistTransactionToCloud(txn);
+      refreshSelectedPosCustomer();
       renderAdminStatsAndDirectory();
-      showToast(`Deleted ${deletedName} from everywhere in your database.`);
+      if (activePhone === selectedPosPhone) renderDashboard();
+      showToast(`Redeemed $${dollars} Off!`);
     }
 
-    // ==================== LOCAL STORE MULTI-AD, PHOTO, DURATION & PRIORITY ====================
-    function normalizeAdConfigStructure(raw) {
-      if (!raw || typeof raw !== 'object') {
-        return { enabled: false, ads: [] };
-      }
-      if (Array.isArray(raw.ads)) {
-        return {
-          enabled: Boolean(raw.enabled),
-          ads: raw.ads.map((item, idx) => ({
-            id: item.id || `ad_${idx}_${Date.now()}`,
-            sponsorName: item.sponsorName || 'Local Store Sponsor',
-            message: item.message || '',
-            contact: item.contact || '',
-            photoUrl: item.photoUrl || '',
-            durationSeconds: [5, 10, 15, 20].includes(Number(item.durationSeconds)) ? Number(item.durationSeconds) : 5,
-            priority: Math.max(1, Number(item.priority || idx + 1)),
-            monthlyFee: Number(item.monthlyFee || 150),
-            billingStatus: item.billingStatus || 'PAID',
-            invoiceEmail: item.invoiceEmail || ''
-          }))
-        };
-      }
-      if (raw.sponsorName) {
-        return {
-          enabled: Boolean(raw.enabled),
-          ads: [
-            {
-              id: 'ad_legacy_1',
-              sponsorName: raw.sponsorName,
-              message: raw.message || '',
-              contact: raw.contact || '',
-              photoUrl: raw.photoUrl || '',
-              durationSeconds: 5,
-              priority: 1,
-              monthlyFee: Number(raw.monthlyFee || 150),
-              billingStatus: raw.billingStatus || 'PAID',
-              invoiceEmail: raw.invoiceEmail || ''
-            }
-          ]
-        };
-      }
-      return { enabled: Boolean(raw.enabled), ads: [] };
+    function renderAdminStatsAndDirectory() {
+      const all = Object.values(customers);
+      document.getElementById('statTotalCustomers').textContent = String(all.length);
+      document.getElementById('statTotalPoints').textContent = String(all.reduce((s, c) => s + Number(c.points || 0), 0));
+      document.getElementById('statTotalRedeemed').textContent = `$${all.reduce((s, c) => s + Number(c.totalRedeemedDollars || 0), 0).toFixed(0)}`;
+      renderAdminDirectory();
     }
 
-    function populateAdSettingsForm() {
-      const globalCheck = document.getElementById('adGlobalEnabledInput');
-      if (globalCheck) globalCheck.checked = Boolean(adConfig.enabled);
-      renderAdminAdList();
+    function renderAdminDirectory() {
+      const listEl = document.getElementById('adminCustomerList');
+      const q = (document.getElementById('adminSearchInput')?.value || '').trim().toLowerCase();
+      const rows = Object.values(customers).filter((c) => !q || (c.name || '').toLowerCase().includes(q) || c.phone.includes(normalizePhone(q)));
+      listEl.innerHTML = rows.map((c) => `<div onclick="selectPosCustomer('${escapeHtml(c.phone)}')" class="px-4 py-2.5 flex items-center justify-between hover:bg-slate-50 cursor-pointer text-xs">
+        <div><p class="font-bold text-slate-900">${escapeHtml(c.name)}</p><p class="text-slate-500">${escapeHtml(formatPhoneDisplay(c.phone))}</p></div>
+        <span class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-extrabold">${c.points} pts</span>
+      </div>`).join('');
     }
 
-    async function toggleGlobalAdsEnabled() {
-      adConfig.enabled = document.getElementById('adGlobalEnabledInput').checked;
-      saveStateToStorage();
-      await persistStoreSettingsToCloud();
-      showToast(adConfig.enabled ? 'Local pop-up ads enabled.' : 'Local pop-up ads paused.');
-    }
-
-    function renderAdminAdList() {
-      const container = document.getElementById('adminAdListContainer');
-      if (!container) return;
-
-      const sorted = [...(adConfig.ads || [])].sort((a, b) => Number(a.priority || 99) - Number(b.priority || 99));
-      if (sorted.length === 0) {
-        container.innerHTML = `<p class="text-xs text-slate-500 bg-white p-3 rounded-xl border border-amber-200/70">No local ads added yet. Fill out the form below to add your first paid advertiser.</p>`;
-        return;
-      }
-
-      container.innerHTML = sorted
-        .map(
-          (ad) => `
-          <div class="bg-white p-3 rounded-xl border border-amber-200/80 flex items-center justify-between gap-2">
-            <div class="min-w-0">
-              <div class="flex flex-wrap items-center gap-1.5">
-                <span class="px-2 py-0.5 rounded-md bg-slate-900 text-white text-[10px] font-extrabold">#${Number(ad.priority || 1)}</span>
-                <span class="text-xs font-extrabold text-slate-900 truncate">${escapeHtml(ad.sponsorName)}</span>
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900">${Number(ad.durationSeconds || 5)}s</span>
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                  ad.billingStatus === 'PAID'
-                    ? 'bg-emerald-100 text-emerald-800'
-                    : ad.billingStatus === 'DUE'
-                    ? 'bg-rose-100 text-rose-800'
-                    : 'bg-slate-100 text-slate-600'
-                }">${escapeHtml(ad.billingStatus || 'PAID')} &bull; $${Number(ad.monthlyFee || 0)}/mo</span>
-              </div>
-              <p class="text-[11px] text-slate-500 truncate mt-0.5">${escapeHtml(ad.message || ad.contact || 'No promo text')}</p>
-            </div>
-            <div class="flex items-center gap-1.5 shrink-0">
-              <button type="button" onclick="editAdItem('${escapeHtml(ad.id)}')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-[11px] font-bold">Edit</button>
-              <button type="button" onclick="deleteAdItem('${escapeHtml(ad.id)}')" class="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 text-[11px] font-bold">Delete</button>
-            </div>
-          </div>
-        `
-        )
-        .join('');
-    }
-
-    function resetAdEditorForm() {
-      document.getElementById('adEditIdInput').value = '';
-      document.getElementById('adFormModeLabel').textContent = 'Add New Local Advertisement';
-      document.getElementById('adBillingStatusInput').value = 'PAID';
-      document.getElementById('adSponsorNameInput').value = '';
-      document.getElementById('adDurationInput').value = '5';
-      document.getElementById('adPriorityInput').value = String((adConfig.ads?.length || 0) + 1);
-      document.getElementById('adPhotoUrlInput').value = '';
-      document.getElementById('adMessageInput').value = '';
-      document.getElementById('adPhoneInput').value = '';
-      document.getElementById('adMonthlyFeeInput').value = '150';
-      document.getElementById('adInvoiceEmailInput').value = '';
-      clearAdPhotoInput();
-    }
-
-    function editAdItem(adId) {
-      const ad = (adConfig.ads || []).find((a) => a.id === adId);
-      if (!ad) return;
-      document.getElementById('adEditIdInput').value = ad.id;
-      document.getElementById('adFormModeLabel').textContent = `Editing: ${ad.sponsorName}`;
-      document.getElementById('adBillingStatusInput').value = ad.billingStatus || 'PAID';
-      document.getElementById('adSponsorNameInput').value = ad.sponsorName || '';
-      document.getElementById('adDurationInput').value = String(ad.durationSeconds || 5);
-      document.getElementById('adPriorityInput').value = String(ad.priority || 1);
-      document.getElementById('adPhotoUrlInput').value = ad.photoUrl || '';
-      document.getElementById('adMessageInput').value = ad.message || '';
-      document.getElementById('adPhoneInput').value = ad.contact || '';
-      document.getElementById('adMonthlyFeeInput').value = String(ad.monthlyFee || 150);
-      document.getElementById('adInvoiceEmailInput').value = ad.invoiceEmail || '';
-      updateAdPhotoPreview();
-    }
-
-    async function deleteAdItem(adId) {
-      adConfig.ads = (adConfig.ads || []).filter((a) => a.id !== adId);
-      saveStateToStorage();
-      await persistStoreSettingsToCloud();
-      renderAdminAdList();
-      showToast('Advertisement removed.');
-    }
-
-    function handleAdPhotoUpload(event) {
-      const file = event.target.files && event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        const img = new Image();
-        img.onload = function () {
-          const canvas = document.createElement('canvas');
-          const maxW = 720;
-          const scale = img.width > maxW ? maxW / img.width : 1;
-          canvas.width = Math.round(img.width * scale);
-          canvas.height = Math.round(img.height * scale);
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          const compressedUrl = canvas.toDataURL('image/jpeg', 0.78);
-          document.getElementById('adPhotoUrlInput').value = compressedUrl;
-          updateAdPhotoPreview();
-        };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    }
-
-    function updateAdPhotoPreview() {
-      const url = document.getElementById('adPhotoUrlInput').value.trim();
-      const box = document.getElementById('adAdminPhotoPreviewBox');
-      const img = document.getElementById('adAdminPhotoPreviewImg');
-      if (url) {
-        img.src = url;
-        box.classList.remove('hidden');
-      } else {
-        img.src = '';
-        box.classList.add('hidden');
-      }
-    }
-
-    function clearAdPhotoInput() {
-      document.getElementById('adPhotoUrlInput').value = '';
-      const fileInput = document.getElementById('adPhotoFileInput');
-      if (fileInput) fileInput.value = '';
-      updateAdPhotoPreview();
-    }
-
-    async function saveAdItem(event) {
-      event.preventDefault();
-      const editId = document.getElementById('adEditIdInput').value.trim();
-      const sponsorName = document.getElementById('adSponsorNameInput').value.trim();
-      if (!sponsorName) return;
-
-      const adPayload = {
-        id: editId || `ad_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-        sponsorName: sponsorName,
-        durationSeconds: Number(document.getElementById('adDurationInput').value || 5),
-        priority: Math.max(1, Number(document.getElementById('adPriorityInput').value || 1)),
-        photoUrl: document.getElementById('adPhotoUrlInput').value.trim(),
-        message: document.getElementById('adMessageInput').value.trim(),
-        contact: document.getElementById('adPhoneInput').value.trim(),
-        monthlyFee: Number(document.getElementById('adMonthlyFeeInput').value || 0),
-        billingStatus: document.getElementById('adBillingStatusInput').value || 'PAID',
-        invoiceEmail: document.getElementById('adInvoiceEmailInput').value.trim()
-      };
-
-      if (!Array.isArray(adConfig.ads)) adConfig.ads = [];
-      const existingIdx = adConfig.ads.findIndex((a) => a.id === adPayload.id);
-      if (existingIdx >= 0) {
-        adConfig.ads[existingIdx] = adPayload;
-      } else {
-        adConfig.ads.push(adPayload);
-      }
-
-      saveStateToStorage();
-      await persistStoreSettingsToCloud();
-      renderAdminAdList();
-      resetAdEditorForm();
-      showToast(`Saved ad for ${sponsorName} (Priority #${adPayload.priority}).`);
-    }
-
-    function previewCurrentAdForm() {
-      const sampleAd = {
-        sponsorName: document.getElementById('adSponsorNameInput').value.trim() || 'Featured Local Partner',
-        durationSeconds: Number(document.getElementById('adDurationInput').value || 5),
-        photoUrl: document.getElementById('adPhotoUrlInput').value.trim(),
-        message: document.getElementById('adMessageInput').value.trim() || 'Special neighborhood offer for Rexall members!',
-        contact: document.getElementById('adPhoneInput').value.trim() || '9807 Lorain Ave, Cleveland, OH'
-      };
-      activeAdQueue = [sampleAd];
-      currentAdQueueIndex = 0;
-      displayAdAtQueueIndex(0);
-    }
-
-    function emailAdvertiserInvoice() {
-      const sponsor = document.getElementById('adSponsorNameInput').value.trim() || 'Local Store Advertiser';
-      const fee = Number(document.getElementById('adMonthlyFeeInput').value || 150).toFixed(2);
-      const email = document.getElementById('adInvoiceEmailInput').value.trim();
-      const duration = document.getElementById('adDurationInput').value || '5';
-      const priority = document.getElementById('adPriorityInput').value || '1';
-
-      const subject = encodeURIComponent(`Rexall Discount Reward - Local Pop-Up Advertising Invoice ($${fee})`);
-      const body = encodeURIComponent(
-        `Hello ${sponsor},\n\n` +
-        `Thank you for advertising on the Rexall Discount Reward customer portal (9807 Lorain Ave, Cleveland, OH).\n\n` +
-        `Advertising Package Details:\n` +
-        `- Priority Slot: #${priority}\n` +
-        `- Pop-Up Display Duration: ${duration} Seconds\n` +
-        `- Monthly Advertising Rate: $${fee}\n\n` +
-        `Please reply to this email or stop by Rexall Discount (216-961-1323) to complete payment so we can keep your ad active.\n\n` +
-        `Thank you,\nRexall Discount Reward Team`
-      );
-      window.open(`mailto:${encodeURIComponent(email)}?subject=${subject}&body=${body}`, '_blank');
-    }
-
-    function maybeShowStartupAds() {
-      if (!adConfig || !adConfig.enabled || !Array.isArray(adConfig.ads)) return;
-      const paidAds = adConfig.ads
-        .filter((a) => (a.billingStatus || 'PAID') === 'PAID')
-        .sort((a, b) => Number(a.priority || 99) - Number(b.priority || 99));
-
-      if (paidAds.length === 0) return;
-      activeAdQueue = paidAds;
-      currentAdQueueIndex = 0;
-      displayAdAtQueueIndex(0);
-    }
-
-    function displayAdAtQueueIndex(idx) {
-      if (idx >= activeAdQueue.length) {
-        closeLocalAdPopup();
-        return;
-      }
-      const ad = activeAdQueue[idx];
-      adSecondsRemaining = Math.max(3, Number(ad.durationSeconds || 5));
-
-      document.getElementById('adSponsorTitle').textContent = ad.sponsorName || 'Featured Local Partner';
-      document.getElementById('adSponsorMessage').textContent = ad.message || 'Support local businesses on Lorain Ave!';
-      const contactEl = document.getElementById('adSponsorContact');
-      if (ad.contact) {
-        contactEl.textContent = ad.contact;
-        contactEl.classList.remove('hidden');
-      } else {
-        contactEl.classList.add('hidden');
-      }
-
-      const photoWrap = document.getElementById('adSponsorPhotoWrapper');
-      const photoImg = document.getElementById('adSponsorPhotoImg');
-      const defaultIcon = document.getElementById('adSponsorDefaultIcon');
-      if (ad.photoUrl) {
-        photoImg.src = ad.photoUrl;
-        photoWrap.classList.remove('hidden');
-        defaultIcon.classList.add('hidden');
-      } else {
-        photoImg.src = '';
-        photoWrap.classList.add('hidden');
-        defaultIcon.classList.remove('hidden');
-      }
-
-      const posBadge = document.getElementById('adQueuePositionBadge');
-      const nextBtn = document.getElementById('adNextBtn');
-      if (activeAdQueue.length > 1) {
-        posBadge.textContent = `${idx + 1} / ${activeAdQueue.length}`;
-        posBadge.classList.remove('hidden');
-        if (idx + 1 < activeAdQueue.length) {
-          nextBtn.classList.remove('hidden');
-        } else {
-          nextBtn.classList.add('hidden');
-        }
-      } else {
-        posBadge.classList.add('hidden');
-        nextBtn.classList.add('hidden');
-      }
-
-      updateAdCountdownText();
-      document.getElementById('localAdPopupModal').classList.remove('hidden');
-
-      if (adCountdownTimer) clearInterval(adCountdownTimer);
-      adCountdownTimer = setInterval(() => {
-        adSecondsRemaining -= 1;
-        updateAdCountdownText();
-        if (adSecondsRemaining <= 0) {
-          clearInterval(adCountdownTimer);
-          advanceToNextAd();
-        }
-      }, 1000);
-    }
-
-    function updateAdCountdownText() {
-      const val = Math.max(0, adSecondsRemaining);
-      document.getElementById('adCountdownBadge').textContent = `${val}s`;
-      document.getElementById('adSecondsLeft').textContent = String(val);
-    }
-
-    function advanceToNextAd() {
-      if (adCountdownTimer) clearInterval(adCountdownTimer);
-      currentAdQueueIndex += 1;
-      if (currentAdQueueIndex < activeAdQueue.length) {
-        displayAdAtQueueIndex(currentAdQueueIndex);
-      } else {
-        closeLocalAdPopup();
-      }
+    function downloadCSVBackup() {
+      const csv = ['Name,Phone,Points', ...Object.values(customers).map((c) => `"${c.name}","${formatPhoneDisplay(c.phone)}",${c.points}`)].join('\n');
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+      a.download = 'rexall_backup.csv';
+      a.click();
     }
 
     function closeLocalAdPopup() {
@@ -3071,325 +1312,27 @@
       document.getElementById('localAdPopupModal').classList.add('hidden');
     }
 
-    // ==================== ADMIN CASHIER POS & DIRECTORY ====================
-    function searchPosCustomers() {
-      const query = document.getElementById('adminPosSearchInput').value.trim().toLowerCase();
-      const normQuery = normalizePhone(query);
-      const resultsBox = document.getElementById('adminPosSearchResults');
-
-      if (!query) {
-        resultsBox.classList.add('hidden');
-        resultsBox.innerHTML = '';
-        return;
-      }
-
-      const matches = Object.values(customers).filter((c) => {
-        const nameMatch = (c.name || '').toLowerCase().includes(query);
-        const phoneMatch = normQuery ? (c.phone || '').includes(normQuery) : false;
-        return nameMatch || phoneMatch;
-      });
-
-      if (matches.length === 0) {
-        resultsBox.innerHTML = `<p class="px-3.5 py-2.5 text-xs text-slate-500">No matching customer found.</p>`;
-        resultsBox.classList.remove('hidden');
-        return;
-      }
-
-      resultsBox.innerHTML = matches
-        .slice(0, 8)
-        .map(
-          (c) => `
-          <button
-            type="button"
-            onclick="selectPosCustomer('${escapeHtml(c.phone)}')"
-            class="w-full px-3.5 py-2.5 text-left hover:bg-emerald-50 flex items-center justify-between gap-2 transition"
-          >
-            <span class="text-xs font-bold text-slate-900 truncate">${escapeHtml(c.name || 'Member')} (${escapeHtml(formatPhoneDisplay(c.phone))})</span>
-            <span class="text-xs font-extrabold text-emerald-700 shrink-0">${Math.max(0, Number(c.points || 0))} pts</span>
-          </button>
-        `
-        )
-        .join('');
-      resultsBox.classList.remove('hidden');
+    function advanceToNextAd() {
+      closeLocalAdPopup();
     }
 
-    function selectPosCustomer(phoneKey) {
-      const normKey = normalizePhone(phoneKey);
-      if (!customers[normKey]) return;
-      selectedPosPhone = normKey;
-      document.getElementById('adminPosSearchResults').classList.add('hidden');
-      document.getElementById('adminPosSearchInput').value = `${customers[normKey].name} (${formatPhoneDisplay(normKey)})`;
-      refreshSelectedPosCustomer();
-    }
-
-    function refreshSelectedPosCustomer() {
-      const box = document.getElementById('adminPosSelectedBox');
-      if (!selectedPosPhone || !customers[selectedPosPhone]) {
-        box.classList.add('hidden');
-        return;
-      }
-      const cust = customers[selectedPosPhone];
-      const pts = Math.max(0, Number(cust.points || 0));
-
-      document.getElementById('posSelectedName').textContent = cust.name || 'Member';
-      document.getElementById('posSelectedPhone').textContent = formatPhoneDisplay(cust.phone);
-      document.getElementById('posSelectedPoints').textContent = `${pts.toLocaleString()} pts`;
-      document.getElementById('posSelectedValue').textContent = `$${(pts / 100).toFixed(2)} value`;
-
-      document.getElementById('posRedeemBtn100').disabled = pts < 100;
-      document.getElementById('posRedeemBtn500').disabled = pts < 500;
-      document.getElementById('posRedeemBtn1000').disabled = pts < 1000;
-
-      box.classList.remove('hidden');
-    }
-
-    function updatePosPointsPreview() {
-      const amt = Number(document.getElementById('posPurchaseAmountInput').value || 0);
-      const pts = amt > 0 ? Math.round(amt * POINTS_PER_DOLLAR) : 0;
-      document.getElementById('posLivePointsPreview').textContent = String(pts);
-    }
-
-    async function handleAdminPosAddPoints(event) {
-      event.preventDefault();
-      if (!selectedPosPhone || !customers[selectedPosPhone]) return;
-
-      const amt = Number(document.getElementById('posPurchaseAmountInput').value || 0);
-      if (amt <= 0) return;
-
-      const earnedPts = Math.round(amt * POINTS_PER_DOLLAR);
-      const nowIso = new Date().toISOString();
-
-      const cust = customers[selectedPosPhone];
-      cust.points = Number(cust.points || 0) + earnedPts;
-      cust.lastActivityAt = nowIso;
-      cust.updatedAt = nowIso;
-
-      const txn = {
-        id: `${Date.now()}_earn_${selectedPosPhone}`,
-        phone: selectedPosPhone,
-        type: 'EARNED',
-        pointsDelta: earnedPts,
-        dollars: amt,
-        note: `In-Store Purchase ($${amt.toFixed(2)})`,
-        timestamp: nowIso
-      };
-      transactions.unshift(txn);
-
-      saveStateToStorage();
-      await persistCustomerToCloud(selectedPosPhone, cust);
-      await persistTransactionToCloud(txn);
-
-      document.getElementById('posPurchaseAmountInput').value = '';
-      updatePosPointsPreview();
-      refreshSelectedPosCustomer();
-      renderAdminStatsAndDirectory();
-      if (activePhone === selectedPosPhone) renderDashboard();
-      showToast(`Added +${earnedPts} points to ${cust.name}!`);
-    }
-
-    async function handleAdminPosRedeem(pointsCost, dollarDiscount) {
-      if (!selectedPosPhone || !customers[selectedPosPhone]) return;
-      const cust = customers[selectedPosPhone];
-      const currentPts = Math.max(0, Number(cust.points || 0));
-      if (currentPts < pointsCost) {
-        showToast('Not enough points for this reward tier.', 'error');
-        return;
-      }
-
-      const nowIso = new Date().toISOString();
-      cust.points = Math.max(0, currentPts - pointsCost);
-      cust.totalRedeemedDollars = Number(cust.totalRedeemedDollars || 0) + Number(dollarDiscount);
-      cust.lastActivityAt = nowIso;
-      cust.updatedAt = nowIso;
-
-      const txn = {
-        id: `${Date.now()}_redeem_${selectedPosPhone}`,
-        phone: selectedPosPhone,
-        type: 'REDEEMED',
-        pointsDelta: -pointsCost,
-        dollars: dollarDiscount,
-        note: `Store Credit Discount ($${dollarDiscount} Off)`,
-        timestamp: nowIso
-      };
-      transactions.unshift(txn);
-
-      saveStateToStorage();
-      await persistCustomerToCloud(selectedPosPhone, cust);
-      await persistTransactionToCloud(txn);
-
-      refreshSelectedPosCustomer();
-      renderAdminStatsAndDirectory();
-      if (activePhone === selectedPosPhone) renderDashboard();
-      showToast(`Redeemed $${dollarDiscount} Off (-${pointsCost} pts) for ${cust.name}!`);
-    }
-
-    async function handleAdminTransferPhone(event) {
-      event.preventDefault();
-      const oldNorm = normalizePhone(document.getElementById('adminOldPhoneInput').value);
-      const newNorm = normalizePhone(document.getElementById('adminNewPhoneInput').value);
-
-      if (!customers[oldNorm]) {
-        showToast('Old phone number not found in directory.', 'error');
-        return;
-      }
-      if (newNorm.length < 7 || customers[newNorm]) {
-        showToast('New phone number must be valid and not already registered.', 'error');
-        return;
-      }
-
-      await transferCustomerPhoneRecord(oldNorm, newNorm);
-      document.getElementById('adminOldPhoneInput').value = '';
-      document.getElementById('adminNewPhoneInput').value = '';
-      renderAdminStatsAndDirectory();
-      showToast(`Transferred account to ${formatPhoneDisplay(newNorm)}.`);
-    }
-
-    function renderAdminStatsAndDirectory() {
-      const list = Object.values(customers);
-      const totalPts = list.reduce((sum, c) => sum + Math.max(0, Number(c.points || 0)), 0);
-      const totalSaved = list.reduce((sum, c) => sum + Number(c.totalRedeemedDollars || 0), 0);
-
-      document.getElementById('statTotalCustomers').textContent = list.length.toLocaleString();
-      document.getElementById('statTotalPoints').textContent = totalPts.toLocaleString();
-      document.getElementById('statTotalRedeemed').textContent = `$${totalSaved.toFixed(0)}`;
-
-      renderAdminDirectory();
-    }
-
-    function renderAdminDirectory() {
-      const listEl = document.getElementById('adminCustomerList');
-      if (!listEl) return;
-
-      const query = (document.getElementById('adminSearchInput')?.value || '').trim().toLowerCase();
-      const normQuery = normalizePhone(query);
-
-      const filtered = Object.values(customers)
-        .filter((c) => {
-          if (!query) return true;
-          const nameMatch = (c.name || '').toLowerCase().includes(query);
-          const phoneMatch = normQuery ? (c.phone || '').includes(normQuery) : false;
-          return nameMatch || phoneMatch;
-        })
-        .sort((a, b) => Number(b.points || 0) - Number(a.points || 0));
-
-      if (filtered.length === 0) {
-        listEl.innerHTML = `<p class="p-4 text-center text-xs text-slate-400">No customers match your search.</p>`;
-        return;
-      }
-
-      listEl.innerHTML = filtered
-        .map((c) => {
-          const displayName = c.name || c.fullName || `Member (${formatPhoneDisplay(c.phone)})`;
-          const displayPhone = formatPhoneDisplay(c.phone);
-          const lastSeenDate = new Date(c.lastActivityAt || c.updatedAt || c.createdAt || Date.now()).toLocaleDateString([], {
-            month: 'short',
-            day: 'numeric',
-            year: '2-digit'
-          });
-          return `
-            <div
-              onclick="selectPosCustomer('${escapeHtml(c.phone)}')"
-              class="w-full px-4 py-3 text-left hover:bg-slate-50 flex items-center justify-between gap-3 cursor-pointer transition"
-            >
-              <div class="min-w-0">
-                <p class="text-xs sm:text-sm font-bold text-slate-900 truncate">${escapeHtml(displayName)}</p>
-                <p class="text-[11px] font-medium text-slate-600 truncate">Phone: ${escapeHtml(displayPhone)} &bull; Active ${escapeHtml(lastSeenDate)}</p>
-              </div>
-              <div class="flex items-center gap-2 shrink-0">
-                <div class="text-right">
-                  <span class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-extrabold">${Math.max(0, Number(c.points || 0)).toLocaleString()} pts</span>
-                  <p class="text-[10px] text-slate-400 mt-0.5">Tap for POS</p>
-                </div>
-                <button
-                  type="button"
-                  onclick='sendMemberInfoEmail(${JSON.stringify({ name: displayName, phone: c.phone, points: c.points, referredBy: c.referredBy || "", referredByName: c.referredByName || "", createdAt: c.createdAt || "" })}, event)'
-                  title="Email member info to hanallc07@gmail.com"
-                  class="p-2 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-700 transition"
-                >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                </button>
-                <button
-                  type="button"
-                  onclick="requestDeleteCustomer('${escapeHtml(c.phone)}', event)"
-                  title="Delete customer permanently"
-                  class="p-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 transition"
-                >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          `;
-        })
-        .join('');
-    }
-
-    function downloadCSVBackup() {
-      const rows = [['Name', 'Phone', 'Points', 'LifetimeRedeemedDollars', 'Referrals', 'LastActivityAt']];
-      Object.values(customers).forEach((c) => {
-        rows.push([
-          `"${String(c.name || '').replace(/"/g, '""')}"`,
-          `"${formatPhoneDisplay(c.phone)}"`,
-          Math.max(0, Number(c.points || 0)),
-          Number(c.totalRedeemedDollars || 0).toFixed(2),
-          Number(c.referralCount || 0),
-          `"${c.lastActivityAt || c.createdAt || ''}"`
-        ]);
-      });
-
-      const csvContent = rows.map((r) => r.join(',')).join('\n');
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `rexall_reward_backup_${new Date().toISOString().slice(0, 10)}.csv`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-      showToast('Customer CSV backup downloaded!');
-    }
-
-    // ==================== INITIALIZATION ====================
     document.addEventListener('DOMContentLoaded', () => {
       loadStateFromStorage();
-
-      const refInput = document.getElementById('regReferrerPhone');
-      if (refInput) {
-        refInput.value = '';
-        delete refInput.dataset.fromUrl;
-      }
       try {
         const params = new URLSearchParams(window.location.search);
-        const refParam = normalizePhone(params.get('ref'));
-        if (refParam && refParam.length >= 7 && refInput) {
-          refInput.value = formatPhoneDisplay(refParam);
-          refInput.dataset.fromUrl = 'true';
+        const ref = normalizePhone(params.get('ref'));
+        if (ref.length >= 7) {
+          const inp = document.getElementById('regReferrerPhone');
+          if (inp) inp.value = formatPhoneDisplay(ref);
         }
-        const phoneParam = normalizePhone(params.get('phone'));
-        if (phoneParam && phoneParam.length >= 7) {
-          activePhone = phoneParam;
-        }
-      } catch (e) {
-        // Ignore URL parsing errors
-      }
+        const ph = normalizePhone(params.get('phone'));
+        if (ph.length >= 7 && customers[ph]) activePhone = ph;
+      } catch (e) {}
 
-      if (activePhone && customers[activePhone]) {
-        showDashboardView();
-      } else {
-        showLoginView();
-      }
+      if (activePhone && customers[activePhone]) showDashboardView();
+      else showLoginView();
 
-      refreshAdminCredentialsUI();
-      populateAlertSettingsForm();
-      populateAdSettingsForm();
-      populateExpirationSettingsForm();
       initFirebaseSync();
-      runPointsExpirationCheck(false);
-      maybeShowStartupAds();
       monitorHostHealthAndAutoFailover();
     });
   </script>
