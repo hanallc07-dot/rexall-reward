@@ -295,6 +295,7 @@
             <div class="flex flex-wrap items-center gap-2 mt-1">
               <p id="cardCustomerPhone" class="text-xs sm:text-sm text-emerald-100 font-medium">555-000-0000</p>
               <button
+                type="button"
                 onclick="openChangePhoneModal()"
                 class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-white/15 hover:bg-white/25 text-[11px] font-semibold text-white transition active:scale-95"
               >
@@ -307,6 +308,7 @@
           </div>
 
           <button
+            type="button"
             onclick="switchCustomer()"
             class="px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-semibold backdrop-blur-xs transition active:scale-95 shrink-0"
           >
@@ -414,7 +416,7 @@
             class="px-4 py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-xs transition active:scale-95 shrink-0 flex items-center justify-center gap-2"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 0 002-2v-8a2 0 00-2-2h-8a2 0 00-2 2v8a2 0 002 2z" />
             </svg>
             <span>Copy Invite Link</span>
           </button>
@@ -426,9 +428,9 @@
         <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
           <h3 class="text-base font-bold text-slate-900">Your Points &amp; Discount History</h3>
           <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
-            <button onclick="setHistoryFilter('ALL')" id="filterAllBtn" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-white text-slate-900 shadow-2xs transition">All</button>
-            <button onclick="setHistoryFilter('EARNED')" id="filterEarnedBtn" class="px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition">Earned</button>
-            <button onclick="setHistoryFilter('REDEEMED')" id="filterRedeemedBtn" class="px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition">Redeemed</button>
+            <button type="button" onclick="setHistoryFilter('ALL')" id="filterAllBtn" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-white text-slate-900 shadow-2xs transition">All</button>
+            <button type="button" onclick="setHistoryFilter('EARNED')" id="filterEarnedBtn" class="px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition">Earned</button>
+            <button type="button" onclick="setHistoryFilter('REDEEMED')" id="filterRedeemedBtn" class="px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition">Redeemed</button>
           </div>
         </div>
 
@@ -439,12 +441,27 @@
     </section>
   </main>
 
+  <!-- Multi-Host Redundancy Footer Bar -->
+  <footer class="max-w-3xl w-full mx-auto px-4 pb-6 text-center">
+    <div class="inline-flex flex-wrap items-center justify-center gap-2 px-3.5 py-2 rounded-2xl bg-white border border-slate-200/80 text-[11px] text-slate-500 shadow-2xs">
+      <span>Connected via <strong id="currentHostBadge" class="text-slate-700">Store Cloud</strong></span>
+      <span>&bull;</span>
+      <button
+        type="button"
+        onclick="switchToHealthyBackupServer(true, false)"
+        class="font-bold text-emerald-700 hover:text-emerald-800 underline underline-offset-2"
+      >
+        Switch Backup Server
+      </button>
+    </div>
+  </footer>
+
   <!-- ==================== MODAL: CHANGE PHONE NUMBER ==================== -->
   <div id="changePhoneModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-xl border border-slate-200">
       <div class="flex items-center justify-between pb-3 border-b border-slate-100">
         <h3 class="text-base font-bold text-slate-900">Change Customer Phone Number</h3>
-        <button onclick="closeChangePhoneModal()" class="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition">
+        <button type="button" onclick="closeChangePhoneModal()" class="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
           </svg>
@@ -478,10 +495,8 @@
   <!-- ==================== MODAL: FIRST-TIME CUSTOMER 25 BONUS POINTS POP-UP ==================== -->
   <div id="welcomeBonusModal" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-sm w-full p-6 sm:p-7 shadow-2xl border border-emerald-200 text-center relative overflow-hidden">
-      <!-- Decorative top accent -->
       <div class="absolute inset-x-0 top-0 h-2 bg-gradient-to-r from-emerald-500 via-amber-400 to-emerald-600"></div>
 
-      <!-- Gift / Celebration Badge -->
       <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 text-white flex items-center justify-center mx-auto mb-4 shadow-md">
         <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
@@ -527,7 +542,7 @@
           <h2 class="text-base sm:text-lg font-extrabold text-slate-900">Store Admin &amp; Cashier Console</h2>
           <p class="text-[11px] text-slate-500">Rexall Discount Reward &bull; Cloud &amp; Offline Management</p>
         </div>
-        <button onclick="closeAdminModal()" class="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition">
+        <button type="button" onclick="closeAdminModal()" class="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
           </svg>
@@ -1205,6 +1220,33 @@
     </div>
   </div>
 
+  <!-- ==================== MODAL: HOST DOWN CONVENIENCE POP-UP ==================== -->
+  <div id="hostDownPopupModal" class="fixed inset-0 z-50 hidden bg-slate-950/75 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-amber-200 text-center space-y-4">
+      <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center mx-auto">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M4.93 19h14.14c1.54 0 2.5-1.67 1.73-3L13.73 4c-.77-1.33-2.69-1.33-3.46 0L3.2 16c-.77 1.33.19 3 1.73 3z" />
+        </svg>
+      </div>
+      <div>
+        <h3 class="text-base sm:text-lg font-extrabold text-slate-900">Sorry for inconvenience</h3>
+        <p id="hostDownTargetText" class="text-xs text-slate-600 mt-1.5 leading-relaxed">
+          This web server is currently unavailable. Click OK to switch automatically to a running backup web app so you can log in or register.
+        </p>
+      </div>
+      <div class="flex items-center justify-center gap-2.5 pt-1">
+        <button
+          type="button"
+          id="hostDownOkBtn"
+          onclick="confirmHostDownSwitch()"
+          class="w-full py-3 px-5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold shadow-xs transition active:scale-95"
+        >
+          OK
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- ==================== MODAL: CONFIRM PERMANENT CUSTOMER DELETION ==================== -->
   <div id="deleteCustomerModal" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-rose-200 text-center space-y-4">
@@ -1245,7 +1287,7 @@
 
       <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center mx-auto">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
         </svg>
       </div>
 
@@ -1300,6 +1342,15 @@
     const FIRST_TIME_BONUS_POINTS = 25;
     const REFERRAL_BONUS_POINTS = 25;
 
+    // Multi-Host Redundancy Mirrors (All connected to the same Firebase database)
+    const BACKUP_HOST_MIRRORS = [
+      { name: 'GitHub Pages', url: 'https://hanallc07-dot.github.io/rexall-reward/' },
+      { name: 'Cloudflare', url: 'https://rexall-reward.hanallc07.workers.dev/' },
+      { name: 'Netlify', url: 'https://rexall-discount-reward.netlify.app/' }
+    ];
+
+    let pendingFailoverMirror = null;
+
     // Local Storage Keys
     const STORAGE_KEYS = {
       CUSTOMERS: 'rexall_loyalty_customers_v1',
@@ -1343,6 +1394,124 @@
     let adCountdownTimer = null;
     let adSecondsRemaining = 5;
     let toastTimeout = null;
+
+    // ==================== MULTI-HOST AUTOMATIC FAILOVER ====================
+    function getCurrentMirrorLabel() {
+      const origin = window.location.origin.toLowerCase();
+      if (origin.includes('github.io')) return 'GitHub Pages';
+      if (origin.includes('workers.dev') || origin.includes('pages.dev')) return 'Cloudflare';
+      if (origin.includes('netlify.app')) return 'Netlify';
+      return 'Store Cloud';
+    }
+
+    async function checkHostIsReachable(targetUrl) {
+      try {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 3500);
+        await fetch(targetUrl, {
+          method: 'HEAD',
+          mode: 'no-cors',
+          cache: 'no-store',
+          signal: controller.signal
+        });
+        clearTimeout(timer);
+        return true;
+      } catch (err) {
+        return false;
+      }
+    }
+
+    function buildMirrorRedirectUrl(mirrorUrl) {
+      const params = new URLSearchParams(window.location.search);
+      params.delete('target');
+      if (activePhone) params.set('phone', activePhone);
+      const refInput = document.getElementById('regReferrerPhone');
+      const refDigits = normalizePhone(refInput ? refInput.value : '');
+      if (refDigits.length >= 7) params.set('ref', refDigits);
+      params.set('switched', '1');
+      const queryStr = params.toString();
+      const cleanBase = mirrorUrl.endsWith('/') ? mirrorUrl : `${mirrorUrl}/`;
+      return queryStr ? `${cleanBase}?${queryStr}` : cleanBase;
+    }
+
+    function openHostDownPopup(mirror) {
+      pendingFailoverMirror = mirror;
+      const msgEl = document.getElementById('hostDownTargetText');
+      if (msgEl && mirror) {
+        msgEl.textContent = `Sorry for inconvenience — this web app is temporarily down. Click OK to switch to ${mirror.name} and log in or register.`;
+      }
+      const modal = document.getElementById('hostDownPopupModal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function confirmHostDownSwitch() {
+      const modal = document.getElementById('hostDownPopupModal');
+      if (modal) modal.classList.add('hidden');
+      if (pendingFailoverMirror && pendingFailoverMirror.url) {
+        window.location.href = buildMirrorRedirectUrl(pendingFailoverMirror.url);
+      }
+    }
+
+    async function switchToHealthyBackupServer(manualTrigger = false, showConveniencePopup = false) {
+      const currentOrigin = window.location.origin.toLowerCase();
+      const candidates = BACKUP_HOST_MIRRORS.filter((m) => {
+        try {
+          return new URL(m.url).origin.toLowerCase() !== currentOrigin;
+        } catch (e) {
+          return true;
+        }
+      });
+
+      if (manualTrigger) {
+        showToast('Checking running backup web app...');
+      }
+
+      for (const mirror of candidates) {
+        const ok = await checkHostIsReachable(mirror.url);
+        if (ok) {
+          if (showConveniencePopup) {
+            openHostDownPopup(mirror);
+          } else {
+            window.location.href = buildMirrorRedirectUrl(mirror.url);
+          }
+          return;
+        }
+      }
+
+      if (manualTrigger) {
+        showToast('All backup hosts checked—current connection is active.');
+      }
+    }
+
+    function monitorHostHealthAndAutoFailover() {
+      const badge = document.getElementById('currentHostBadge');
+      if (badge) badge.textContent = getCurrentMirrorLabel();
+
+      if (!window.location.protocol.startsWith('http')) return;
+
+      try {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('target') === 'first-healthy') {
+          switchToHealthyBackupServer(false, false);
+          return;
+        }
+        if (params.get('switched') === '1') {
+          showToast(`Connected via ${getCurrentMirrorLabel()}—you can log in or register now.`);
+        }
+      } catch (e) {
+        // Ignore URL param errors
+      }
+
+      fetch(window.location.href.split('#')[0], { method: 'HEAD', cache: 'no-store' })
+        .then((res) => {
+          if (!res.ok && res.status >= 400) {
+            switchToHealthyBackupServer(false, true);
+          }
+        })
+        .catch(() => {
+          switchToHealthyBackupServer(false, true);
+        });
+    }
 
     // ==================== UTILITY HELPERS ====================
     function normalizePhone(raw) {
@@ -1564,7 +1733,6 @@
         db = firebase.firestore();
         updateSyncStatus(true, 'Cloud Synced');
 
-        // Listen to store settings
         db.collection('rexall_settings').doc('store_config').onSnapshot((doc) => {
           if (doc.exists) {
             const data = doc.data() || {};
@@ -1597,7 +1765,6 @@
           console.error('Settings listener error:', err);
         });
 
-        // Listen to customers collection
         db.collection('rexall_customers').onSnapshot((snapshot) => {
           const cloudCustomers = {};
           snapshot.forEach((doc) => {
@@ -1640,7 +1807,6 @@
           updateSyncStatus(false, 'Local Only');
         });
 
-        // Listen to transactions collection
         db.collection('rexall_transactions').orderBy('timestamp', 'desc').limit(500).onSnapshot((snapshot) => {
           const cloudTxns = [];
           snapshot.forEach((doc) => {
@@ -1680,7 +1846,6 @@
         return;
       }
 
-      // Check local state first
       if (customers[normPhone]) {
         activePhone = normPhone;
         saveStateToStorage();
@@ -1689,7 +1854,6 @@
         return;
       }
 
-      // Check Firestore directly in case of a fresh device
       if (db) {
         try {
           const docSnap = await db.collection('rexall_customers').doc(normPhone).get();
@@ -1717,7 +1881,6 @@
         }
       }
 
-      // Not registered yet -> show registration step with blank referral field unless ?ref= link was used
       document.getElementById('phoneLookupStep').classList.add('hidden');
       document.getElementById('registerStep').classList.remove('hidden');
       document.getElementById('regPhoneNumber').value = formatPhoneDisplay(normPhone);
@@ -1772,7 +1935,6 @@
         return;
       }
 
-      // If no referral phone was entered yet, ask "Were you referred by anybody?" first
       if (!normReferrer && !skipReferralPromptOnce) {
         document.getElementById('referralAskModal').classList.remove('hidden');
         return;
@@ -1791,7 +1953,6 @@
 
       if (!fullName || normPhone.length < 7) return;
 
-      // Prevent duplicate registration for an existing phone number
       if (customers[normPhone]) {
         activePhone = normPhone;
         saveStateToStorage();
@@ -1826,7 +1987,6 @@
         }
       }
 
-      // Validate optional referrer phone (cannot refer self)
       let validReferrer = null;
       if (normReferrer) {
         if (normReferrer === normPhone) {
@@ -1864,7 +2024,6 @@
       customers[normPhone] = newCustomer;
       knownCustomerKeys.add(normPhone);
 
-      // Welcome bonus transaction
       const welcomeTxn = {
         id: `${Date.now()}_welcome_${normPhone}`,
         phone: normPhone,
@@ -1879,7 +2038,6 @@
       await persistCustomerToCloud(normPhone, newCustomer);
       await persistTransactionToCloud(welcomeTxn);
 
-      // Credit +25 Referral Bonus Points to BOTH new member and referring member
       if (validReferrer) {
         const newRefTxn = {
           id: `${Date.now()}_refnew_${normPhone}`,
@@ -2369,7 +2527,6 @@
           })
         });
       } catch (err) {
-        // Silent background fail-safe: never interrupt customer experience
         console.warn('Silent email notification skipped:', err);
       }
     }
@@ -3200,7 +3357,6 @@
     document.addEventListener('DOMContentLoaded', () => {
       loadStateFromStorage();
 
-      // Ensure referral input starts blank unless a valid ?ref= invite link is in the URL
       const refInput = document.getElementById('regReferrerPhone');
       if (refInput) {
         refInput.value = '';
@@ -3212,6 +3368,10 @@
         if (refParam && refParam.length >= 7 && refInput) {
           refInput.value = formatPhoneDisplay(refParam);
           refInput.dataset.fromUrl = 'true';
+        }
+        const phoneParam = normalizePhone(params.get('phone'));
+        if (phoneParam && phoneParam.length >= 7) {
+          activePhone = phoneParam;
         }
       } catch (e) {
         // Ignore URL parsing errors
@@ -3230,6 +3390,7 @@
       initFirebaseSync();
       runPointsExpirationCheck(false);
       maybeShowStartupAds();
+      monitorHostHealthAndAutoFailover();
     });
   </script>
 </body>
