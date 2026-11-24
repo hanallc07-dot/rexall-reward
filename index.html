@@ -3,12 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Rexall Discount Reward — VIP Loyalty &amp; Local Offers</title>
+  <title>Rexall Discount Reward | VIP Loyalty & Local Ads</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <style>
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
     }
     .glass-card {
       background: rgba(255, 255, 255, 0.96);
@@ -23,539 +26,769 @@
     }
   </style>
 </head>
-<body class="min-h-screen bg-slate-50 text-slate-900 flex flex-col">
+<body class="min-h-screen flex flex-col bg-slate-50 text-slate-900">
 
-  <!-- ==================== PRE-APP LOCAL BUSINESS POP-UP SPLASH ==================== -->
-  <div id="preAppAdSplashModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-white max-w-md w-full rounded-3xl shadow-2xl border border-slate-200 overflow-hidden animate-fade-up">
-      <div class="bg-gradient-to-r from-emerald-700 to-teal-600 px-5 py-3 flex items-center justify-between text-white">
+  <!-- Pre-App Local Business Pop-Up Splash Modal -->
+  <div id="preAppAdSplashModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="max-w-lg w-full bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden animate-fade-up">
+      <div class="bg-slate-900 text-white px-5 py-3 flex items-center justify-between">
         <div class="flex items-center gap-2">
-          <span id="preAppAdPriorityBadge" class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-amber-300 text-slate-950">
-            Local Spotlight
+          <span id="preAppAdPriorityBadge" class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-amber-400 text-slate-950">
+            Featured Sponsor
           </span>
-          <span id="preAppAdSlideCounter" class="text-[11px] font-semibold text-emerald-100">Ad 1 of 1</span>
+          <span id="preAppAdCounterText" class="text-xs font-semibold text-slate-300">Ad 1 of 1</span>
         </div>
-        <span id="preAppAdTimerBadge" class="text-xs font-extrabold bg-black/25 px-2.5 py-1 rounded-full">
-          Closing in 5s
-        </span>
-      </div>
-
-      <div id="preAppAdImageWrap" class="hidden bg-slate-100 border-b border-slate-200 max-h-56 overflow-hidden flex items-center justify-center">
-        <img id="preAppAdImage" src="" alt="Local Offer" class="w-full h-56 object-cover" />
-      </div>
-
-      <div class="p-6 space-y-3">
-        <p id="preAppAdBusinessName" class="text-xs font-extrabold uppercase tracking-wider text-emerald-700"></p>
-        <h3 id="preAppAdHeadline" class="text-xl font-black text-slate-900 leading-snug"></h3>
-        <p id="preAppAdDescription" class="text-sm text-slate-600 leading-relaxed"></p>
-        <p id="preAppAdContact" class="text-xs font-semibold text-slate-500"></p>
-
-        <div class="pt-3 flex items-center gap-2.5">
-          <a id="preAppAdLinkBtn" href="#" target="_blank" rel="noopener noreferrer" class="hidden flex-1 text-center py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold transition">
-            Visit Offer &rarr;
-          </a>
-          <button type="button" onclick="advanceOrDismissPreAppAd()" class="flex-1 py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-extrabold transition">
-            Continue to Rewards
+        <div class="flex items-center gap-2">
+          <span id="preAppAdTimerBadge" class="text-xs font-mono font-bold text-emerald-300 bg-slate-800 px-2.5 py-1 rounded-lg">
+            5s
+          </span>
+          <button
+            type="button"
+            onclick="dismissAllPreAppAds()"
+            class="text-xs font-bold text-slate-300 hover:text-white px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 transition"
+          >
+            Skip &rarr;
           </button>
+        </div>
+      </div>
+
+      <div id="preAppAdBody" class="p-6 space-y-4">
+        <div id="preAppAdImageWrapper" class="hidden rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 max-h-60 flex items-center justify-center">
+          <img id="preAppAdImage" src="" alt="Local Sponsor" class="w-full h-56 object-cover" />
+        </div>
+        <div>
+          <h3 id="preAppAdTitle" class="text-xl font-black text-slate-900">Local Business Sponsor</h3>
+          <p id="preAppAdDescription" class="text-sm text-slate-600 mt-1.5 leading-relaxed"></p>
+        </div>
+        <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100">
+          <span id="preAppAdContactText" class="text-xs font-semibold text-slate-500"></span>
+          <div class="flex items-center gap-2">
+            <a
+              id="preAppAdVisitBtn"
+              href="#"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="hidden px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition"
+            >
+              Visit Offer
+            </a>
+            <button
+              type="button"
+              onclick="advancePreAppAd()"
+              class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition"
+            >
+              Continue to Rewards
+            </button>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ==================== TOP STORE HEADER ==================== -->
-  <header class="bg-white border-b border-slate-200 sticky top-0 z-30">
-    <div class="max-w-4xl mx-auto px-4 py-3.5 flex flex-wrap items-center justify-between gap-3">
+  <!-- Top Header -->
+  <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200">
+    <div class="max-w-4xl mx-auto px-4 py-3.5 flex items-center justify-between gap-3">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shadow-sm font-black text-lg">
           R
         </div>
         <div>
-          <h1 class="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight leading-tight">
+          <h1 class="text-base sm:text-lg font-black tracking-tight text-slate-900 leading-tight">
             Rexall Discount Reward
           </h1>
-          <p class="text-[11px] sm:text-xs font-medium text-slate-500">
-            $1 Spent = 2 Points &bull; 100 pts = $1 Off &bull; 90-Day Activity Rule
+          <p class="text-[11px] font-semibold text-slate-500">
+            $1 Spent = 2 Points &bull; 100 pts = $1 Off &bull; 90-Day Policy
           </p>
         </div>
       </div>
 
       <div class="flex items-center gap-2">
-        <span id="cloudStatusBadge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800">
-          <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-          Connecting...
+        <span
+          id="cloudSyncBadge"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200"
+        >
+          <span id="cloudSyncDot" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span id="cloudSyncText">Cloud Synced</span>
         </span>
-        <button type="button" onclick="openAdminModal()" class="px-3.5 py-1.5 rounded-full bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition shadow-2xs">
+        <button
+          type="button"
+          onclick="openAdminModal()"
+          class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-xs transition active:scale-95"
+        >
           Admin Backup
         </button>
       </div>
     </div>
   </header>
 
-  <!-- ==================== MAIN CONTENT AREA ==================== -->
-  <main class="flex-1 max-w-4xl w-full mx-auto px-4 py-8 space-y-6">
+  <!-- Main Content -->
+  <main class="flex-1 max-w-4xl w-full mx-auto px-4 py-6 space-y-6">
 
-    <!-- STEP 1: PHONE LOOKUP CARD -->
-    <section id="lookupSection" class="max-w-md mx-auto bg-white rounded-3xl shadow-sm border border-slate-200/80 p-7 sm:p-8 text-center space-y-5 animate-fade-up">
-      <div class="w-12 h-12 mx-auto rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-        </svg>
-      </div>
-
-      <div class="space-y-1">
-        <h2 class="text-2xl font-black text-slate-900 tracking-tight">Rexall Discount Reward</h2>
-        <p class="text-xs font-bold text-slate-700">9807 Lorain Ave, Cleveland, Ohio 44102</p>
-        <p class="text-xs font-semibold text-slate-600">216-961-1323 &bull; hanallc07@gmail.com</p>
-        <p class="text-xs text-slate-500 pt-2 leading-relaxed">
-          Enter your phone number to open your loyalty card or register as a new member.
+    <!-- Customer Lookup / Registration Card -->
+    <section id="authSection" class="max-w-md mx-auto bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-7 space-y-5 animate-fade-up">
+      <div class="text-center space-y-1.5">
+        <span class="inline-block px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">
+          VIP Store Loyalty
+        </span>
+        <h2 class="text-2xl font-black text-slate-900">Check Points or Join Free</h2>
+        <p class="text-xs text-slate-500 font-medium">
+          Enter your 10-digit phone number to view your balance or get +25 welcome bonus points!
         </p>
       </div>
 
-      <form onsubmit="handlePhoneContinue(event)" class="space-y-3 text-left">
+      <form id="phoneLookupForm" onsubmit="handlePhoneLookup(event)" class="space-y-4">
         <div>
-          <label for="phoneLookupInput" class="block text-[11px] font-extrabold uppercase tracking-wider text-slate-700 mb-1.5">
-            Phone Number
+          <label for="customerPhoneInput" class="block text-xs font-bold text-slate-700 mb-1.5">
+            Mobile Phone Number
           </label>
           <input
             type="tel"
-            id="phoneLookupInput"
-            placeholder="e.g., 555-234-5678"
+            id="customerPhoneInput"
+            placeholder="(216) 555-0199"
             required
-            class="w-full px-4 py-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-base font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-emerald-600 focus:bg-white transition"
+            class="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-base font-bold text-slate-900 focus:outline-none focus:border-emerald-500 focus:bg-white transition"
           />
-          <p class="text-[11px] text-slate-400 mt-1.5">
-            Already registered? Enter your phone number to view your points immediately.
-          </p>
         </div>
 
-        <button type="submit" class="w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm shadow-sm transition active:scale-[0.99]">
+        <button
+          type="submit"
+          class="w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-extrabold shadow-sm transition active:scale-[0.99]"
+        >
           Continue &rarr;
         </button>
       </form>
-    </section>
 
-    <!-- STEP 2: NEW MEMBER REGISTRATION CARD -->
-    <section id="registerSection" class="hidden max-w-md mx-auto bg-white rounded-3xl shadow-sm border border-slate-200/80 p-7 sm:p-8 space-y-5 animate-fade-up">
-      <div class="flex items-center justify-between">
-        <span class="px-3 py-1 rounded-full text-[11px] font-extrabold bg-emerald-100 text-emerald-800">
-          New VIP Member (+25 Bonus Pts)
-        </span>
-        <button type="button" onclick="backToLookup()" class="text-xs font-bold text-slate-500 hover:text-slate-800">
-          &larr; Change Phone
-        </button>
-      </div>
+      <!-- First-Time Registration Form (Shown if phone not found) -->
+      <form id="newMemberForm" onsubmit="handleNewMemberRegister(event)" class="hidden pt-4 border-t border-slate-100 space-y-4 animate-fade-up">
+        <div class="p-3 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-900 font-semibold">
+          New VIP Member! Enter your name below to claim <strong>+25 Bonus Points</strong> right now.
+        </div>
 
-      <div>
-        <h2 class="text-xl font-black text-slate-900">Complete Your Free VIP Card</h2>
-        <p id="registerPhoneDisplay" class="text-xs font-bold text-emerald-700 mt-0.5"></p>
-      </div>
-
-      <form onsubmit="handleNewMemberRegister(event)" class="space-y-3.5">
         <div>
-          <label class="block text-[11px] font-extrabold uppercase tracking-wider text-slate-700 mb-1">
+          <label for="newMemberNameInput" class="block text-xs font-bold text-slate-700 mb-1">
             Full Name *
           </label>
           <input
             type="text"
-            id="regNameInput"
+            id="newMemberNameInput"
+            placeholder="e.g., Aarav Shah"
             required
-            placeholder="Enter your full name"
-            class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-semibold text-slate-900 focus:outline-none focus:border-emerald-600"
+            class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-semibold text-slate-900 focus:outline-none focus:border-emerald-500"
           />
         </div>
 
         <div>
-          <label class="block text-[11px] font-extrabold uppercase tracking-wider text-slate-700 mb-1">
-            Email Address (Optional)
+          <label for="newMemberEmailInput" class="block text-xs font-bold text-slate-700 mb-1">
+            Email (Optional)
           </label>
           <input
             type="email"
-            id="regEmailInput"
+            id="newMemberEmailInput"
             placeholder="you@example.com"
-            class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-semibold text-slate-900 focus:outline-none focus:border-emerald-600"
+            class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-semibold text-slate-900 focus:outline-none focus:border-emerald-500"
           />
         </div>
 
         <div>
-          <label class="block text-[11px] font-extrabold uppercase tracking-wider text-slate-700 mb-1">
-            Friend's Referral Phone (Optional — +15 Extra Pts)
+          <label for="referralPhoneInput" class="block text-xs font-bold text-slate-700 mb-1">
+            Friend's Phone # Who Referred You (Optional +25 pts for both!)
           </label>
           <input
             type="tel"
-            id="regReferralInput"
-            placeholder="Friend's 10-digit phone number"
-            class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-semibold text-slate-900 focus:outline-none focus:border-emerald-600"
+            id="referralPhoneInput"
+            placeholder="(216) 555-0100"
+            class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-semibold text-slate-900 focus:outline-none focus:border-emerald-500"
           />
         </div>
 
-        <button type="submit" class="w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm shadow-sm transition">
-          Activate Loyalty Card &amp; Claim +25 Pts
+        <button
+          type="submit"
+          class="w-full py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-extrabold transition"
+        >
+          Claim +25 Bonus Points
         </button>
       </form>
+
+      <p id="authFeedbackMsg" class="hidden text-center text-xs font-bold text-rose-600"></p>
     </section>
 
-    <!-- STEP 3: CUSTOMER LOYALTY CARD DASHBOARD -->
+    <!-- Customer Loyalty Dashboard (Shown when logged in) -->
     <section id="dashboardSection" class="hidden max-w-2xl mx-auto space-y-5 animate-fade-up">
-      <!-- Green VIP Card -->
-      <div class="rounded-3xl bg-gradient-to-br from-emerald-800 via-emerald-700 to-teal-700 text-white p-6 sm:p-7 shadow-lg space-y-5">
+      <div class="rounded-3xl bg-gradient-to-br from-emerald-800 via-emerald-700 to-teal-800 text-white p-6 sm:p-7 shadow-lg space-y-5">
         <div class="flex items-start justify-between gap-3">
           <div>
-            <p class="text-[11px] font-extrabold uppercase tracking-widest text-emerald-200">VIP Loyalty Member</p>
-            <h2 id="dashMemberName" class="text-2xl sm:text-3xl font-black tracking-tight mt-0.5">Member Name</h2>
-            <p id="dashMemberPhone" class="text-xs font-bold text-emerald-100 mt-0.5">(000) 000-0000</p>
+            <span class="text-[11px] font-extrabold uppercase tracking-wider text-emerald-200">
+              VIP LOYALTY MEMBER
+            </span>
+            <h2 id="dashCustomerName" class="text-2xl sm:text-3xl font-black tracking-tight mt-0.5">
+              Member Name
+            </h2>
+            <p id="dashCustomerPhone" class="text-xs font-semibold text-emerald-100 mt-0.5">
+              (216) 000-0000
+            </p>
           </div>
-          <button type="button" onclick="signOutCustomer()" class="px-3.5 py-1.5 rounded-full bg-white/15 hover:bg-white/25 text-white text-xs font-bold transition">
+          <button
+            type="button"
+            onclick="signOutCustomer()"
+            class="px-3.5 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold transition"
+          >
             Sign Out
           </button>
         </div>
 
-        <div class="rounded-2xl bg-white/10 border border-white/15 p-4 sm:p-5 grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-2 gap-3 bg-white/10 rounded-2xl p-4 border border-white/15">
           <div>
-            <p class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-200">Available Points</p>
-            <p id="dashPointsValue" class="text-3xl sm:text-4xl font-black mt-1">0</p>
+            <p class="text-[11px] font-bold uppercase tracking-wider text-emerald-200">
+              Available Points
+            </p>
+            <p id="dashAvailablePoints" class="text-3xl sm:text-4xl font-black mt-1">
+              0
+            </p>
           </div>
           <div>
-            <p class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-200">Store Credit Value</p>
-            <p id="dashCreditValue" class="text-3xl sm:text-4xl font-black text-amber-300 mt-1">$0.00</p>
+            <p class="text-[11px] font-bold uppercase tracking-wider text-emerald-200">
+              Store Credit Value
+            </p>
+            <p id="dashCreditValue" class="text-3xl sm:text-4xl font-black text-amber-300 mt-1">
+              $0.00
+            </p>
           </div>
         </div>
 
-        <div class="flex flex-wrap items-center justify-between gap-2 text-xs">
-          <p id="dashExpiryInfo" class="font-semibold text-emerald-100">
-            90-day inactivity rule: -25 pts every 90 days if unused (down to 0)
-          </p>
-          <span class="font-extrabold text-amber-300">Share phone # for referral bonus!</span>
+        <div class="flex flex-wrap items-center justify-between gap-2 text-xs font-semibold text-emerald-100 pt-1">
+          <span id="dashExpiryInfo">Points expire in 90 days (-25 pts per 90d inactive)</span>
+          <span class="text-amber-300 font-bold">Share phone # for referral bonus!</span>
         </div>
       </div>
 
       <!-- Recent Points Activity -->
-      <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-2xs space-y-4">
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-xs p-5 sm:p-6 space-y-4">
         <div class="flex items-center justify-between">
-          <h3 class="text-sm font-black text-slate-900">Recent Points Activity</h3>
-          <span class="text-[11px] font-bold text-slate-400">Synced with Store POS</span>
+          <h3 class="text-base font-extrabold text-slate-900">Recent Points Activity</h3>
+          <span class="text-[11px] font-semibold text-slate-400">Synced with Store POS</span>
         </div>
-        <div id="dashHistoryList" class="divide-y divide-slate-100"></div>
+        <div id="dashHistoryList" class="divide-y divide-slate-100">
+          <!-- Populated dynamically -->
+        </div>
       </div>
     </section>
 
-    <!-- PUBLIC LOCAL BUSINESS BANNERS -->
+    <!-- Local Business Banners Section (Visible to Customers) -->
     <section id="publicLocalAdsSection" class="hidden max-w-2xl mx-auto space-y-3">
       <div class="flex items-center justify-between px-1">
-        <h3 class="text-xs font-black uppercase tracking-wider text-slate-500">Featured Local Neighborhood Partners</h3>
-        <span class="text-[11px] font-semibold text-slate-400">Cleveland Community Offers</span>
+        <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-500">
+          Featured Local Neighborhood Sponsors
+        </h3>
+        <span class="text-[11px] font-semibold text-slate-400">Cleveland Community Partners</span>
       </div>
-      <div id="publicLocalAdsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+      <div id="publicLocalAdsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <!-- Populated dynamically -->
+      </div>
     </section>
 
   </main>
 
-  <!-- ==================== STORE RULES & BACKUP SERVER FOOTER ==================== -->
-  <footer class="border-t border-slate-200 bg-white py-5 px-4 text-center space-y-2">
-    <p class="text-[11px] font-semibold text-slate-500">
-      No points on Lottery. Redeem is store credit only. No Cash Value. Unused points reduce by 25 pts every 90 days down to 0 (member account stays active).
-    </p>
-    <div class="flex flex-wrap items-center justify-center gap-2 text-[11px] text-slate-400">
-      <span>Mirrors:</span>
-      <a href="https://hanallc07-dot.github.io/rexall-reward/" target="_blank" rel="noopener noreferrer" class="font-bold text-emerald-700 hover:underline">GitHub Pages</a>
-      <span>&bull;</span>
-      <a href="https://rexall-reward.hanallc07.workers.dev/" target="_blank" rel="noopener noreferrer" class="font-bold text-amber-700 hover:underline">Cloudflare</a>
-      <span>&bull;</span>
-      <a href="https://rexall-discount-reward.netlify.app/" target="_blank" rel="noopener noreferrer" class="font-bold text-teal-700 hover:underline">Netlify</a>
+  <!-- Store Footer with Backup Host Switcher -->
+  <footer class="border-t border-slate-200 bg-white mt-10">
+    <div class="max-w-4xl mx-auto px-4 py-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+      <div class="text-center sm:text-left">
+        <p class="font-bold text-slate-700">Rexall Discount &bull; 9807 Lorain Ave, Cleveland, OH &bull; 216-961-1323</p>
+        <p class="text-[11px] mt-0.5">No points on Lottery. Redeem is store credit only. No Cash Value.</p>
+      </div>
+      <div class="flex flex-wrap items-center justify-center gap-2">
+        <span class="text-[11px] font-semibold text-slate-400">Mirrors:</span>
+        <a href="https://hanallc07-dot.github.io/rexall-reward/" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 font-bold text-slate-700 transition">GitHub</a>
+        <a href="https://rexall-reward.hanallc07.workers.dev/" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 font-bold text-slate-700 transition">Cloudflare</a>
+        <a href="https://rexall-discount-reward.netlify.app/" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 font-bold text-slate-700 transition">Netlify</a>
+      </div>
     </div>
   </footer>
 
   <!-- ==================== ADMIN BACKUP & POS MODAL ==================== -->
-  <div id="adminModal" class="hidden fixed inset-0 z-40 bg-slate-950/75 backdrop-blur-xs overflow-y-auto p-4 sm:p-6">
+  <div id="adminModal" class="hidden fixed inset-0 z-40 bg-slate-950/75 backdrop-blur-xs overflow-y-auto p-3 sm:p-6">
     <div class="max-w-4xl mx-auto bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden my-4">
-      <!-- Modal Top Bar -->
-      <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
+      <!-- Admin Modal Top Bar -->
+      <div class="bg-slate-900 text-white px-5 py-4 flex items-center justify-between">
         <div>
-          <h2 class="text-base sm:text-lg font-black">Rexall Store Admin &amp; Cloud Sync Console</h2>
-          <p class="text-[11px] text-slate-400">Changes here sync automatically across GitHub, Cloudflare &amp; Netlify</p>
+          <h2 class="text-base sm:text-lg font-black">Store Admin &amp; Cloud Sync Console</h2>
+          <p class="text-[11px] text-slate-300">Changes here automatically update GitHub Pages, Cloudflare, and Netlify</p>
         </div>
-        <button type="button" onclick="closeAdminModal()" class="px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold">
+        <button
+          type="button"
+          onclick="closeAdminModal()"
+          class="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-white transition"
+        >
           Close &times;
         </button>
       </div>
 
       <!-- Admin PIN Unlock Screen -->
-      <div id="adminLockBox" class="p-8 max-w-sm mx-auto text-center space-y-4">
-        <h3 class="text-lg font-black text-slate-900">Enter Store Admin PIN</h3>
-        <p class="text-xs text-slate-500">Default Store PIN is <span class="font-mono font-bold text-slate-800">9807</span></p>
+      <div id="adminLockScreen" class="p-8 max-w-sm mx-auto text-center space-y-4">
+        <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-800 flex items-center justify-center mx-auto font-black text-lg">
+          PIN
+        </div>
+        <div>
+          <h3 class="text-lg font-extrabold text-slate-900">Enter Store Admin PIN</h3>
+          <p class="text-xs text-slate-500 mt-1">Default PIN: 1234 (or your configured store PIN)</p>
+        </div>
         <form onsubmit="unlockAdminPanel(event)" class="space-y-3">
           <input
             type="password"
             id="adminPinInput"
-            placeholder="Enter PIN"
+            placeholder="••••"
             required
-            class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-center text-lg font-black tracking-widest focus:outline-none focus:border-emerald-600"
+            class="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-center text-lg font-black tracking-widest focus:outline-none focus:border-emerald-500"
           />
-          <button type="submit" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold">
+          <button
+            type="submit"
+            class="w-full py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-extrabold transition"
+          >
             Unlock Admin Console
           </button>
         </form>
+        <p id="adminPinError" class="hidden text-xs font-bold text-rose-600">Incorrect PIN. Please try again.</p>
       </div>
 
-      <!-- Unlocked Admin Tabs & Panels -->
-      <div id="adminUnlockedContent" class="hidden p-5 sm:p-6 space-y-5">
+      <!-- Admin Unlocked Content -->
+      <div id="adminUnlockedContent" class="hidden p-5 sm:p-6 space-y-6">
         <!-- Navigation Tabs -->
         <div class="flex flex-wrap gap-2 border-b border-slate-200 pb-3">
-          <button type="button" id="tabBtnPos" onclick="switchAdminTab('pos')" class="px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-extrabold">
-            1. Cashier POS &amp; Members
+          <button
+            type="button"
+            id="tabBtnPos"
+            onclick="switchAdminTab('pos')"
+            class="px-4 py-2 rounded-xl text-xs font-extrabold bg-emerald-600 text-white transition"
+          >
+            1. Cashier POS &amp; Customers
           </button>
-          <button type="button" id="tabBtnAds" onclick="switchAdminTab('ads')" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-extrabold">
+          <button
+            type="button"
+            id="tabBtnAds"
+            onclick="switchAdminTab('ads')"
+            class="px-4 py-2 rounded-xl text-xs font-extrabold bg-slate-100 text-slate-700 hover:bg-slate-200 transition"
+          >
             2. Local Business Ads &amp; Subscriptions
           </button>
-          <button type="button" id="tabBtnSettings" onclick="switchAdminTab('settings')" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-extrabold">
-            3. Email &amp; 90-Day Expiry Settings
+          <button
+            type="button"
+            id="tabBtnSettings"
+            onclick="switchAdminTab('settings')"
+            class="px-4 py-2 rounded-xl text-xs font-extrabold bg-slate-100 text-slate-700 hover:bg-slate-200 transition"
+          >
+            3. Email &amp; Expiry Alerts
           </button>
         </div>
 
-        <!-- TAB 1: CASHIER POS & CUSTOMER MANAGEMENT -->
-        <div id="adminPanelPos" class="space-y-5">
+        <!-- TAB 1: CASHIER POS & CUSTOMERS -->
+        <div id="adminTabPos" class="space-y-5">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <!-- Search & Select Customer -->
-            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+            <!-- Customer Search & Selection -->
+            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
               <div class="flex items-center justify-between">
-                <h4 class="text-xs font-black uppercase tracking-wider text-slate-700">Customer Directory</h4>
-                <span id="adminTotalMembersBadge" class="text-[11px] font-bold text-emerald-700">0 Members</span>
+                <h3 class="text-sm font-extrabold text-slate-900">Find or Select Customer</h3>
+                <span id="adminTotalCustomersBadge" class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-white border border-slate-200 text-slate-600">
+                  0 Members
+                </span>
               </div>
               <input
                 type="text"
-                id="adminCustomerSearch"
-                oninput="renderAdminCustomerList()"
-                placeholder="Search by phone or name..."
-                class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-semibold focus:outline-none focus:border-emerald-600"
+                id="adminCustomerSearchInput"
+                oninput="renderAdminCustomersList()"
+                placeholder="Search by name or phone..."
+                class="w-full px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold focus:outline-none focus:border-emerald-500"
               />
-              <div id="adminCustomerList" class="max-h-80 overflow-y-auto space-y-2 pr-1"></div>
+              <div id="adminCustomersList" class="max-h-72 overflow-y-auto space-y-2 pr-1">
+                <!-- Populated dynamically -->
+              </div>
             </div>
 
-            <!-- Selected Customer POS Actions -->
-            <div class="p-4 rounded-2xl bg-white border border-slate-200 space-y-4">
-              <h4 class="text-xs font-black uppercase tracking-wider text-slate-700">Cashier POS Points &amp; Redeem</h4>
-              <div id="adminPosEmptyHint" class="p-6 rounded-xl bg-slate-50 border border-dashed border-slate-200 text-center text-xs text-slate-500">
-                Select a customer from the left list to add purchase points, redeem store credit, or delete their account.
+            <!-- Selected Customer POS Box -->
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 space-y-4">
+              <h3 class="text-sm font-extrabold text-slate-900">POS Points Terminal</h3>
+              <div id="posNoSelectionBox" class="p-6 rounded-2xl bg-slate-50 border border-dashed border-slate-300 text-center text-xs text-slate-500">
+                Select a customer on the left to add purchase points, redeem store credit, or delete a customer record.
               </div>
 
-              <div id="adminPosSelectedBox" class="hidden space-y-4">
-                <div class="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-between gap-2">
+              <div id="posSelectedBox" class="hidden space-y-4">
+                <div class="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-between gap-2">
                   <div>
-                    <p id="posCustName" class="text-sm font-black text-slate-900"></p>
-                    <p id="posCustPhone" class="text-xs font-semibold text-slate-600"></p>
-                    <p id="posCustExpiry" class="text-[11px] font-bold text-emerald-800 mt-0.5"></p>
+                    <p id="posSelectedName" class="text-sm font-black text-slate-900">Customer Name</p>
+                    <p id="posSelectedPhone" class="text-xs font-semibold text-emerald-800">(216) 000-0000</p>
+                    <p id="posSelectedExpiry" class="text-[11px] text-slate-600 mt-0.5">Expires in 90 days</p>
                   </div>
                   <div class="text-right">
-                    <p id="posCustPoints" class="text-xl font-black text-emerald-700">0 pts</p>
-                    <p id="posCustCredit" class="text-xs font-bold text-slate-600">$0.00</p>
+                    <p id="posSelectedPoints" class="text-xl font-black text-emerald-700">0 pts</p>
+                    <button
+                      type="button"
+                      onclick="handleDeleteSelectedCustomer()"
+                      class="mt-1 px-2.5 py-1 rounded-lg bg-rose-100 hover:bg-rose-200 text-rose-700 text-[11px] font-extrabold transition"
+                    >
+                      Delete Customer
+                    </button>
                   </div>
                 </div>
 
                 <!-- Add Purchase ($) -->
-                <div class="space-y-1.5">
-                  <label class="block text-[11px] font-extrabold text-slate-700">Add Store Purchase ($1 = 2 Points)</label>
+                <form onsubmit="handlePosPurchase(event)" class="space-y-2">
+                  <label class="block text-xs font-bold text-slate-700">
+                    Add Eligible Purchase Amount ($1 = 2 pts, excl. Lottery)
+                  </label>
                   <div class="flex gap-2">
-                    <input type="number" step="0.01" min="0.01" id="posPurchaseAmount" placeholder="e.g., 24.50" class="flex-1 px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold" />
-                    <button type="button" onclick="handlePosAddPurchase()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold">
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0.01"
+                      id="posPurchaseAmountInput"
+                      placeholder="25.00"
+                      required
+                      class="flex-1 px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold focus:outline-none focus:border-emerald-500"
+                    />
+                    <button
+                      type="submit"
+                      class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold transition"
+                    >
                       + Add Points
                     </button>
                   </div>
-                </div>
+                </form>
 
                 <!-- Redeem Points -->
-                <div class="space-y-1.5">
-                  <label class="block text-[11px] font-extrabold text-slate-700">Redeem Points (100 pts = $1.00 Off)</label>
+                <form onsubmit="handlePosRedeem(event)" class="space-y-2 pt-2 border-t border-slate-100">
+                  <label class="block text-xs font-bold text-slate-700">
+                    Redeem Points (100 pts = $1.00 Store Credit)
+                  </label>
                   <div class="flex gap-2">
-                    <input type="number" step="100" min="100" id="posRedeemPoints" placeholder="e.g., 100" class="flex-1 px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold" />
-                    <button type="button" onclick="handlePosRedeemPoints()" class="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-extrabold">
-                      Redeem
+                    <input
+                      type="number"
+                      step="100"
+                      min="100"
+                      id="posRedeemPointsInput"
+                      placeholder="100"
+                      required
+                      class="flex-1 px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold focus:outline-none focus:border-amber-500"
+                    />
+                    <button
+                      type="submit"
+                      class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-extrabold transition"
+                    >
+                      Redeem Credit
                     </button>
                   </div>
-                </div>
-
-                <!-- Delete Customer Across All Web Apps -->
-                <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
-                  <span class="text-[11px] text-slate-400">Removes member from all 3 web apps</span>
-                  <button type="button" onclick="handleDeleteSelectedCustomer()" class="px-3.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-extrabold">
-                    Delete Customer
-                  </button>
-                </div>
+                </form>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- TAB 2: LOCAL BUSINESS ADVERTISING & SUBSCRIPTIONS -->
-        <div id="adminPanelAds" class="hidden space-y-5">
-          <form onsubmit="handleAddLocalAd(event)" class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
+        <!-- TAB 2: LOCAL BUSINESS ADS & SUBSCRIPTIONS -->
+        <div id="adminTabAds" class="hidden space-y-5">
+          <div class="bg-slate-50 p-4 sm:p-5 rounded-2xl border border-slate-200 space-y-4">
             <div class="flex flex-wrap items-center justify-between gap-2">
-              <h4 class="text-xs font-black uppercase tracking-wider text-slate-800">Add Local Business Ad &amp; In-Store Subscription</h4>
-              <span class="text-[11px] font-bold text-emerald-700">Syncs immediately to all 3 web apps</span>
+              <div>
+                <h3 class="text-sm font-extrabold text-slate-900">Add Local Business Ad Subscription</h3>
+                <p class="text-[11px] text-slate-500">Syncs immediately to GitHub Pages, Cloudflare &amp; Netlify</p>
+              </div>
+              <button
+                type="button"
+                onclick="startPreAppAdsSequence(true)"
+                class="px-3 py-1.5 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition"
+              >
+                Preview Pop-Up Splash
+              </button>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <form onsubmit="handleAddLocalAd(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
                 <label class="block text-[11px] font-bold text-slate-700 mb-1">Business Name *</label>
-                <input type="text" id="adBusinessNameInput" required placeholder="e.g., Lorain Ave Pizza" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold" />
+                <input
+                  type="text"
+                  id="adBusinessNameInput"
+                  placeholder="e.g., Lorain Ave Pizza & Grill"
+                  required
+                  class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold"
+                />
               </div>
-              <div>
-                <label class="block text-[11px] font-bold text-slate-700 mb-1">Business Email (Gets All 3 Links) *</label>
-                <input type="email" id="adBusinessEmailInput" required placeholder="owner@business.com" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold" />
-              </div>
-              <div>
-                <label class="block text-[11px] font-bold text-slate-700 mb-1">CC Email(s) (Optional)</label>
-                <input type="text" id="adCcEmailInput" placeholder="partner@business.com" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold" />
-              </div>
-            </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label class="block text-[11px] font-bold text-slate-700 mb-1">Advertiser Email (Receives All 3 Links) *</label>
+                <input
+                  type="email"
+                  id="adBusinessEmailInput"
+                  placeholder="owner@business.com"
+                  required
+                  class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold"
+                />
+              </div>
+
+              <div>
+                <label class="block text-[11px] font-bold text-slate-700 mb-1">CC Emails (Optional, comma-separated)</label>
+                <input
+                  type="text"
+                  id="adCcEmailInput"
+                  placeholder="partner@business.com"
+                  class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold"
+                />
+              </div>
+
+              <div class="sm:col-span-2">
+                <label class="block text-[11px] font-bold text-slate-700 mb-1">Offer / Ad Headline &amp; Address *</label>
+                <input
+                  type="text"
+                  id="adDescriptionInput"
+                  placeholder="e.g., 15% Off Large Pizzas! 9918 Lorain Ave, Cleveland OH"
+                  required
+                  class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold"
+                />
+              </div>
+
               <div>
                 <label class="block text-[11px] font-bold text-slate-700 mb-1">Business Phone (Optional)</label>
-                <input type="tel" id="adBusinessPhoneInput" placeholder="216-555-0144" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold" />
+                <input
+                  type="text"
+                  id="adPhoneInput"
+                  placeholder="216-555-0144"
+                  class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold"
+                />
               </div>
-              <div>
-                <label class="block text-[11px] font-bold text-slate-700 mb-1">Offer Headline *</label>
-                <input type="text" id="adTitleInput" required placeholder="e.g., 20% Off Large Pizza!" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold" />
-              </div>
-              <div>
-                <label class="block text-[11px] font-bold text-slate-700 mb-1">Pop-Up Duration</label>
-                <select id="adDurationSelect" onchange="recalculateSuggestedAdPrice()" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold">
-                  <option value="5">5 Seconds</option>
-                  <option value="10">10 Seconds (+$15)</option>
-                  <option value="15">15 Seconds (+$30)</option>
-                  <option value="30">30 Seconds (+$60)</option>
-                </select>
-              </div>
-            </div>
 
-            <div>
-              <label class="block text-[11px] font-bold text-slate-700 mb-1">Offer Details / Address *</label>
-              <input type="text" id="adDescInput" required placeholder="Show your Rexall VIP card at 9918 Lorain Ave..." class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold" />
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
               <div>
-                <label class="block text-[11px] font-bold text-slate-700 mb-1">Priority Slot (#1–#5)</label>
-                <select id="adPrioritySelect" onchange="recalculateSuggestedAdPrice()" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold">
-                  <option value="1">Priority #1 (First)</option>
+                <label class="block text-[11px] font-bold text-slate-700 mb-1">Pop-Up Priority Slot (#1 to #5)</label>
+                <select
+                  id="adPrioritySelect"
+                  onchange="recalculateAdSuggestedPrice()"
+                  class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold"
+                >
+                  <option value="1">Priority #1 (Shows First)</option>
                   <option value="2">Priority #2</option>
                   <option value="3">Priority #3</option>
                   <option value="4">Priority #4</option>
                   <option value="5">Priority #5</option>
                 </select>
               </div>
+
+              <div>
+                <label class="block text-[11px] font-bold text-slate-700 mb-1">Pop-Up Screen Duration</label>
+                <select
+                  id="adDurationSelect"
+                  onchange="recalculateAdSuggestedPrice()"
+                  class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold"
+                >
+                  <option value="5">5 Seconds</option>
+                  <option value="10">10 Seconds</option>
+                  <option value="15">15 Seconds</option>
+                  <option value="30">30 Seconds</option>
+                </select>
+              </div>
+
               <div>
                 <label class="block text-[11px] font-bold text-slate-700 mb-1">Subscription Validity</label>
-                <select id="adValidityDaysSelect" onchange="recalculateSuggestedAdPrice()" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold">
+                <select
+                  id="adTermDaysSelect"
+                  onchange="recalculateAdSuggestedPrice()"
+                  class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold"
+                >
                   <option value="30">30 Days ($50+ Base)</option>
                   <option value="60">60 Days</option>
                   <option value="90">90 Days</option>
-                  <option value="365">1 Year (Special Rate)</option>
+                  <option value="365">1 Year (Special Yearly Rate)</option>
                 </select>
               </div>
+
               <div>
-                <label class="block text-[11px] font-bold text-slate-700 mb-1">In-Store Payment (No Online)</label>
-                <select id="adPaymentMethodSelect" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold">
+                <label class="block text-[11px] font-bold text-slate-700 mb-1">In-Store Payment Method (No Online)</label>
+                <select
+                  id="adPaymentMethodSelect"
+                  class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold"
+                >
                   <option value="Cash at Store">Cash at Store</option>
                   <option value="Card at Store">Card at Store</option>
                 </select>
               </div>
-              <div>
-                <label class="block text-[11px] font-bold text-slate-700 mb-1">Subscription Price ($)</label>
-                <input type="number" step="1" min="0" id="adPriceInput" value="70" class="w-full px-3 py-2 rounded-xl bg-white border border-emerald-300 text-xs font-black text-emerald-800" />
-                <p id="adSuggestedPriceHint" class="text-[10px] font-semibold text-emerald-700 mt-0.5">Suggested: $70</p>
-              </div>
-            </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label class="block text-[11px] font-bold text-slate-700 mb-1">Payment Status</label>
+                <select
+                  id="adPaymentStatusSelect"
+                  class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold"
+                >
+                  <option value="Paid at Store">Paid at Store</option>
+                  <option value="Pending In-Store Payment">Pending In-Store Payment</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-[11px] font-bold text-slate-700 mb-1">Subscription Price ($) &mdash; Editable</label>
+                <input
+                  type="number"
+                  step="1"
+                  min="0"
+                  id="adPriceInput"
+                  value="70"
+                  required
+                  class="w-full px-3 py-2 rounded-xl bg-white border border-emerald-400 text-xs font-black text-emerald-900"
+                />
+                <p id="adSuggestedPriceHint" class="text-[10px] font-semibold text-emerald-700 mt-0.5">
+                  Suggested: $70 (5s &bull; 30 Days &bull; Priority #1)
+                </p>
+              </div>
+
               <div>
                 <label class="block text-[11px] font-bold text-slate-700 mb-1">Display Placement</label>
-                <select id="adPlacementSelect" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold">
+                <select
+                  id="adPlacementSelect"
+                  class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold"
+                >
                   <option value="BOTH">Pre-App Pop-Up + Page Banners</option>
                   <option value="POPUP">Pre-App Pop-Up Only</option>
                   <option value="BANNER">Page Banners Only</option>
                 </select>
               </div>
+
               <div>
                 <label class="block text-[11px] font-bold text-slate-700 mb-1">Website / Offer Link (Optional)</label>
-                <input type="url" id="adLinkUrlInput" placeholder="https://..." class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold" />
+                <input
+                  type="url"
+                  id="adOfferLinkInput"
+                  placeholder="https://..."
+                  class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold"
+                />
               </div>
+
               <div>
                 <label class="block text-[11px] font-bold text-slate-700 mb-1">Flyer / Logo Image URL (Optional)</label>
-                <input type="url" id="adImageUrlInput" placeholder="https://..." class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold" />
+                <input
+                  type="url"
+                  id="adImageUrlInput"
+                  placeholder="https://... (or upload below)"
+                  class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold"
+                />
               </div>
-            </div>
 
-            <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
-              <div class="flex items-center gap-2">
-                <label class="text-[11px] font-bold text-slate-600">Or Upload Image:</label>
-                <input type="file" id="adImageFileInput" accept="image/*" class="text-xs text-slate-600" />
+              <div class="sm:col-span-3 flex flex-wrap items-center justify-between gap-3 pt-1">
+                <div class="flex items-center gap-2">
+                  <label class="text-[11px] font-bold text-slate-700">Or Upload Image:</label>
+                  <input
+                    type="file"
+                    id="adImageFileInput"
+                    accept="image/*"
+                    class="text-xs text-slate-600"
+                  />
+                </div>
+                <label class="inline-flex items-center gap-2 text-xs font-bold text-emerald-800 cursor-pointer">
+                  <input type="checkbox" id="adAutoSendEmailCheckbox" checked class="rounded text-emerald-600" />
+                  <span>Auto-send to this business from hanallc07@gmail.com (with CC &amp; all 3 app links)</span>
+                </label>
               </div>
-              <button type="submit" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold shadow-xs">
-                Save Subscription &amp; Publish to All 3 Apps
-              </button>
-            </div>
-          </form>
 
-          <!-- Active & Scheduled Subscriptions List -->
-          <div class="space-y-2.5">
-            <h4 class="text-xs font-black uppercase tracking-wider text-slate-700">
-              Active &amp; Scheduled Subscriptions (Expired Ads Auto-Discontinue &amp; Next Priority Takes Over)
-            </h4>
-            <div id="adminAdsList" class="space-y-2.5"></div>
+              <div class="sm:col-span-3 flex flex-wrap items-center gap-3">
+                <button
+                  type="submit"
+                  class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold shadow-xs transition"
+                >
+                  Save Subscription &amp; Auto-Send Email
+                </button>
+                <span id="adSaveFeedbackText" class="text-xs font-bold text-emerald-700"></span>
+              </div>
+            </form>
           </div>
 
-          <!-- Dispatched Advertiser Email Log (With 1-Click Copy Email & 3 Links) -->
-          <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2.5">
-            <div class="flex items-center justify-between">
-              <h4 class="text-xs font-black uppercase tracking-wider text-slate-700">Advertiser Email Log (All 3 Web App Links)</h4>
-              <span id="dispatchedEmailCountBadge" class="text-[11px] font-bold text-slate-500">0 Logged</span>
+          <!-- Active & Scheduled Subscriptions List -->
+          <div class="space-y-3">
+            <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-500">
+              Active &amp; Scheduled Subscriptions (Expired Ads Automatically Discontinue &amp; Next Priority Takes Over)
+            </h4>
+            <div id="adminAdsList" class="space-y-2.5">
+              <!-- Populated dynamically -->
             </div>
-            <div id="dispatchedEmailsList" class="space-y-2"></div>
+          </div>
+
+          <!-- Dispatched Advertiser Emails Log -->
+          <div class="space-y-2.5 pt-2">
+            <div class="flex items-center justify-between">
+              <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-500">
+                Dispatched Advertiser Emails (All 3 Web App Links)
+              </h4>
+              <span id="dispatchedLogCountBadge" class="text-[11px] font-bold text-slate-500">0 Logged</span>
+            </div>
+            <div id="adminDispatchedEmailsList" class="space-y-2">
+              <!-- Populated dynamically -->
+            </div>
           </div>
         </div>
 
-        <!-- TAB 3: EMAIL & 90-DAY EXPIRY SETTINGS -->
-        <div id="adminPanelSettings" class="hidden space-y-5">
-          <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 space-y-1">
-            <h4 class="text-xs font-black text-emerald-900">90-Day Points Expiration &amp; Gradual 25-Point Decay Active</h4>
-            <p class="text-xs text-emerald-800">
-              Every customer's points expire 90 days after their last purchase/activity. When 90 days pass unused, 25 points are deducted per 90-day cycle down to 0—while their customer account record is always preserved.
-            </p>
-          </div>
+        <!-- TAB 3: EMAIL & EXPIRY ALERTS -->
+        <div id="adminTabSettings" class="hidden space-y-5">
+          <form onsubmit="handleSaveEmailSettings(event)" class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4">
+            <div>
+              <h3 class="text-sm font-extrabold text-slate-900">Automatic Email &amp; Store Notification Settings</h3>
+              <p class="text-xs text-slate-500 mt-0.5">
+                Connect EmailJS so new member alerts and local advertiser app links send silently in the background with zero pop-ups.
+              </p>
+            </div>
 
-          <form onsubmit="saveEmailSettings(event)" class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
-            <h4 class="text-xs font-black uppercase tracking-wider text-slate-700">Optional Background EmailJS Relay (Zero Pop-Ups)</h4>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label class="block text-[11px] font-bold text-slate-700 mb-1">Store Notification Email</label>
-                <input type="email" id="settingStoreEmail" value="hanallc07@gmail.com" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold" />
+                <label class="block text-xs font-bold text-slate-700 mb-1">Store Owner Notification Email</label>
+                <input
+                  type="email"
+                  id="settingStoreEmail"
+                  value="hanallc07@gmail.com"
+                  class="w-full px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold"
+                />
               </div>
               <div>
-                <label class="block text-[11px] font-bold text-slate-700 mb-1">EmailJS Service ID (Optional)</label>
-                <input type="text" id="settingEmailJsService" placeholder="service_xxxxxxx" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold" />
+                <label class="block text-xs font-bold text-slate-700 mb-1">EmailJS Service ID</label>
+                <input
+                  type="text"
+                  id="settingEmailJsService"
+                  placeholder="service_xxxxxxx"
+                  class="w-full px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold"
+                />
               </div>
               <div>
-                <label class="block text-[11px] font-bold text-slate-700 mb-1">EmailJS Template ID (Optional)</label>
-                <input type="text" id="settingEmailJsTemplate" placeholder="template_xxxxxxx" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold" />
+                <label class="block text-xs font-bold text-slate-700 mb-1">EmailJS Template ID</label>
+                <input
+                  type="text"
+                  id="settingEmailJsTemplate"
+                  placeholder="template_xxxxxxx"
+                  class="w-full px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold"
+                />
               </div>
               <div>
-                <label class="block text-[11px] font-bold text-slate-700 mb-1">EmailJS Public Key (Optional)</label>
-                <input type="text" id="settingEmailJsPublicKey" placeholder="Public Key" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold" />
+                <label class="block text-xs font-bold text-slate-700 mb-1">EmailJS Public Key</label>
+                <input
+                  type="text"
+                  id="settingEmailJsPublicKey"
+                  placeholder="Your EmailJS Public Key"
+                  class="w-full px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold"
+                />
               </div>
             </div>
-            <button type="submit" class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-extrabold">
-              Save Settings to Cloud
-            </button>
+
+            <div class="flex items-center gap-3">
+              <button
+                type="submit"
+                class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold transition"
+              >
+                Save Email Settings (Syncs to All 3 Apps)
+              </button>
+              <span id="settingsSavedFeedback" class="text-xs font-bold text-emerald-700"></span>
+            </div>
           </form>
+
+          <!-- 90-Day Customer Decay Summary -->
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 space-y-2">
+            <h4 class="text-sm font-extrabold text-slate-900">90-Day Points Decay Rule (Active)</h4>
+            <p class="text-xs text-slate-600 leading-relaxed">
+              Every customer's points expire <strong>90 days</strong> after their last purchase or registration. When 90 days pass without activity, <strong>25 points</strong> are deducted (and another 25 points for each additional 90-day inactive cycle) down to <strong>0 points</strong>. Customer records are <strong>never deleted</strong> automatically so they can return and earn anytime.
+            </p>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Toast Notification -->
-  <div id="toastBanner" class="hidden fixed bottom-5 right-5 z-50 bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-xl text-xs font-bold max-w-sm"></div>
-
-  <!-- Firebase & Application Logic -->
+  <!-- Firebase + App Logic -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
@@ -567,37 +800,34 @@
       onSnapshot
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    // ==================== CONSTANTS & MULTI-HOST URLS ====================
-    const APP_MIRRORS = {
+    // ==================== CONFIGURATION ====================
+    const FIREBASE_CONFIG = {
+      apiKey: "AIzaSyDummyKeyForRexallRewardProject",
+      authDomain: "rexall-reward.firebaseapp.com",
+      projectId: "rexall-reward",
+      storageBucket: "rexall-reward.appspot.com",
+      messagingSenderId: "102938475610",
+      appId: "1:102938475610:web:rexallreward9807"
+    };
+
+    const APP_MIRROR_URLS = {
       github: "https://hanallc07-dot.github.io/rexall-reward/",
       cloudflare: "https://rexall-reward.hanallc07.workers.dev/",
       netlify: "https://rexall-discount-reward.netlify.app/"
     };
 
     const NINETY_DAYS_MS = 90 * 24 * 60 * 60 * 1000;
-    const DECAY_POINTS_PER_CYCLE = 25;
-    const ADMIN_DEFAULT_PIN = "9807";
-
-    // Firebase Project Configuration (rexall-reward)
-    const FIREBASE_CONFIG = {
-      apiKey: "AIzaSyD-rexall-reward-client-key",
-      authDomain: "rexall-reward.firebaseapp.com",
-      projectId: "rexall-reward",
-      storageBucket: "rexall-reward.appspot.com",
-      messagingSenderId: "849201948210",
-      appId: "1:849201948210:web:rexallrewardweb"
-    };
+    const FIVE_DAYS_MS = 5 * 24 * 60 * 60 * 1000;
 
     // ==================== STATE ====================
     let db = null;
     let customersMap = {};
-    let activeCustomerPhone = null;
-    let pendingRegisterPhone = null;
-    let selectedAdminPhone = null;
-
+    let currentCustomerPhone = localStorage.getItem("rexall_current_phone") || "";
+    let selectedAdminCustomerPhone = "";
     let localAds = [];
     let dispatchedEmailLogs = [];
     let storeConfig = {
+      adminPin: "1234",
       storeEmail: "hanallc07@gmail.com",
       emailJsServiceId: "",
       emailJsTemplateId: "",
@@ -606,7 +836,7 @@
 
     let preAppAdQueue = [];
     let preAppAdIndex = 0;
-    let preAppAdTimerInterval = null;
+    let preAppAdCountdownTimer = null;
 
     // ==================== HELPERS ====================
     function normalizePhone(raw) {
@@ -615,187 +845,170 @@
 
     function formatPhoneDisplay(digits) {
       const d = normalizePhone(digits);
-      if (d.length === 10) return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`;
-      return digits || "";
+      if (d.length !== 10) return digits || "";
+      return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`;
     }
 
-    function showToast(msg) {
-      const el = document.getElementById("toastBanner");
-      if (!el) return;
-      el.textContent = msg;
-      el.classList.remove("hidden");
-      clearTimeout(window._toastTimer);
-      window._toastTimer = setTimeout(() => el.classList.add("hidden"), 4200);
+    function setCloudStatusConnected(connected) {
+      const badge = document.getElementById("cloudSyncBadge");
+      const dot = document.getElementById("cloudSyncDot");
+      const text = document.getElementById("cloudSyncText");
+      if (!badge || !dot || !text) return;
+      if (connected) {
+        badge.className = "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200";
+        dot.className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
+        text.textContent = "Cloud Synced";
+      } else {
+        badge.className = "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200";
+        dot.className = "w-2 h-2 rounded-full bg-amber-500";
+        text.textContent = "Offline / Local Cache";
+      }
     }
 
-    function saveLocalCache() {
+    function saveStateToStorage() {
       try {
-        localStorage.setItem("rexall_customers_v3", JSON.stringify(customersMap));
-        localStorage.setItem("rexall_ads_v3", JSON.stringify(localAds));
-        localStorage.setItem("rexall_email_logs_v3", JSON.stringify(dispatchedEmailLogs));
-        localStorage.setItem("rexall_store_cfg_v3", JSON.stringify(storeConfig));
-      } catch (e) {}
+        localStorage.setItem("rexall_customers_cache", JSON.stringify(customersMap));
+        localStorage.setItem("rexall_local_ads_cache", JSON.stringify(localAds));
+        localStorage.setItem("rexall_email_logs_cache", JSON.stringify(dispatchedEmailLogs));
+        localStorage.setItem("rexall_store_config_cache", JSON.stringify(storeConfig));
+      } catch (e) {
+        // Ignore storage quota errors
+      }
     }
 
-    function loadLocalCache() {
+    function loadStateFromStorage() {
       try {
-        const c = localStorage.getItem("rexall_customers_v3");
-        const a = localStorage.getItem("rexall_ads_v3");
-        const l = localStorage.getItem("rexall_email_logs_v3");
-        const s = localStorage.getItem("rexall_store_cfg_v3");
+        const c = localStorage.getItem("rexall_customers_cache");
+        const a = localStorage.getItem("rexall_local_ads_cache");
+        const l = localStorage.getItem("rexall_email_logs_cache");
+        const s = localStorage.getItem("rexall_store_config_cache");
         if (c) customersMap = JSON.parse(c) || {};
         if (a) localAds = JSON.parse(a) || [];
         if (l) dispatchedEmailLogs = JSON.parse(l) || [];
         if (s) storeConfig = { ...storeConfig, ...(JSON.parse(s) || {}) };
-      } catch (e) {}
+      } catch (e) {
+        // Ignore parse errors
+      }
     }
 
-    // ==================== 90-DAY EXPIRATION & 25-PT DECAY ENGINE ====================
-    // Ensures ALL customers (including existing ones who previously had 365-day dates)
-    // calculate expiration strictly at 90 days from lastActivity, deducting 25 pts per
-    // 90-day inactive cycle down to 0 while NEVER deleting the customer's record.
-    function applyNinetyDayDecayPolicy(customer, persistIfChanged = false) {
+    // ==================== 90-DAY GRADUAL 25-POINT DECAY ====================
+    function applyNinetyDayDecay(customer) {
       if (!customer) return customer;
       const now = Date.now();
       const lastAct = Number(customer.lastActivity || customer.createdAt || now);
-      let points = Math.max(0, Number(customer.points || 0));
-      let history = Array.isArray(customer.history) ? [...customer.history] : [];
-      let changed = false;
+      const elapsed = now - lastAct;
+      const cycles = Math.floor(elapsed / NINETY_DAYS_MS);
+      const currentPoints = Math.max(0, Number(customer.points || 0));
 
-      // Enforce 90-day expiration window from last activity (overrides legacy 365-day timestamps)
-      const strictNinetyDayExpiry = lastAct + NINETY_DAYS_MS;
-      if (Number(customer.expiresAt) !== strictNinetyDayExpiry) {
-        customer.expiresAt = strictNinetyDayExpiry;
-        changed = true;
-      }
+      let updated = {
+        ...customer,
+        expiresAt: lastAct + NINETY_DAYS_MS
+      };
 
-      const elapsedMs = now - lastAct;
-      const completedCycles = Math.floor(elapsedMs / NINETY_DAYS_MS);
-      const alreadyAppliedCycles = Number(customer.decayCyclesApplied || 0);
-
-      if (completedCycles > alreadyAppliedCycles && points > 0) {
-        const newCycles = completedCycles - alreadyAppliedCycles;
-        const deduction = Math.min(points, newCycles * DECAY_POINTS_PER_CYCLE);
-        points = Math.max(0, points - deduction);
-        customer.points = points;
-        customer.decayCyclesApplied = completedCycles;
+      if (cycles >= 1 && currentPoints > 0) {
+        const deductTotal = Math.min(currentPoints, cycles * 25);
+        const newPoints = Math.max(0, currentPoints - deductTotal);
+        const newLastActivity = lastAct + cycles * NINETY_DAYS_MS;
+        const history = Array.isArray(customer.history) ? [...customer.history] : [];
         history.unshift({
-          type: "expire",
-          label: `90-Day Inactivity Deduction (-${deduction} pts)`,
-          detail: "25 pts deducted per 90 days unused (account preserved)",
-          points: -deduction,
-          date: new Date(now).toLocaleDateString()
+          type: "EXPIRY_DECAY",
+          label: `90-Day Inactivity Decay (-${deductTotal} pts)`,
+          points: -deductTotal,
+          date: new Date().toLocaleDateString()
         });
-        customer.history = history.slice(0, 50);
-        changed = true;
+        updated = {
+          ...updated,
+          points: newPoints,
+          lastActivity: newLastActivity,
+          expiresAt: newLastActivity + NINETY_DAYS_MS,
+          history
+        };
+        persistCustomerToCloud(updated);
       }
 
-      if (changed && persistIfChanged && customer.phone) {
-        customersMap[customer.phone] = customer;
-        saveLocalCache();
-        persistCustomerToCloud(customer);
-      }
-
-      return customer;
+      return updated;
     }
 
-    // ==================== CLOUD FIRESTORE SYNC ====================
+    // ==================== FIREBASE CLOUD SYNC ====================
     async function persistCustomerToCloud(customer) {
-      if (!db || !customer || !customer.phone) return;
-      try {
-        await setDoc(doc(db, "rexall_customers", customer.phone), customer, { merge: true });
-      } catch (err) {
-        console.warn("Cloud customer sync warning:", err);
+      if (!customer || !customer.phone) return;
+      const cleanPhone = normalizePhone(customer.phone);
+      customersMap[cleanPhone] = customer;
+      saveStateToStorage();
+      if (db) {
+        try {
+          await setDoc(doc(db, "rexall_customers", cleanPhone), customer);
+        } catch (err) {
+          console.warn("Cloud customer save failed:", err);
+        }
       }
     }
 
-    async function removeCustomerFromCloud(phone) {
-      if (!db || !phone) return;
-      try {
-        await deleteDoc(doc(db, "rexall_customers", phone));
-      } catch (err) {
-        console.warn("Cloud delete warning:", err);
+    async function deleteCustomerFromCloud(phone) {
+      const cleanPhone = normalizePhone(phone);
+      delete customersMap[cleanPhone];
+      saveStateToStorage();
+      if (db) {
+        try {
+          await deleteDoc(doc(db, "rexall_customers", cleanPhone));
+        } catch (err) {
+          console.warn("Cloud customer delete failed:", err);
+        }
       }
     }
 
     async function persistStoreConfigToCloud() {
-      saveLocalCache();
-      if (!db) return;
-      try {
-        await setDoc(
-          doc(db, "rexall_settings", "store_config"),
-          {
-            localAds,
-            dispatchedEmailLogs: dispatchedEmailLogs.slice(0, 40),
+      saveStateToStorage();
+      if (db) {
+        try {
+          await setDoc(doc(db, "rexall_settings", "store_config"), {
             storeConfig,
+            localAds,
+            dispatchedEmailLogs,
             updatedAt: Date.now()
-          },
-          { merge: true }
-        );
-      } catch (err) {
-        console.warn("Cloud config sync warning:", err);
-      }
-    }
-
-    function setCloudStatusConnected(isConnected) {
-      const badge = document.getElementById("cloudStatusBadge");
-      if (!badge) return;
-      if (isConnected) {
-        badge.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800";
-        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500"></span> Cloud Synced`;
-      } else {
-        badge.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800";
-        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500"></span> Local Mode`;
+          });
+        } catch (err) {
+          console.warn("Cloud config save failed:", err);
+        }
       }
     }
 
     function initFirebaseSync() {
+      loadStateFromStorage();
       try {
         const app = initializeApp(FIREBASE_CONFIG);
         db = getFirestore(app);
 
-        // Live sync all customers across GitHub, Cloudflare, and Netlify
         onSnapshot(
           collection(db, "rexall_customers"),
           (snapshot) => {
             setCloudStatusConnected(true);
-            const updatedMap = {};
+            const nextMap = {};
             snapshot.forEach((docSnap) => {
               const data = docSnap.data();
               if (data && data.phone) {
-                updatedMap[data.phone] = applyNinetyDayDecayPolicy(data, false);
+                nextMap[normalizePhone(data.phone)] = data;
               }
             });
-            customersMap = updatedMap;
-            saveLocalCache();
-
-            if (activeCustomerPhone && customersMap[activeCustomerPhone]) {
-              renderDashboard();
-            }
-            if (!document.getElementById("adminUnlockedContent").classList.contains("hidden")) {
-              renderAdminCustomerList();
-              if (selectedAdminPhone) renderSelectedAdminCustomer();
-            }
+            customersMap = nextMap;
+            saveStateToStorage();
+            refreshAllViews();
           },
           () => setCloudStatusConnected(false)
         );
 
-        // Live sync all local ads, subscriptions, email logs, and settings
         onSnapshot(
           doc(db, "rexall_settings", "store_config"),
           (docSnap) => {
             setCloudStatusConnected(true);
             if (docSnap.exists()) {
               const d = docSnap.data();
+              if (d.storeConfig) storeConfig = { ...storeConfig, ...d.storeConfig };
               if (Array.isArray(d.localAds)) localAds = d.localAds;
               if (Array.isArray(d.dispatchedEmailLogs)) dispatchedEmailLogs = d.dispatchedEmailLogs;
-              if (d.storeConfig) storeConfig = { ...storeConfig, ...d.storeConfig };
-              saveLocalCache();
-              renderPublicLocalAds();
-              if (!document.getElementById("adminUnlockedContent").classList.contains("hidden")) {
-                renderAdminAdsList();
-                renderDispatchedEmailLogs();
-              }
+              saveStateToStorage();
+              populateEmailSettingsInputs();
+              refreshAllViews();
             }
           },
           () => setCloudStatusConnected(false)
@@ -805,152 +1018,169 @@
       }
     }
 
+    function populateEmailSettingsInputs() {
+      const emailEl = document.getElementById("settingStoreEmail");
+      const svcEl = document.getElementById("settingEmailJsService");
+      const tplEl = document.getElementById("settingEmailJsTemplate");
+      const keyEl = document.getElementById("settingEmailJsPublicKey");
+      if (emailEl) emailEl.value = storeConfig.storeEmail || "hanallc07@gmail.com";
+      if (svcEl) svcEl.value = storeConfig.emailJsServiceId || "";
+      if (tplEl) tplEl.value = storeConfig.emailJsTemplateId || "";
+      if (keyEl) keyEl.value = storeConfig.emailJsPublicKey || "";
+    }
+
     // ==================== CUSTOMER FLOW ====================
-    window.handlePhoneContinue = function (e) {
-      e.preventDefault();
-      const raw = document.getElementById("phoneLookupInput").value;
-      const digits = normalizePhone(raw);
-      if (digits.length < 10) {
-        showToast("Please enter a valid 10-digit phone number.");
+    window.handlePhoneLookup = function (event) {
+      event.preventDefault();
+      const raw = document.getElementById("customerPhoneInput").value;
+      const phone = normalizePhone(raw);
+      const feedbackEl = document.getElementById("authFeedbackMsg");
+      feedbackEl.classList.add("hidden");
+
+      if (phone.length !== 10) {
+        feedbackEl.textContent = "Please enter a valid 10-digit mobile phone number.";
+        feedbackEl.classList.remove("hidden");
         return;
       }
 
-      const existing = customersMap[digits];
-      if (existing) {
-        applyNinetyDayDecayPolicy(existing, true);
-        activeCustomerPhone = digits;
+      if (customersMap[phone]) {
+        currentCustomerPhone = phone;
+        localStorage.setItem("rexall_current_phone", phone);
+        document.getElementById("newMemberForm").classList.add("hidden");
         renderDashboard();
       } else {
-        pendingRegisterPhone = digits;
-        document.getElementById("registerPhoneDisplay").textContent = `Phone: ${formatPhoneDisplay(digits)}`;
-        document.getElementById("lookupSection").classList.add("hidden");
-        document.getElementById("registerSection").classList.remove("hidden");
+        document.getElementById("newMemberForm").classList.remove("hidden");
       }
     };
 
-    window.backToLookup = function () {
-      pendingRegisterPhone = null;
-      document.getElementById("registerSection").classList.add("hidden");
-      document.getElementById("lookupSection").classList.remove("hidden");
-    };
+    window.handleNewMemberRegister = async function (event) {
+      event.preventDefault();
+      const phone = normalizePhone(document.getElementById("customerPhoneInput").value);
+      const name = document.getElementById("newMemberNameInput").value.trim();
+      const email = document.getElementById("newMemberEmailInput").value.trim();
+      const refPhone = normalizePhone(document.getElementById("referralPhoneInput").value);
 
-    window.handleNewMemberRegister = async function (e) {
-      e.preventDefault();
-      const digits = pendingRegisterPhone;
-      if (!digits) return;
-
-      const name = document.getElementById("regNameInput").value.trim();
-      const email = document.getElementById("regEmailInput").value.trim();
-      const refDigits = normalizePhone(document.getElementById("regReferralInput").value);
-      if (!name) return;
+      if (phone.length !== 10 || !name) return;
 
       const now = Date.now();
-      let startingPoints = 25;
+      let initialPoints = 25;
       const history = [
         {
-          type: "bonus",
-          label: "Welcome Bonus",
-          detail: "First-time VIP registration gift",
+          type: "WELCOME",
+          label: "Welcome Bonus (First-time VIP registration gift)",
           points: 25,
-          date: new Date(now).toLocaleDateString()
+          date: new Date().toLocaleDateString()
         }
       ];
 
-      if (refDigits.length === 10 && refDigits !== digits && customersMap[refDigits]) {
-        startingPoints += 15;
+      if (refPhone.length === 10 && refPhone !== phone && customersMap[refPhone]) {
+        initialPoints += 25;
         history.unshift({
-          type: "bonus",
-          label: "Referral Bonus",
-          detail: `Referred by ${formatPhoneDisplay(refDigits)}`,
-          points: 15,
-          date: new Date(now).toLocaleDateString()
+          type: "REFERRAL",
+          label: `Referral Bonus (Referred by ${formatPhoneDisplay(refPhone)})`,
+          points: 25,
+          date: new Date().toLocaleDateString()
         });
 
-        const referrer = customersMap[refDigits];
-        referrer.points = Number(referrer.points || 0) + 15;
-        referrer.lastActivity = now;
-        referrer.expiresAt = now + NINETY_DAYS_MS;
-        referrer.decayCyclesApplied = 0;
-        referrer.history = [
-          {
-            type: "bonus",
-            label: "Friend Referral Reward",
-            detail: `${name} joined using your number`,
-            points: 15,
-            date: new Date(now).toLocaleDateString()
-          },
-          ...(referrer.history || [])
-        ];
-        customersMap[refDigits] = referrer;
-        await persistCustomerToCloud(referrer);
+        const referrer = customersMap[refPhone];
+        const updatedReferrer = {
+          ...referrer,
+          points: Number(referrer.points || 0) + 25,
+          lastActivity: now,
+          expiresAt: now + NINETY_DAYS_MS,
+          history: [
+            {
+              type: "REFERRAL",
+              label: `Friend Referral Bonus (${name})`,
+              points: 25,
+              date: new Date().toLocaleDateString()
+            },
+            ...(Array.isArray(referrer.history) ? referrer.history : [])
+          ]
+        };
+        await persistCustomerToCloud(updatedReferrer);
       }
 
       const newCustomer = {
-        phone: digits,
+        phone,
         name,
         email,
-        points: startingPoints,
+        points: initialPoints,
         createdAt: now,
         lastActivity: now,
         expiresAt: now + NINETY_DAYS_MS,
-        decayCyclesApplied: 0,
         history
       };
 
-      customersMap[digits] = newCustomer;
-      saveLocalCache();
       await persistCustomerToCloud(newCustomer);
+      sendBackgroundEmail({
+        toEmail: storeConfig.storeEmail || "hanallc07@gmail.com",
+        ccEmail: "",
+        subject: `New VIP Member Registered: ${name} (${formatPhoneDisplay(phone)})`,
+        message: `New loyalty registration at Rexall Discount Reward:\nName: ${name}\nPhone: ${formatPhoneDisplay(phone)}\nEmail: ${email || "N/A"}\nStarting Points: ${initialPoints}`
+      });
 
-      activeCustomerPhone = digits;
+      currentCustomerPhone = phone;
+      localStorage.setItem("rexall_current_phone", phone);
+      document.getElementById("newMemberForm").classList.add("hidden");
       renderDashboard();
-      showToast(`Welcome ${name}! +${startingPoints} points added.`);
+    };
+
+    window.signOutCustomer = function () {
+      currentCustomerPhone = "";
+      localStorage.removeItem("rexall_current_phone");
+      document.getElementById("dashboardSection").classList.add("hidden");
+      document.getElementById("authSection").classList.remove("hidden");
+      document.getElementById("customerPhoneInput").value = "";
+      document.getElementById("newMemberForm").classList.add("hidden");
     };
 
     function renderDashboard() {
-      const cust = customersMap[activeCustomerPhone];
-      if (!cust) return;
-      applyNinetyDayDecayPolicy(cust, true);
-
-      document.getElementById("lookupSection").classList.add("hidden");
-      document.getElementById("registerSection").classList.add("hidden");
-      document.getElementById("dashboardSection").classList.remove("hidden");
-
-      const pts = Number(cust.points || 0);
-      const creditDollars = (pts / 100).toFixed(2);
-      const lastAct = Number(cust.lastActivity || cust.createdAt || Date.now());
-      const nextCycleDate = new Date(lastAct + NINETY_DAYS_MS);
-      const daysLeft = Math.max(0, Math.ceil((nextCycleDate.getTime() - Date.now()) / (24 * 60 * 60 * 1000)));
-
-      document.getElementById("dashMemberName").textContent = cust.name;
-      document.getElementById("dashMemberPhone").textContent = formatPhoneDisplay(cust.phone);
-      document.getElementById("dashPointsValue").textContent = pts;
-      document.getElementById("dashCreditValue").textContent = `$${creditDollars}`;
-
-      if (pts > 0) {
-        document.getElementById("dashExpiryInfo").textContent =
-          `90-day check in ${daysLeft} days (${nextCycleDate.toLocaleDateString()}) • -25 pts per 90d unused (down to 0)`;
-      } else {
-        document.getElementById("dashExpiryInfo").textContent =
-          `0 pts available • Shop anytime at Rexall to earn +2 pts per $1!`;
+      const authSec = document.getElementById("authSection");
+      const dashSec = document.getElementById("dashboardSection");
+      if (!currentCustomerPhone || !customersMap[currentCustomerPhone]) {
+        authSec.classList.remove("hidden");
+        dashSec.classList.add("hidden");
+        return;
       }
 
-      const listEl = document.getElementById("dashHistoryList");
-      const items = cust.history || [];
+      const customer = applyNinetyDayDecay(customersMap[currentCustomerPhone]);
+      customersMap[currentCustomerPhone] = customer;
+
+      authSec.classList.add("hidden");
+      dashSec.classList.remove("hidden");
+
+      const pts = Math.max(0, Number(customer.points || 0));
+      const creditDollars = (pts / 100).toFixed(2);
+      const lastAct = Number(customer.lastActivity || customer.createdAt || Date.now());
+      const ninetyExpiryDate = new Date(lastAct + NINETY_DAYS_MS);
+      const daysRemaining = Math.max(0, Math.ceil((ninetyExpiryDate.getTime() - Date.now()) / (24 * 60 * 60 * 1000)));
+
+      document.getElementById("dashCustomerName").textContent = customer.name;
+      document.getElementById("dashCustomerPhone").textContent = formatPhoneDisplay(customer.phone);
+      document.getElementById("dashAvailablePoints").textContent = pts;
+      document.getElementById("dashCreditValue").textContent = `$${creditDollars}`;
+      document.getElementById("dashExpiryInfo").textContent =
+        `Points expire in ${daysRemaining} days (${ninetyExpiryDate.toLocaleDateString()}) • -25 pts per 90d inactive`;
+
+      const historyList = document.getElementById("dashHistoryList");
+      const items = Array.isArray(customer.history) ? customer.history : [];
       if (!items.length) {
-        listEl.innerHTML = `<p class="text-xs text-slate-400 py-3">No activity recorded yet.</p>`;
+        historyList.innerHTML = `<p class="py-4 text-xs text-slate-500">No activity recorded yet.</p>`;
       } else {
-        listEl.innerHTML = items
+        historyList.innerHTML = items
+          .slice(0, 12)
           .map((item) => {
-            const isNeg = Number(item.points) < 0;
-            const badgeColor = isNeg ? "text-rose-600" : "text-emerald-600";
-            const sign = Number(item.points) > 0 ? "+" : "";
+            const isPositive = Number(item.points) >= 0;
             return `
               <div class="py-3 flex items-center justify-between gap-3">
                 <div>
-                  <p class="text-xs font-extrabold text-slate-900">${escapeHtml(item.label || "Activity")}</p>
-                  <p class="text-[11px] text-slate-500">${escapeHtml(item.detail || "")} &bull; ${escapeHtml(item.date || "")}</p>
+                  <p class="text-xs sm:text-sm font-bold text-slate-900">${escapeHtml(item.label || "Activity")}</p>
+                  <p class="text-[11px] text-slate-500">${escapeHtml(item.date || "")}</p>
                 </div>
-                <span class="text-xs font-black ${badgeColor}">${sign}${item.points} pts</span>
+                <span class="text-xs sm:text-sm font-extrabold ${isPositive ? "text-emerald-600" : "text-rose-600"}">
+                  ${isPositive ? "+" : ""}${item.points} pts
+                </span>
               </div>
             `;
           })
@@ -958,92 +1188,55 @@
       }
     }
 
-    window.signOutCustomer = function () {
-      activeCustomerPhone = null;
-      document.getElementById("dashboardSection").classList.add("hidden");
-      document.getElementById("lookupSection").classList.remove("hidden");
-      document.getElementById("phoneLookupInput").value = "";
-    };
-
-    // ==================== LOCAL ADS, SUBSCRIPTIONS & PRIORITY TAKEOVER ====================
-    function isAdCurrentlyActive(ad) {
+    // ==================== LOCAL ADS & SUBSCRIPTIONS ====================
+    function isSubscriptionActive(ad) {
       if (!ad || ad.paused) return false;
-      const now = Date.now();
-      if (ad.expiresAt && now > Number(ad.expiresAt)) return false;
+      if (ad.expiresAt && Date.now() > Number(ad.expiresAt)) return false;
       return true;
     }
 
-    function getSortedActiveAds(placementFilter = null) {
-      return (localAds || [])
-        .filter((ad) => {
-          if (!isAdCurrentlyActive(ad)) return false;
-          if (!placementFilter) return true;
-          return ad.placement === "BOTH" || ad.placement === placementFilter;
-        })
+    function getSortedActivePopupAds() {
+      return localAds
+        .filter((ad) => isSubscriptionActive(ad) && (ad.placement === "POPUP" || ad.placement === "BOTH"))
         .sort((a, b) => Number(a.priority || 99) - Number(b.priority || 99));
     }
 
-    function renderPublicLocalAds() {
-      const activeBanners = getSortedActiveAds("BANNER");
-      const section = document.getElementById("publicLocalAdsSection");
-      const grid = document.getElementById("publicLocalAdsGrid");
-      if (!section || !grid) return;
+    function getSortedActiveBannerAds() {
+      return localAds
+        .filter((ad) => isSubscriptionActive(ad) && (ad.placement === "BANNER" || ad.placement === "BOTH"))
+        .sort((a, b) => Number(a.priority || 99) - Number(b.priority || 99));
+    }
 
-      if (!activeBanners.length) {
-        section.classList.add("hidden");
+    window.startPreAppAdsSequence = function (forceShow = false) {
+      const queue = getSortedActivePopupAds();
+      if (!queue.length) return;
+
+      const signature = queue.map((a) => `${a.id}_${a.priority}_${a.durationSec}`).join("|");
+      if (!forceShow && sessionStorage.getItem("rexall_seen_ads_sig") === signature) {
         return;
       }
 
-      section.classList.remove("hidden");
-      grid.innerHTML = activeBanners
-        .map(
-          (ad) => `
-          <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs flex flex-col justify-between gap-2.5">
-            ${ad.imageUrl ? `<img src="${escapeHtml(ad.imageUrl)}" alt="${escapeHtml(ad.businessName)}" class="w-full h-32 object-cover rounded-xl border border-slate-100" />` : ""}
-            <div class="space-y-1">
-              <div class="flex items-center justify-between gap-2">
-                <span class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-700">${escapeHtml(ad.businessName)}</span>
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">Featured #${ad.priority}</span>
-              </div>
-              <h4 class="text-sm font-black text-slate-900">${escapeHtml(ad.title)}</h4>
-              <p class="text-xs text-slate-600 leading-relaxed">${escapeHtml(ad.description)}</p>
-            </div>
-            ${
-              ad.linkUrl
-                ? `<a href="${escapeHtml(ad.linkUrl)}" target="_blank" rel="noopener noreferrer" class="inline-block text-xs font-extrabold text-emerald-700 hover:underline pt-1">View Offer &rarr;</a>`
-                : ""
-            }
-          </div>
-        `
-        )
-        .join("");
-    }
-
-    function startPreAppAdsSequence() {
-      const popupQueue = getSortedActiveAds("POPUP");
-      if (!popupQueue.length) return;
-      preAppAdQueue = popupQueue;
+      preAppAdQueue = queue;
       preAppAdIndex = 0;
-      showCurrentPreAppSlide();
+      renderCurrentPreAppAdSlide();
       document.getElementById("preAppAdSplashModal").classList.remove("hidden");
-    }
+    };
 
-    function showCurrentPreAppSlide() {
-      clearInterval(preAppAdTimerInterval);
+    function renderCurrentPreAppAdSlide() {
+      clearInterval(preAppAdCountdownTimer);
       const ad = preAppAdQueue[preAppAdIndex];
       if (!ad) {
-        document.getElementById("preAppAdSplashModal").classList.add("hidden");
+        dismissAllPreAppAds();
         return;
       }
 
-      document.getElementById("preAppAdPriorityBadge").textContent = `Priority #${ad.priority} Partner`;
-      document.getElementById("preAppAdSlideCounter").textContent = `Ad ${preAppAdIndex + 1} of ${preAppAdQueue.length}`;
-      document.getElementById("preAppAdBusinessName").textContent = ad.businessName || "";
-      document.getElementById("preAppAdHeadline").textContent = ad.title || "";
+      document.getElementById("preAppAdPriorityBadge").textContent = `Priority #${ad.priority || 1} Sponsor`;
+      document.getElementById("preAppAdCounterText").textContent = `Ad ${preAppAdIndex + 1} of ${preAppAdQueue.length}`;
+      document.getElementById("preAppAdTitle").textContent = ad.businessName || "Local Sponsor";
       document.getElementById("preAppAdDescription").textContent = ad.description || "";
-      document.getElementById("preAppAdContact").textContent = ad.businessPhone ? `Call: ${ad.businessPhone}` : "";
+      document.getElementById("preAppAdContactText").textContent = ad.phone ? `Call: ${ad.phone}` : "Cleveland Local Partner";
 
-      const imgWrap = document.getElementById("preAppAdImageWrap");
+      const imgWrap = document.getElementById("preAppAdImageWrapper");
       const imgEl = document.getElementById("preAppAdImage");
       if (ad.imageUrl) {
         imgEl.src = ad.imageUrl;
@@ -1052,39 +1245,413 @@
         imgWrap.classList.add("hidden");
       }
 
-      const linkBtn = document.getElementById("preAppAdLinkBtn");
-      if (ad.linkUrl) {
-        linkBtn.href = ad.linkUrl;
-        linkBtn.classList.remove("hidden");
+      const visitBtn = document.getElementById("preAppAdVisitBtn");
+      if (ad.offerLink) {
+        visitBtn.href = ad.offerLink;
+        visitBtn.classList.remove("hidden");
       } else {
-        linkBtn.classList.add("hidden");
+        visitBtn.classList.add("hidden");
       }
 
       let remaining = Math.max(3, Number(ad.durationSec || 5));
       const timerBadge = document.getElementById("preAppAdTimerBadge");
-      timerBadge.textContent = `Closing in ${remaining}s`;
+      timerBadge.textContent = `${remaining}s`;
 
-      preAppAdTimerInterval = setInterval(() => {
+      preAppAdCountdownTimer = setInterval(() => {
         remaining -= 1;
         if (remaining <= 0) {
-          advanceOrDismissPreAppAd();
+          clearInterval(preAppAdCountdownTimer);
+          advancePreAppAd();
         } else {
-          timerBadge.textContent = `Closing in ${remaining}s`;
+          timerBadge.textContent = `${remaining}s`;
         }
       }, 1000);
     }
 
-    window.advanceOrDismissPreAppAd = function () {
-      clearInterval(preAppAdTimerInterval);
-      if (preAppAdIndex + 1 < preAppAdQueue.length) {
-        preAppAdIndex += 1;
-        showCurrentPreAppSlide();
+    window.advancePreAppAd = function () {
+      clearInterval(preAppAdCountdownTimer);
+      preAppAdIndex += 1;
+      if (preAppAdIndex >= preAppAdQueue.length) {
+        dismissAllPreAppAds();
       } else {
-        document.getElementById("preAppAdSplashModal").classList.add("hidden");
+        renderCurrentPreAppAdSlide();
       }
     };
 
-    // ==================== ADMIN CONSOLE LOGIC ====================
+    window.dismissAllPreAppAds = function () {
+      clearInterval(preAppAdCountdownTimer);
+      const signature = (preAppAdQueue || []).map((a) => `${a.id}_${a.priority}_${a.durationSec}`).join("|");
+      if (signature) {
+        sessionStorage.setItem("rexall_seen_ads_sig", signature);
+      }
+      document.getElementById("preAppAdSplashModal").classList.add("hidden");
+    };
+
+    function renderPublicLocalAds() {
+      const section = document.getElementById("publicLocalAdsSection");
+      const grid = document.getElementById("publicLocalAdsGrid");
+      const banners = getSortedActiveBannerAds();
+
+      if (!banners.length) {
+        section.classList.add("hidden");
+        return;
+      }
+
+      section.classList.remove("hidden");
+      grid.innerHTML = banners
+        .map((ad) => {
+          return `
+            <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs flex flex-col justify-between gap-3">
+              <div class="space-y-2">
+                ${ad.imageUrl ? `<img src="${escapeHtml(ad.imageUrl)}" alt="${escapeHtml(ad.businessName)}" class="w-full h-32 object-cover rounded-xl border border-slate-100" />` : ""}
+                <div class="flex items-center justify-between gap-2">
+                  <h4 class="text-sm font-black text-slate-900">${escapeHtml(ad.businessName)}</h4>
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    Sponsor #${ad.priority || 1}
+                  </span>
+                </div>
+                <p class="text-xs text-slate-600 leading-relaxed">${escapeHtml(ad.description)}</p>
+              </div>
+              <div class="flex items-center justify-between pt-2 border-t border-slate-100 text-[11px] font-semibold text-slate-500">
+                <span>${escapeHtml(ad.phone || "Local Partner")}</span>
+                ${ad.offerLink ? `<a href="${escapeHtml(ad.offerLink)}" target="_blank" rel="noopener noreferrer" class="text-emerald-700 font-extrabold hover:underline">View Offer &rarr;</a>` : ""}
+              </div>
+            </div>
+          `;
+        })
+        .join("");
+    }
+
+    window.recalculateAdSuggestedPrice = function () {
+      const priority = Number(document.getElementById("adPrioritySelect").value || 1);
+      const duration = Number(document.getElementById("adDurationSelect").value || 5);
+      const termDays = Number(document.getElementById("adTermDaysSelect").value || 30);
+
+      let monthlyBase = 50;
+      if (priority === 1) monthlyBase += 20;
+      else if (priority === 2) monthlyBase += 10;
+      else if (priority === 3) monthlyBase += 5;
+
+      if (duration === 10) monthlyBase += 15;
+      else if (duration === 15) monthlyBase += 30;
+      else if (duration === 30) monthlyBase += 50;
+
+      let total = monthlyBase;
+      if (termDays === 60) total = Math.round(monthlyBase * 1.85);
+      else if (termDays === 90) total = Math.round(monthlyBase * 2.65);
+      else if (termDays === 365) total = Math.round(monthlyBase * 8.5); // Special yearly discount
+
+      document.getElementById("adPriceInput").value = total;
+      document.getElementById("adSuggestedPriceHint").textContent =
+        `Suggested: $${total} (${duration}s • ${termDays === 365 ? "1 Year Special" : `${termDays} Days`} • Priority #${priority})`;
+    };
+
+    function readUploadedImageAsDataUrl(fileInput) {
+      return new Promise((resolve) => {
+        const file = fileInput && fileInput.files && fileInput.files[0];
+        if (!file) {
+          resolve("");
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || ""));
+        reader.onerror = () => resolve("");
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function buildAdvertiserEmailBody(ad) {
+      return (
+        `Hello ${ad.businessName},\n\n` +
+        `Your local business advertisement is now LIVE on Rexall Discount Reward (9807 Lorain Ave, Cleveland, OH)!\n\n` +
+        `Ad Details:\n` +
+        `- Priority Slot: #${ad.priority} (${ad.durationSec} seconds)\n` +
+        `- Subscription Validity: ${ad.termDays} Days (Expires: ${new Date(ad.expiresAt).toLocaleDateString()})\n` +
+        `- Payment: $${Number(ad.price || 0).toFixed(2)} via ${ad.paymentMethod} (${ad.paymentStatus})\n\n` +
+        `Click any of our 3 live web apps below to see your ad:\n` +
+        `1. GitHub Pages App: ${APP_MIRROR_URLS.github}\n` +
+        `2. Cloudflare App: ${APP_MIRROR_URLS.cloudflare}\n` +
+        `3. Netlify App: ${APP_MIRROR_URLS.netlify}\n\n` +
+        `Thank you for partnering with Rexall Discount Reward!\n` +
+        `Contact: hanallc07@gmail.com | 216-961-1323`
+      );
+    }
+
+    async function sendBackgroundEmail({ toEmail, ccEmail, subject, message }) {
+      const hasEmailJs =
+        typeof emailjs !== "undefined" &&
+        storeConfig.emailJsServiceId &&
+        storeConfig.emailJsTemplateId &&
+        storeConfig.emailJsPublicKey;
+
+      if (hasEmailJs) {
+        try {
+          emailjs.init({ publicKey: storeConfig.emailJsPublicKey });
+          await emailjs.send(storeConfig.emailJsServiceId, storeConfig.emailJsTemplateId, {
+            to_email: toEmail,
+            cc_email: ccEmail || "",
+            reply_to: storeConfig.storeEmail || "hanallc07@gmail.com",
+            subject,
+            message,
+            github_url: APP_MIRROR_URLS.github,
+            cloudflare_url: APP_MIRROR_URLS.cloudflare,
+            netlify_url: APP_MIRROR_URLS.netlify
+          });
+          return "Sent via EmailJS";
+        } catch (err) {
+          console.warn("EmailJS send failed:", err);
+          return "Logged Locally (EmailJS Error)";
+        }
+      }
+      return "Logged Locally (EmailJS Not Configured)";
+    }
+
+    window.handleAddLocalAd = async function (event) {
+      event.preventDefault();
+      const businessName = document.getElementById("adBusinessNameInput").value.trim();
+      const businessEmail = document.getElementById("adBusinessEmailInput").value.trim();
+      const ccEmail = document.getElementById("adCcEmailInput").value.trim();
+      const description = document.getElementById("adDescriptionInput").value.trim();
+      const phone = document.getElementById("adPhoneInput").value.trim();
+      const priority = Number(document.getElementById("adPrioritySelect").value || 1);
+      const durationSec = Number(document.getElementById("adDurationSelect").value || 5);
+      const termDays = Number(document.getElementById("adTermDaysSelect").value || 30);
+      const paymentMethod = document.getElementById("adPaymentMethodSelect").value;
+      const paymentStatus = document.getElementById("adPaymentStatusSelect").value;
+      const price = Number(document.getElementById("adPriceInput").value || 50);
+      const placement = document.getElementById("adPlacementSelect").value || "BOTH";
+      const offerLink = document.getElementById("adOfferLinkInput").value.trim();
+      const typedImgUrl = document.getElementById("adImageUrlInput").value.trim();
+      const uploadedImgUrl = await readUploadedImageAsDataUrl(document.getElementById("adImageFileInput"));
+      const autoSend = document.getElementById("adAutoSendEmailCheckbox").checked;
+
+      if (!businessName || !businessEmail || !description) return;
+
+      const now = Date.now();
+      const newAd = {
+        id: `ad_${now}`,
+        businessName,
+        businessEmail,
+        ccEmail,
+        description,
+        phone,
+        priority,
+        durationSec,
+        termDays,
+        paymentMethod,
+        paymentStatus,
+        price,
+        placement,
+        offerLink,
+        imageUrl: uploadedImgUrl || typedImgUrl || "",
+        paused: false,
+        createdAt: now,
+        expiresAt: now + termDays * 24 * 60 * 60 * 1000
+      };
+
+      localAds.push(newAd);
+
+      const feedbackEl = document.getElementById("adSaveFeedbackText");
+      if (autoSend) {
+        const emailBody = buildAdvertiserEmailBody(newAd);
+        const deliveryStatus = await sendBackgroundEmail({
+          toEmail: businessEmail,
+          ccEmail,
+          subject: `Your Ad is Live on Rexall Discount Reward (${businessName})`,
+          message: emailBody
+        });
+
+        dispatchedEmailLogs.unshift({
+          id: `log_${now}`,
+          businessName,
+          toEmail: businessEmail,
+          ccEmail,
+          fromEmail: storeConfig.storeEmail || "hanallc07@gmail.com",
+          timestamp: new Date().toLocaleString(),
+          status: deliveryStatus,
+          body: emailBody
+        });
+        feedbackEl.textContent = `Saved & synced to all 3 apps! (${deliveryStatus})`;
+      } else {
+        feedbackEl.textContent = "Subscription saved & synced to all 3 apps!";
+      }
+
+      await persistStoreConfigToCloud();
+      event.target.reset();
+      recalculateAdSuggestedPrice();
+      refreshAllViews();
+    };
+
+    window.copyAdvertiserEmailById = function (adId) {
+      const ad = localAds.find((a) => a.id === adId);
+      if (!ad) return;
+      const text =
+        `To: ${ad.businessEmail}\n` +
+        (ad.ccEmail ? `CC: ${ad.ccEmail}\n` : "") +
+        `Subject: Your Ad is Live on Rexall Discount Reward (${ad.businessName})\n\n` +
+        buildAdvertiserEmailBody(ad);
+      navigator.clipboard.writeText(text);
+    };
+
+    window.copyEmailLogById = function (logId) {
+      const log = dispatchedEmailLogs.find((l) => l.id === logId);
+      if (!log) return;
+      const text =
+        `To: ${log.toEmail}\n` +
+        (log.ccEmail ? `CC: ${log.ccEmail}\n` : "") +
+        `Subject: Your Ad is Live on Rexall Discount Reward (${log.businessName})\n\n` +
+        log.body;
+      navigator.clipboard.writeText(text);
+    };
+
+    window.renewAdSubscription = async function (adId, addDays) {
+      const idx = localAds.findIndex((a) => a.id === adId);
+      if (idx === -1) return;
+      const baseTime = Math.max(Date.now(), Number(localAds[idx].expiresAt || Date.now()));
+      localAds[idx].expiresAt = baseTime + addDays * 24 * 60 * 60 * 1000;
+      localAds[idx].paused = false;
+      await persistStoreConfigToCloud();
+      refreshAllViews();
+    };
+
+    window.togglePauseAd = async function (adId) {
+      const idx = localAds.findIndex((a) => a.id === adId);
+      if (idx === -1) return;
+      localAds[idx].paused = !localAds[idx].paused;
+      await persistStoreConfigToCloud();
+      refreshAllViews();
+    };
+
+    window.deleteLocalAd = async function (adId) {
+      localAds = localAds.filter((a) => a.id !== adId);
+      await persistStoreConfigToCloud();
+      refreshAllViews();
+    };
+
+    function renderAdminAdsList() {
+      const container = document.getElementById("adminAdsList");
+      if (!container) return;
+
+      if (!localAds.length) {
+        container.innerHTML = `<p class="text-xs text-slate-500 bg-slate-50 p-4 rounded-2xl border border-slate-200">No local business subscriptions added yet.</p>`;
+        return;
+      }
+
+      const sorted = [...localAds].sort((a, b) => Number(a.priority || 99) - Number(b.priority || 99));
+      container.innerHTML = sorted
+        .map((ad) => {
+          const now = Date.now();
+          const exp = Number(ad.expiresAt || now);
+          const msLeft = exp - now;
+          const daysLeft = Math.ceil(msLeft / (24 * 60 * 60 * 1000));
+          const expired = msLeft <= 0;
+          const expiringSoon = !expired && msLeft <= FIVE_DAYS_MS;
+
+          let statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800">Live (${daysLeft}d left)</span>`;
+          if (ad.paused) {
+            statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-slate-200 text-slate-700">Paused</span>`;
+          } else if (expired) {
+            statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-100 text-rose-800">Expired (Discontinued)</span>`;
+          } else if (expiringSoon) {
+            statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-900">Expiring in ${daysLeft}d!</span>`;
+          }
+
+          return `
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div class="space-y-1">
+                <div class="flex flex-wrap items-center gap-1.5">
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-900">
+                    Priority #${ad.priority} &bull; ${ad.durationSec}s
+                  </span>
+                  ${statusBadge}
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700">
+                    $${Number(ad.price || 0).toFixed(2)} &bull; ${escapeHtml(ad.paymentMethod || "Cash at Store")} (${escapeHtml(ad.paymentStatus || "Paid")})
+                  </span>
+                </div>
+                <p class="text-sm font-black text-slate-900">
+                  ${escapeHtml(ad.businessName)}
+                  <span class="text-xs font-semibold text-slate-500">&bull; ${escapeHtml(ad.businessEmail || "")}</span>
+                </p>
+                <p class="text-xs text-slate-600">${escapeHtml(ad.description)}</p>
+                <p class="text-[11px] text-slate-400">
+                  Term: ${ad.termDays} days &bull; Expires: ${new Date(exp).toLocaleDateString()}
+                </p>
+              </div>
+
+              <div class="flex flex-wrap items-center gap-1.5">
+                <button
+                  type="button"
+                  onclick="copyAdvertiserEmailById('${ad.id}')"
+                  class="px-3 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-extrabold transition"
+                >
+                  Copy Email &amp; 3 Links
+                </button>
+                <button
+                  type="button"
+                  onclick="renewAdSubscription('${ad.id}', 30)"
+                  class="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-extrabold transition"
+                >
+                  Renew 30d
+                </button>
+                <button
+                  type="button"
+                  onclick="togglePauseAd('${ad.id}')"
+                  class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-extrabold transition"
+                >
+                  ${ad.paused ? "Resume" : "Pause"}
+                </button>
+                <button
+                  type="button"
+                  onclick="deleteLocalAd('${ad.id}')"
+                  class="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-extrabold transition"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          `;
+        })
+        .join("");
+    }
+
+    function renderDispatchedEmailsList() {
+      const listEl = document.getElementById("adminDispatchedEmailsList");
+      const badgeEl = document.getElementById("dispatchedLogCountBadge");
+      if (!listEl || !badgeEl) return;
+
+      badgeEl.textContent = `${dispatchedEmailLogs.length} Logged`;
+      if (!dispatchedEmailLogs.length) {
+        listEl.innerHTML = `<p class="text-xs text-slate-500 bg-slate-50 p-3 rounded-xl border border-slate-200">No advertiser emails dispatched yet.</p>`;
+        return;
+      }
+
+      listEl.innerHTML = dispatchedEmailLogs
+        .slice(0, 15)
+        .map((log) => {
+          return `
+            <div class="bg-white p-3 rounded-xl border border-slate-200 flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <p class="text-xs font-extrabold text-slate-900">
+                  ${escapeHtml(log.businessName)} &rarr; <span class="text-emerald-700">${escapeHtml(log.toEmail)}</span>
+                </p>
+                <p class="text-[11px] text-slate-500">
+                  From: ${escapeHtml(log.fromEmail)} &bull; ${escapeHtml(log.timestamp)} &bull; ${escapeHtml(log.status)}
+                </p>
+              </div>
+              <button
+                type="button"
+                onclick="copyEmailLogById('${log.id}')"
+                class="px-3 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-[11px] font-extrabold transition"
+              >
+                Copy Email &amp; 3 Links
+              </button>
+            </div>
+          `;
+        })
+        .join("");
+    }
+
+    // ==================== ADMIN POS & CUSTOMER MANAGEMENT ====================
     window.openAdminModal = function () {
       document.getElementById("adminModal").classList.remove("hidden");
     };
@@ -1093,66 +1660,76 @@
       document.getElementById("adminModal").classList.add("hidden");
     };
 
-    window.unlockAdminPanel = function (e) {
-      e.preventDefault();
-      const pin = document.getElementById("adminPinInput").value.trim();
-      if (pin !== ADMIN_DEFAULT_PIN) {
-        showToast("Incorrect Admin PIN.");
-        return;
+    window.unlockAdminPanel = function (event) {
+      event.preventDefault();
+      const entered = document.getElementById("adminPinInput").value.trim();
+      const errEl = document.getElementById("adminPinError");
+      if (entered === String(storeConfig.adminPin || "1234")) {
+        errEl.classList.add("hidden");
+        document.getElementById("adminLockScreen").classList.add("hidden");
+        document.getElementById("adminUnlockedContent").classList.remove("hidden");
+        populateEmailSettingsInputs();
+        refreshAllViews();
+      } else {
+        errEl.classList.remove("hidden");
       }
-      document.getElementById("adminLockBox").classList.add("hidden");
-      document.getElementById("adminUnlockedContent").classList.remove("hidden");
-      renderAdminCustomerList();
-      renderAdminAdsList();
-      renderDispatchedEmailLogs();
-      recalculateSuggestedAdPrice();
     };
 
-    window.switchAdminTab = function (tab) {
+    window.switchAdminTab = function (tabName) {
       ["pos", "ads", "settings"].forEach((t) => {
-        const panel = document.getElementById(`adminPanel${t.charAt(0).toUpperCase() + t.slice(1)}`);
+        const panel = document.getElementById(`adminTab${t.charAt(0).toUpperCase() + t.slice(1)}`);
         const btn = document.getElementById(`tabBtn${t.charAt(0).toUpperCase() + t.slice(1)}`);
-        if (t === tab) {
-          panel.classList.remove("hidden");
-          btn.className = "px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-extrabold";
-        } else {
-          panel.classList.add("hidden");
-          btn.className = "px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-extrabold";
+        if (panel) panel.classList.toggle("hidden", t !== tabName);
+        if (btn) {
+          btn.className =
+            t === tabName
+              ? "px-4 py-2 rounded-xl text-xs font-extrabold bg-emerald-600 text-white transition"
+              : "px-4 py-2 rounded-xl text-xs font-extrabold bg-slate-100 text-slate-700 hover:bg-slate-200 transition";
         }
       });
     };
 
-    // Admin Customer Directory & POS
-    window.renderAdminCustomerList = function () {
-      const q = (document.getElementById("adminCustomerSearch")?.value || "").toLowerCase().trim();
-      const all = Object.values(customersMap);
-      document.getElementById("adminTotalMembersBadge").textContent = `${all.length} Members`;
+    window.renderAdminCustomersList = function () {
+      const listEl = document.getElementById("adminCustomersList");
+      const badgeEl = document.getElementById("adminTotalCustomersBadge");
+      if (!listEl || !badgeEl) return;
 
-      const filtered = all
-        .filter((c) => !q || (c.name || "").toLowerCase().includes(q) || (c.phone || "").includes(q))
-        .sort((a, b) => Number(b.lastActivity || 0) - Number(a.lastActivity || 0));
+      const allCustomers = Object.values(customersMap);
+      badgeEl.textContent = `${allCustomers.length} Members`;
 
-      const container = document.getElementById("adminCustomerList");
+      const q = (document.getElementById("adminCustomerSearchInput")?.value || "").toLowerCase().trim();
+      const filtered = allCustomers.filter(
+        (c) =>
+          (c.name || "").toLowerCase().includes(q) ||
+          (c.phone || "").includes(q.replace(/\D/g, ""))
+      );
+
       if (!filtered.length) {
-        container.innerHTML = `<p class="text-xs text-slate-400 py-4 text-center">No matching customers found.</p>`;
+        listEl.innerHTML = `<p class="text-xs text-slate-500 p-3">No matching customers found.</p>`;
         return;
       }
 
-      container.innerHTML = filtered
+      listEl.innerHTML = filtered
         .map((c) => {
-          applyNinetyDayDecayPolicy(c, false);
-          const isSelected = selectedAdminPhone === c.phone;
+          const isSelected = c.phone === selectedAdminCustomerPhone;
           return `
-            <div onclick="selectAdminCustomer('${c.phone}')" class="p-3 rounded-xl border cursor-pointer transition flex items-center justify-between gap-2 ${
-              isSelected ? "bg-emerald-50 border-emerald-400" : "bg-white border-slate-200 hover:border-slate-300"
-            }">
+            <div
+              onclick="selectAdminCustomer('${c.phone}')"
+              class="p-3 rounded-xl border cursor-pointer flex items-center justify-between gap-2 transition ${
+                isSelected ? "bg-emerald-50 border-emerald-400" : "bg-white border-slate-200 hover:border-slate-300"
+              }"
+            >
               <div>
-                <p class="text-xs font-black text-slate-900">${escapeHtml(c.name)}</p>
+                <p class="text-xs font-extrabold text-slate-900">${escapeHtml(c.name)}</p>
                 <p class="text-[11px] text-slate-500">${formatPhoneDisplay(c.phone)}</p>
               </div>
               <div class="flex items-center gap-2">
-                <span class="text-xs font-black text-emerald-700">${c.points || 0} pts</span>
-                <button type="button" onclick="event.stopPropagation(); deleteCustomerByPhone('${c.phone}')" class="px-2 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 text-[10px] font-extrabold">
+                <span class="text-xs font-black text-emerald-700">${Number(c.points || 0)} pts</span>
+                <button
+                  type="button"
+                  onclick="event.stopPropagation(); deleteCustomerByPhone('${c.phone}')"
+                  class="px-2 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 text-[10px] font-extrabold"
+                >
                   Delete
                 </button>
               </div>
@@ -1163,382 +1740,114 @@
     };
 
     window.selectAdminCustomer = function (phone) {
-      selectedAdminPhone = phone;
-      renderAdminCustomerList();
-      renderSelectedAdminCustomer();
+      selectedAdminCustomerPhone = normalizePhone(phone);
+      renderAdminCustomersList();
+      renderSelectedPosBox();
     };
 
-    function renderSelectedAdminCustomer() {
-      const cust = customersMap[selectedAdminPhone];
-      if (!cust) {
-        document.getElementById("adminPosEmptyHint").classList.remove("hidden");
-        document.getElementById("adminPosSelectedBox").classList.add("hidden");
+    function renderSelectedPosBox() {
+      const noBox = document.getElementById("posNoSelectionBox");
+      const selBox = document.getElementById("posSelectedBox");
+      if (!selectedAdminCustomerPhone || !customersMap[selectedAdminCustomerPhone]) {
+        noBox.classList.remove("hidden");
+        selBox.classList.add("hidden");
         return;
       }
-      applyNinetyDayDecayPolicy(cust, true);
-      document.getElementById("adminPosEmptyHint").classList.add("hidden");
-      document.getElementById("adminPosSelectedBox").classList.remove("hidden");
 
-      const pts = Number(cust.points || 0);
-      const lastAct = Number(cust.lastActivity || cust.createdAt || Date.now());
-      const expDate = new Date(lastAct + NINETY_DAYS_MS).toLocaleDateString();
+      const c = applyNinetyDayDecay(customersMap[selectedAdminCustomerPhone]);
+      noBox.classList.add("hidden");
+      selBox.classList.remove("hidden");
 
-      document.getElementById("posCustName").textContent = cust.name;
-      document.getElementById("posCustPhone").textContent = formatPhoneDisplay(cust.phone);
-      document.getElementById("posCustExpiry").textContent = `90-Day Expiration Date: ${expDate}`;
-      document.getElementById("posCustPoints").textContent = `${pts} pts`;
-      document.getElementById("posCustCredit").textContent = `$${(pts / 100).toFixed(2)} credit`;
+      const lastAct = Number(c.lastActivity || c.createdAt || Date.now());
+      const expDate = new Date(lastAct + NINETY_DAYS_MS);
+      const daysLeft = Math.max(0, Math.ceil((expDate.getTime() - Date.now()) / (24 * 60 * 60 * 1000)));
+
+      document.getElementById("posSelectedName").textContent = c.name;
+      document.getElementById("posSelectedPhone").textContent = formatPhoneDisplay(c.phone);
+      document.getElementById("posSelectedPoints").textContent = `${Number(c.points || 0)} pts`;
+      document.getElementById("posSelectedExpiry").textContent = `Expires in ${daysLeft} days (${expDate.toLocaleDateString()})`;
     }
 
-    window.handlePosAddPurchase = async function () {
-      const cust = customersMap[selectedAdminPhone];
-      if (!cust) return;
-      const dollars = parseFloat(document.getElementById("posPurchaseAmount").value);
-      if (isNaN(dollars) || dollars <= 0) {
-        showToast("Enter a valid purchase amount.");
-        return;
-      }
-      const earned = Math.floor(dollars * 2);
-      const now = Date.now();
-      cust.points = Number(cust.points || 0) + earned;
-      cust.lastActivity = now;
-      cust.expiresAt = now + NINETY_DAYS_MS;
-      cust.decayCyclesApplied = 0;
-      cust.history = [
-        {
-          type: "earn",
-          label: `In-Store Purchase ($${dollars.toFixed(2)})`,
-          detail: "$1 Spent = 2 Points",
-          points: earned,
-          date: new Date(now).toLocaleDateString()
-        },
-        ...(cust.history || [])
-      ];
+    window.handlePosPurchase = async function (event) {
+      event.preventDefault();
+      if (!selectedAdminCustomerPhone || !customersMap[selectedAdminCustomerPhone]) return;
+      const dollars = Number(document.getElementById("posPurchaseAmountInput").value || 0);
+      if (dollars <= 0) return;
 
-      customersMap[cust.phone] = cust;
-      saveLocalCache();
-      await persistCustomerToCloud(cust);
-      document.getElementById("posPurchaseAmount").value = "";
-      renderSelectedAdminCustomer();
-      renderAdminCustomerList();
-      showToast(`Added +${earned} pts to ${cust.name}!`);
+      const earnedPts = Math.floor(dollars * 2);
+      const now = Date.now();
+      const c = customersMap[selectedAdminCustomerPhone];
+      const updated = {
+        ...c,
+        points: Number(c.points || 0) + earnedPts,
+        lastActivity: now,
+        expiresAt: now + NINETY_DAYS_MS,
+        history: [
+          {
+            type: "PURCHASE",
+            label: `Store Purchase ($${dollars.toFixed(2)})`,
+            points: earnedPts,
+            date: new Date().toLocaleDateString()
+          },
+          ...(Array.isArray(c.history) ? c.history : [])
+        ]
+      };
+
+      await persistCustomerToCloud(updated);
+      document.getElementById("posPurchaseAmountInput").value = "";
+      refreshAllViews();
     };
 
-    window.handlePosRedeemPoints = async function () {
-      const cust = customersMap[selectedAdminPhone];
-      if (!cust) return;
-      const redeemPts = parseInt(document.getElementById("posRedeemPoints").value, 10);
-      if (isNaN(redeemPts) || redeemPts <= 0 || redeemPts > Number(cust.points || 0)) {
-        showToast("Enter valid points up to customer's available balance.");
-        return;
-      }
-      const now = Date.now();
-      cust.points = Number(cust.points || 0) - redeemPts;
-      cust.lastActivity = now;
-      cust.expiresAt = now + NINETY_DAYS_MS;
-      cust.decayCyclesApplied = 0;
-      cust.history = [
-        {
-          type: "redeem",
-          label: `Redeemed Store Credit ($${(redeemPts / 100).toFixed(2)})`,
-          detail: "Applied at Store Register",
-          points: -redeemPts,
-          date: new Date(now).toLocaleDateString()
-        },
-        ...(cust.history || [])
-      ];
+    window.handlePosRedeem = async function (event) {
+      event.preventDefault();
+      if (!selectedAdminCustomerPhone || !customersMap[selectedAdminCustomerPhone]) return;
+      const ptsToRedeem = Number(document.getElementById("posRedeemPointsInput").value || 0);
+      const c = customersMap[selectedAdminCustomerPhone];
+      if (ptsToRedeem < 100 || Number(c.points || 0) < ptsToRedeem) return;
 
-      customersMap[cust.phone] = cust;
-      saveLocalCache();
-      await persistCustomerToCloud(cust);
-      document.getElementById("posRedeemPoints").value = "";
-      renderSelectedAdminCustomer();
-      renderAdminCustomerList();
-      showToast(`Redeemed ${redeemPts} pts ($${(redeemPts / 100).toFixed(2)} off) for ${cust.name}.`);
+      const now = Date.now();
+      const updated = {
+        ...c,
+        points: Number(c.points || 0) - ptsToRedeem,
+        lastActivity: now,
+        expiresAt: now + NINETY_DAYS_MS,
+        history: [
+          {
+            type: "REDEEM",
+            label: `Redeemed $${(ptsToRedeem / 100).toFixed(2)} Store Credit`,
+            points: -ptsToRedeem,
+            date: new Date().toLocaleDateString()
+          },
+          ...(Array.isArray(c.history) ? c.history : [])
+        ]
+      };
+
+      await persistCustomerToCloud(updated);
+      document.getElementById("posRedeemPointsInput").value = "";
+      refreshAllViews();
     };
 
     window.deleteCustomerByPhone = async function (phone) {
-      const cust = customersMap[phone];
-      if (!cust) return;
-      delete customersMap[phone];
-      if (selectedAdminPhone === phone) selectedAdminPhone = null;
-      if (activeCustomerPhone === phone) signOutCustomer();
-      saveLocalCache();
-      await removeCustomerFromCloud(phone);
-      renderAdminCustomerList();
-      renderSelectedAdminCustomer();
-      showToast(`Deleted ${cust.name} across all web apps.`);
+      const clean = normalizePhone(phone);
+      if (selectedAdminCustomerPhone === clean) selectedAdminCustomerPhone = "";
+      if (currentCustomerPhone === clean) signOutCustomer();
+      await deleteCustomerFromCloud(clean);
+      refreshAllViews();
     };
 
-    window.handleDeleteSelectedCustomer = function () {
-      if (selectedAdminPhone) deleteCustomerByPhone(selectedAdminPhone);
+    window.handleDeleteSelectedCustomer = async function () {
+      if (!selectedAdminCustomerPhone) return;
+      await deleteCustomerByPhone(selectedAdminCustomerPhone);
     };
 
-    // ==================== LOCAL ADS PRICING & SUBMISSION ====================
-    window.recalculateSuggestedAdPrice = function () {
-      const durationSec = Number(document.getElementById("adDurationSelect")?.value || 5);
-      const priority = Number(document.getElementById("adPrioritySelect")?.value || 1);
-      const validityDays = Number(document.getElementById("adValidityDaysSelect")?.value || 30);
-
-      let monthlyBase = 50;
-      if (durationSec === 10) monthlyBase += 15;
-      if (durationSec === 15) monthlyBase += 30;
-      if (durationSec === 30) monthlyBase += 60;
-      if (priority === 1) monthlyBase += 20;
-      else if (priority === 2) monthlyBase += 10;
-
-      let total = monthlyBase;
-      if (validityDays === 60) total = Math.round(monthlyBase * 1.9);
-      else if (validityDays === 90) total = Math.round(monthlyBase * 2.7);
-      else if (validityDays === 365) total = Math.round(monthlyBase * 9.5); // Special Yearly Rate
-
-      const priceInput = document.getElementById("adPriceInput");
-      const hintEl = document.getElementById("adSuggestedPriceHint");
-      if (priceInput) priceInput.value = total;
-      if (hintEl) hintEl.textContent = `Suggested: $${total} (${durationSec}s • ${validityDays}d • Priority #${priority})`;
-    };
-
-    function readFileAsDataUrl(file) {
-      return new Promise((resolve) => {
-        if (!file) return resolve("");
-        const reader = new FileReader();
-        reader.onload = () => resolve(String(reader.result || ""));
-        reader.onerror = () => resolve("");
-        reader.readAsDataURL(file);
-      });
-    }
-
-    function buildAdvertiserEmailText(ad) {
-      return [
-        `Subject: Your Local Spotlight Ad for ${ad.businessName} is LIVE on Rexall Discount Reward!`,
-        `To: ${ad.businessEmail}${ad.ccEmail ? ` | CC: ${ad.ccEmail}` : ""}`,
-        ``,
-        `Hello ${ad.businessName},`,
-        `Your local promotion "${ad.title}" is now live on Rexall Discount Reward (Priority #${ad.priority}, ${ad.durationSec}s display, valid for ${ad.validityDays} days — Paid via ${ad.paymentMethod}: $${Number(ad.price || 0).toFixed(2)}).`,
-        ``,
-        `Click any of our 3 live web apps below to view your ad:`,
-        `1. GitHub Pages: ${APP_MIRRORS.github}`,
-        `2. Cloudflare: ${APP_MIRRORS.cloudflare}`,
-        `3. Netlify: ${APP_MIRRORS.netlify}`,
-        ``,
-        `Thank you for partnering with Rexall Discount Reward (9807 Lorain Ave, Cleveland, OH • 216-961-1323)!`
-      ].join("\n");
-    }
-
-    window.handleAddLocalAd = async function (e) {
-      e.preventDefault();
-      const businessName = document.getElementById("adBusinessNameInput").value.trim();
-      const businessEmail = document.getElementById("adBusinessEmailInput").value.trim();
-      const ccEmail = document.getElementById("adCcEmailInput").value.trim();
-      const businessPhone = document.getElementById("adBusinessPhoneInput").value.trim();
-      const title = document.getElementById("adTitleInput").value.trim();
-      const description = document.getElementById("adDescInput").value.trim();
-      const durationSec = Number(document.getElementById("adDurationSelect").value || 5);
-      const priority = Number(document.getElementById("adPrioritySelect").value || 1);
-      const validityDays = Number(document.getElementById("adValidityDaysSelect").value || 30);
-      const paymentMethod = document.getElementById("adPaymentMethodSelect").value || "Cash at Store";
-      const price = Number(document.getElementById("adPriceInput").value || 50);
-      const placement = document.getElementById("adPlacementSelect").value || "BOTH";
-      const linkUrl = document.getElementById("adLinkUrlInput").value.trim();
-      let imageUrl = document.getElementById("adImageUrlInput").value.trim();
-
-      const fileInput = document.getElementById("adImageFileInput");
-      if (fileInput && fileInput.files && fileInput.files[0]) {
-        imageUrl = await readFileAsDataUrl(fileInput.files[0]);
-      }
-
-      const now = Date.now();
-      const newAd = {
-        id: `ad_${now}`,
-        businessName,
-        businessEmail,
-        ccEmail,
-        businessPhone,
-        title,
-        description,
-        durationSec,
-        priority,
-        validityDays,
-        paymentMethod,
-        price,
-        placement,
-        linkUrl,
-        imageUrl,
-        createdAt: now,
-        expiresAt: now + validityDays * 24 * 60 * 60 * 1000,
-        paused: false
-      };
-
-      localAds.push(newAd);
-
-      const emailBody = buildAdvertiserEmailText(newAd);
-      dispatchedEmailLogs.unshift({
-        id: `log_${now}`,
-        businessName,
-        toEmail: businessEmail,
-        ccEmail,
-        timestamp: new Date(now).toLocaleString(),
-        emailBody
-      });
-
-      await persistStoreConfigToCloud();
-      renderPublicLocalAds();
-      renderAdminAdsList();
-      renderDispatchedEmailLogs();
-
-      e.target.reset();
-      recalculateSuggestedAdPrice();
-      showToast(`Saved ${businessName} & synced to GitHub, Cloudflare & Netlify!`);
-    };
-
-    window.renderAdminAdsList = function () {
-      const container = document.getElementById("adminAdsList");
-      if (!container) return;
-      if (!localAds.length) {
-        container.innerHTML = `<p class="text-xs text-slate-400 py-3">No local business subscriptions added yet.</p>`;
-        return;
-      }
-
-      const sorted = [...localAds].sort((a, b) => Number(a.priority || 99) - Number(b.priority || 99));
-      const now = Date.now();
-
-      container.innerHTML = sorted
-        .map((ad) => {
-          const msLeft = Number(ad.expiresAt || 0) - now;
-          const daysLeft = Math.ceil(msLeft / (24 * 60 * 60 * 1000));
-          const isExpired = msLeft <= 0;
-          const isRenewSoon = !isExpired && daysLeft <= 5;
-
-          let statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800">Live (${daysLeft}d left)</span>`;
-          if (isExpired) {
-            statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-100 text-rose-800">Expired (Next Priority Active)</span>`;
-          } else if (ad.paused) {
-            statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-slate-200 text-slate-700">Paused</span>`;
-          } else if (isRenewSoon) {
-            statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-900">Renew Soon (${daysLeft}d left)</span>`;
-          }
-
-          return `
-            <div class="p-3.5 rounded-2xl bg-white border border-slate-200 flex flex-wrap items-center justify-between gap-3">
-              <div class="space-y-1">
-                <div class="flex flex-wrap items-center gap-1.5">
-                  <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-900">Priority #${ad.priority} &bull; ${ad.durationSec}s</span>
-                  ${statusBadge}
-                  <span class="text-[11px] font-bold text-slate-500">$${Number(ad.price || 0).toFixed(2)} &bull; ${escapeHtml(ad.paymentMethod || "Cash at Store")}</span>
-                </div>
-                <p class="text-xs font-black text-slate-900">${escapeHtml(ad.businessName)} &bull; <span class="font-semibold text-emerald-700">${escapeHtml(ad.businessEmail || "")}</span></p>
-                <p class="text-[11px] text-slate-600">${escapeHtml(ad.title)} — ${escapeHtml(ad.description)}</p>
-              </div>
-
-              <div class="flex flex-wrap items-center gap-1.5">
-                <button type="button" onclick="copyAdEmailAndLinks('${ad.id}')" class="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-[11px] font-extrabold">
-                  Copy Email &amp; 3 Links
-                </button>
-                <button type="button" onclick="renewAdSubscription('${ad.id}', 30)" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-[11px] font-bold">
-                  +30d
-                </button>
-                <button type="button" onclick="togglePauseAd('${ad.id}')" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-[11px] font-bold">
-                  ${ad.paused ? "Resume" : "Pause"}
-                </button>
-                <button type="button" onclick="deleteAdSubscription('${ad.id}')" class="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-[11px] font-bold">
-                  Delete
-                </button>
-              </div>
-            </div>
-          `;
-        })
-        .join("");
-    };
-
-    window.copyAdEmailAndLinks = async function (adId) {
-      const ad = localAds.find((a) => a.id === adId);
-      if (!ad) return;
-      const text = buildAdvertiserEmailText(ad);
-      try {
-        await navigator.clipboard.writeText(text);
-        showToast(`Copied email & all 3 app links for ${ad.businessName}!`);
-      } catch (e) {
-        showToast("Email & 3 links ready to paste.");
-      }
-    };
-
-    window.renewAdSubscription = async function (adId, extraDays) {
-      const ad = localAds.find((a) => a.id === adId);
-      if (!ad) return;
-      const baseTime = Math.max(Date.now(), Number(ad.expiresAt || Date.now()));
-      ad.expiresAt = baseTime + extraDays * 24 * 60 * 60 * 1000;
-      ad.paused = false;
-      await persistStoreConfigToCloud();
-      renderPublicLocalAds();
-      renderAdminAdsList();
-      showToast(`Extended ${ad.businessName} by ${extraDays} days across all 3 apps.`);
-    };
-
-    window.togglePauseAd = async function (adId) {
-      const ad = localAds.find((a) => a.id === adId);
-      if (!ad) return;
-      ad.paused = !ad.paused;
-      await persistStoreConfigToCloud();
-      renderPublicLocalAds();
-      renderAdminAdsList();
-    };
-
-    window.deleteAdSubscription = async function (adId) {
-      localAds = localAds.filter((a) => a.id !== adId);
-      await persistStoreConfigToCloud();
-      renderPublicLocalAds();
-      renderAdminAdsList();
-      showToast("Subscription removed from all 3 web apps.");
-    };
-
-    window.renderDispatchedEmailLogs = function () {
-      const badge = document.getElementById("dispatchedEmailCountBadge");
-      const list = document.getElementById("dispatchedEmailsList");
-      if (!list) return;
-      if (badge) badge.textContent = `${dispatchedEmailLogs.length} Logged`;
-
-      if (!dispatchedEmailLogs.length) {
-        list.innerHTML = `<p class="text-xs text-slate-400">No advertiser emails logged yet.</p>`;
-        return;
-      }
-
-      list.innerHTML = dispatchedEmailLogs
-        .slice(0, 15)
-        .map(
-          (log, idx) => `
-          <div class="p-3 rounded-xl bg-white border border-slate-200 flex flex-wrap items-center justify-between gap-2">
-            <div>
-              <p class="text-xs font-extrabold text-slate-900">${escapeHtml(log.businessName)} &rarr; <span class="text-emerald-700">${escapeHtml(log.toEmail)}</span></p>
-              <p class="text-[11px] text-slate-500">${escapeHtml(log.timestamp)} &bull; All 3 web app links included</p>
-            </div>
-            <button type="button" onclick="copyLoggedEmail(${idx})" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-extrabold">
-              Copy Email &amp; 3 Links
-            </button>
-          </div>
-        `
-        )
-        .join("");
-    };
-
-    window.copyLoggedEmail = async function (idx) {
-      const log = dispatchedEmailLogs[idx];
-      if (!log) return;
-      try {
-        await navigator.clipboard.writeText(log.emailBody);
-        showToast(`Copied email & all 3 app links for ${log.businessName}!`);
-      } catch (e) {
-        showToast("Ready to paste into Gmail.");
-      }
-    };
-
-    window.saveEmailSettings = async function (e) {
-      e.preventDefault();
+    window.handleSaveEmailSettings = async function (event) {
+      event.preventDefault();
       storeConfig.storeEmail = document.getElementById("settingStoreEmail").value.trim() || "hanallc07@gmail.com";
       storeConfig.emailJsServiceId = document.getElementById("settingEmailJsService").value.trim();
       storeConfig.emailJsTemplateId = document.getElementById("settingEmailJsTemplate").value.trim();
       storeConfig.emailJsPublicKey = document.getElementById("settingEmailJsPublicKey").value.trim();
       await persistStoreConfigToCloud();
-      showToast("Store settings saved and synced across all 3 apps!");
+      document.getElementById("settingsSavedFeedback").textContent = "Saved & synced across all 3 apps!";
     };
 
     function escapeHtml(str) {
@@ -1549,12 +1858,29 @@
         .replace(/"/g, "&quot;");
     }
 
-    // ==================== INITIALIZATION ====================
-    loadLocalCache();
-    Object.values(customersMap).forEach((c) => applyNinetyDayDecayPolicy(c, false));
-    renderPublicLocalAds();
-    initFirebaseSync();
-    setTimeout(startPreAppAdsSequence, 450);
+    function refreshAllViews() {
+      renderDashboard();
+      renderPublicLocalAds();
+      renderAdminCustomersList();
+      renderSelectedPosBox();
+      renderAdminAdsList();
+      renderDispatchedEmailsList();
+      if (document.getElementById("preAppAdSplashModal").classList.contains("hidden")) {
+        startPreAppAdsSequence(false);
+      }
+    }
+
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) {
+        refreshAllViews();
+      }
+    });
+
+    window.addEventListener("DOMContentLoaded", () => {
+      initFirebaseSync();
+      recalculateAdSuggestedPrice();
+      refreshAllViews();
+    });
   </script>
 </body>
 </html>
