@@ -288,7 +288,7 @@
 
   <!-- ==================== ADMIN BACKUP & POS MODAL ==================== -->
   <div id="adminModal" class="hidden fixed inset-0 z-40 bg-slate-950/70 backdrop-blur-xs overflow-y-auto p-3 sm:p-6">
-    <div class="max-w-4xl mx-auto bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden my-4">
+    <div class="max-w-5xl mx-auto bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden my-4">
       <!-- Modal Header -->
       <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
         <div>
@@ -349,19 +349,18 @@
             1. Customers &amp; Cashier POS
           </button>
           <button type="button" id="tabBtnAds" onclick="switchAdminTab('ads')" class="px-3.5 py-2 rounded-xl text-xs font-extrabold bg-slate-100 text-slate-700 hover:bg-slate-200">
-            2. Local Advertising (Pop-Up Priority #1–#5)
+            2. Local Advertising &amp; Subscriptions
           </button>
           <button type="button" id="tabBtnNotify" onclick="switchAdminTab('notify')" class="px-3.5 py-2 rounded-xl text-xs font-extrabold bg-slate-100 text-slate-700 hover:bg-slate-200">
             3. Email &amp; Expiry Alerts
           </button>
           <button type="button" id="tabBtnBackup" onclick="switchAdminTab('backup')" class="px-3.5 py-2 rounded-xl text-xs font-extrabold bg-slate-100 text-slate-700 hover:bg-slate-200">
-            4. Backup, QR &amp; Admin PIN
+            4. Backup &amp; Admin PIN
           </button>
         </div>
 
         <!-- ==================== TAB 1: CUSTOMERS & CASHIER POS ==================== -->
         <div id="adminTabPos" class="space-y-5">
-          <!-- Search & Select Customer -->
           <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
             <div class="flex flex-wrap items-center justify-between gap-2">
               <h3 class="text-sm font-extrabold text-slate-900">Find Customer (Add / Redeem Points or Delete)</h3>
@@ -397,7 +396,6 @@
               </div>
 
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                <!-- Add Points by Purchase $ -->
                 <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 space-y-2">
                   <label class="block text-xs font-extrabold text-emerald-900">Purchase Amount ($1 = 2 pts)</label>
                   <div class="flex gap-2">
@@ -419,7 +417,6 @@
                   </div>
                 </div>
 
-                <!-- Redeem Points -->
                 <div class="p-3 rounded-xl bg-amber-50 border border-amber-200 space-y-2">
                   <label class="block text-xs font-extrabold text-amber-900">Redeem Points (100 pts = $1 Off)</label>
                   <div class="flex gap-2">
@@ -448,13 +445,18 @@
           </div>
         </div>
 
-        <!-- ==================== TAB 2: LOCAL ADVERTISING (POP-UP PRIORITY #1-#5) ==================== -->
+        <!-- ==================== TAB 2: LOCAL ADVERTISING & SUBSCRIPTIONS ==================== -->
         <div id="adminTabAds" class="hidden space-y-5">
+          <!-- Renewal / Expiring Soon Alert Banner (5 Days or Less) -->
+          <div id="adminAdRenewalAlertBox" class="hidden p-4 rounded-2xl bg-amber-50 border-2 border-amber-400 text-amber-950 text-xs space-y-2"></div>
+
           <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-4">
             <div class="flex flex-wrap items-center justify-between gap-2">
               <div>
-                <h3 class="text-sm font-extrabold text-slate-900">Add Local Business Pop-Up / Banner Advertisement</h3>
-                <p class="text-xs text-slate-500">Supports Priority #1 to #5 and 5s, 10s, 15s, or 30s pop-up timer before app opens.</p>
+                <h3 class="text-sm font-extrabold text-slate-900">Add / Renew Local Business Ad Subscription</h3>
+                <p class="text-xs text-slate-500">
+                  Sends an email to the business with all 3 app links, tracks Cash/Card in-store payment, validity (30d–1yr), duration pricing (5s–30s), and auto-rotates expired slots.
+                </p>
               </div>
               <button
                 type="button"
@@ -465,7 +467,7 @@
               </button>
             </div>
 
-            <form onsubmit="handleAddLocalAd(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <form onsubmit="handleAddLocalAd(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">Business Name / Ad Headline *</label>
                 <input
@@ -477,15 +479,26 @@
                 />
               </div>
               <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">Website / Offer Link (Optional)</label>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Business Email (Receives All App Links) *</label>
                 <input
-                  type="url"
-                  id="adLinkUrlInput"
-                  placeholder="https://..."
+                  type="email"
+                  id="adBusinessEmailInput"
+                  placeholder="owner@localbusiness.com"
+                  required
                   class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold"
                 />
               </div>
-              <div class="sm:col-span-2">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Business Phone (Optional)</label>
+                <input
+                  type="tel"
+                  id="adBusinessPhoneInput"
+                  placeholder="216-555-0144"
+                  class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold"
+                />
+              </div>
+
+              <div class="sm:col-span-2 lg:col-span-3">
                 <label class="block text-xs font-bold text-slate-700 mb-1">Offer / Business Details *</label>
                 <input
                   type="text"
@@ -495,9 +508,10 @@
                   class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold"
                 />
               </div>
+
               <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">Pop-Up Priority Slot (#1 to #5)</label>
-                <select id="adPrioritySelect" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold">
+                <select id="adPrioritySelect" onchange="recalculateSuggestedAdPrice()" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold">
                   <option value="1">Priority #1 (Shows First)</option>
                   <option value="2">Priority #2 (Shows Second)</option>
                   <option value="3">Priority #3 (Shows Third)</option>
@@ -505,15 +519,59 @@
                   <option value="5">Priority #5 (Shows Fifth)</option>
                 </select>
               </div>
+
               <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">Pop-Up Duration Timer</label>
-                <select id="adDurationSelect" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold">
-                  <option value="5">5 Seconds</option>
-                  <option value="10">10 Seconds</option>
-                  <option value="15">15 Seconds</option>
-                  <option value="30">30 Seconds</option>
+                <select id="adDurationSelect" onchange="recalculateSuggestedAdPrice()" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold">
+                  <option value="5">5 Seconds (Base Rate)</option>
+                  <option value="10">10 Seconds (+$25)</option>
+                  <option value="15">15 Seconds (+$50)</option>
+                  <option value="30">30 Seconds (+$100)</option>
                 </select>
               </div>
+
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Subscription Validity</label>
+                <select id="adValiditySelect" onchange="recalculateSuggestedAdPrice()" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold">
+                  <option value="30">30 Days ($50+ Base)</option>
+                  <option value="60">60 Days ($90+ Value)</option>
+                  <option value="90">90 Days ($125+ Value)</option>
+                  <option value="365">1 Year (Special Yearly Rate)</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">In-Store Payment Method (No Online)</label>
+                <select id="adPaymentMethodSelect" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold">
+                  <option value="Cash at Store">Cash at Store</option>
+                  <option value="Card at Store">Card at Store (POS Terminal)</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Payment Status</label>
+                <select id="adPaymentStatusSelect" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold">
+                  <option value="Paid at Store">Paid at Store</option>
+                  <option value="Pending Store Payment">Pending Store Payment</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Subscription Price ($) — Editable</label>
+                <input
+                  type="number"
+                  step="1"
+                  min="50"
+                  id="adPriceInput"
+                  value="50"
+                  required
+                  class="w-full px-3 py-2 rounded-xl bg-white border border-emerald-300 text-xs font-extrabold text-emerald-900"
+                />
+                <p id="adPriceHintText" class="text-[10px] font-semibold text-emerald-700 mt-1">
+                  Suggested: $50 (5s • 30 Days)
+                </p>
+              </div>
+
               <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">Display Placement</label>
                 <select id="adPlacementSelect" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold">
@@ -522,6 +580,17 @@
                   <option value="BOTH">Login &amp; Dashboard Banners Only</option>
                 </select>
               </div>
+
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Website / Offer Link (Optional)</label>
+                <input
+                  type="url"
+                  id="adLinkUrlInput"
+                  placeholder="https://..."
+                  class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold"
+                />
+              </div>
+
               <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">Flyer / Logo Image URL (Optional)</label>
                 <input
@@ -531,16 +600,23 @@
                   class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold"
                 />
               </div>
-              <div class="sm:col-span-2 flex flex-wrap items-center justify-between gap-2 pt-1">
-                <div class="flex items-center gap-2">
-                  <label class="text-xs font-bold text-slate-600">Or Upload Image:</label>
-                  <input type="file" id="adImageFileInput" accept="image/*" onchange="handleAdFileUpload(event)" class="text-xs" />
+
+              <div class="sm:col-span-2 lg:col-span-3 flex flex-wrap items-center justify-between gap-2 pt-1">
+                <div class="flex flex-wrap items-center gap-3">
+                  <div class="flex items-center gap-2">
+                    <label class="text-xs font-bold text-slate-600">Or Upload Image:</label>
+                    <input type="file" id="adImageFileInput" accept="image/*" onchange="handleAdFileUpload(event)" class="text-xs" />
+                  </div>
+                  <label class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-900">
+                    <input type="checkbox" id="adSendAdvertiserEmailCheck" checked class="w-4 h-4 accent-emerald-600" />
+                    Email business with all 3 app links &amp; receipt
+                  </label>
                 </div>
                 <button
                   type="submit"
                   class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold"
                 >
-                  Save &amp; Publish Ad Across All Apps
+                  Save Subscription &amp; Sync All Apps
                 </button>
               </div>
             </form>
@@ -548,7 +624,9 @@
 
           <!-- Active / Saved Ads List -->
           <div class="space-y-2">
-            <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-600">Saved Local Sponsor Ads (Max 5 Pop-Up Priority Slots)</h4>
+            <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-600">
+              Active &amp; Scheduled Subscriptions (Expired Ads Automatically Discontinue &amp; Next Priority Takes Over)
+            </h4>
             <div id="adminAdsListContainer" class="space-y-2.5"></div>
           </div>
         </div>
@@ -556,9 +634,9 @@
         <!-- ==================== TAB 3: EMAIL & EXPIRY NOTIFICATIONS ==================== -->
         <div id="adminTabNotify" class="hidden space-y-5">
           <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
-            <h3 class="text-sm font-extrabold text-slate-900">New Customer Registration &amp; Store Email Alerts</h3>
+            <h3 class="text-sm font-extrabold text-slate-900">New Customer &amp; Advertiser Email Settings</h3>
             <p class="text-xs text-slate-500">
-              Automatically notifies <strong>hanallc07@gmail.com</strong> whenever a new customer registers on any of your 3 web apps.
+              Automatically notifies <strong>hanallc07@gmail.com</strong> when a new customer registers, and sends app links + 5-day renewal reminders to local advertisers.
             </p>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
@@ -634,10 +712,9 @@
           </div>
         </div>
 
-        <!-- ==================== TAB 4: BACKUP, QR & ADMIN PIN ==================== -->
+        <!-- ==================== TAB 4: BACKUP & ADMIN PIN ==================== -->
         <div id="adminTabBackup" class="hidden space-y-5">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <!-- Admin Credentials -->
             <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
               <h3 class="text-sm font-extrabold text-slate-900">Admin Name &amp; Secret PIN</h3>
               <div>
@@ -657,7 +734,6 @@
               </button>
             </div>
 
-            <!-- Export / Import Backup -->
             <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
               <h3 class="text-sm font-extrabold text-slate-900">Export &amp; Restore Customer Data</h3>
               <p class="text-xs text-slate-500">Download a backup copy of all customers, points, and local ads anytime.</p>
@@ -704,15 +780,15 @@
       appId: "1:104829104829:web:rexallrewardapp"
     };
 
-    const STORE_HOSTS = [
-      'https://hanallc07-dot.github.io/rexall-reward/',
-      'https://rexall-reward.hanallc07.workers.dev/',
-      'https://rexall-discount-reward.netlify.app/'
-    ];
+    const APP_LINKS = {
+      github: 'https://hanallc07-dot.github.io/rexall-reward/',
+      cloudflare: 'https://rexall-reward.hanallc07.workers.dev/',
+      netlify: 'https://rexall-discount-reward.netlify.app/'
+    };
 
     const DEFAULT_ADMIN_NAME = 'aaravarayah';
     const DEFAULT_ADMIN_PIN = '123456';
-    const STORAGE_KEY = 'rexall_discount_reward_state_v3';
+    const STORAGE_KEY = 'rexall_discount_reward_state_v4';
 
     let db = null;
     let isCloudConnected = false;
@@ -803,6 +879,56 @@
         badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>${escapeHtml(label || 'Connecting...')}`;
       }
     }
+
+    // ==================== AD SUBSCRIPTION VALIDITY & PRICING ====================
+    function getAdDaysLeft(ad) {
+      if (!ad || !ad.expiresAt) return 30;
+      const diffMs = new Date(ad.expiresAt).getTime() - Date.now();
+      return Math.ceil(diffMs / 86400000);
+    }
+
+    function isAdExpired(ad) {
+      if (!ad || !ad.expiresAt) return false;
+      return new Date(ad.expiresAt).getTime() <= Date.now();
+    }
+
+    function isAdCurrentlyRunning(ad) {
+      if (!ad || ad.active === false) return false;
+      return !isAdExpired(ad);
+    }
+
+    function computeSuggestedPrice(validityDays, durationSec, priority) {
+      const days = Number(validityDays || 30);
+      const dur = Number(durationSec || 5);
+      const prio = Number(priority || 5);
+
+      let baseByTerm = 50;
+      if (days === 60) baseByTerm = 90;
+      else if (days === 90) baseByTerm = 125;
+      else if (days >= 365) baseByTerm = 399; // Special Yearly Rate
+
+      let durationAddon = 0;
+      if (dur === 10) durationAddon = 25;
+      else if (dur === 15) durationAddon = 50;
+      else if (dur === 30) durationAddon = 100;
+
+      const priorityAddon = prio === 1 ? 20 : prio === 2 ? 10 : 0;
+      return baseByTerm + durationAddon + priorityAddon;
+    }
+
+    window.recalculateSuggestedAdPrice = function () {
+      const days = parseInt(document.getElementById('adValiditySelect')?.value || '30', 10);
+      const dur = parseInt(document.getElementById('adDurationSelect')?.value || '5', 10);
+      const prio = parseInt(document.getElementById('adPrioritySelect')?.value || '1', 10);
+      const suggested = computeSuggestedPrice(days, dur, prio);
+      const priceInput = document.getElementById('adPriceInput');
+      const hintEl = document.getElementById('adPriceHintText');
+      if (priceInput) priceInput.value = suggested;
+      if (hintEl) {
+        const termLabel = days >= 365 ? '1-Year Special' : `${days} Days`;
+        hintEl.textContent = `Suggested: $${suggested} (${dur}s • ${termLabel} • Priority #${prio})`;
+      }
+    };
 
     // ==================== CLOUD FIRESTORE SYNC ====================
     async function persistCustomerToCloud(customerObj) {
@@ -1072,10 +1198,10 @@
       renderPublicLocalAds();
     }
 
-    // ==================== PRE-APP POP-UP ADS (PRIORITY #1 TO #5) ====================
+    // ==================== PRE-APP POP-UP ADS (PRIORITY #1 TO #5, AUTO-TAKEOVER ON EXPIRY) ====================
     function getSortedActivePopupAds() {
       return (localAds || [])
-        .filter((ad) => ad && ad.active !== false && (ad.placement === 'POPUP_AND_BANNERS' || ad.placement === 'POPUP_ONLY' || !ad.placement))
+        .filter((ad) => ad && isAdCurrentlyRunning(ad) && (ad.placement === 'POPUP_AND_BANNERS' || ad.placement === 'POPUP_ONLY' || !ad.placement))
         .sort((a, b) => Number(a.priority || 5) - Number(b.priority || 5))
         .slice(0, 5);
     }
@@ -1091,7 +1217,7 @@
       const queue = getSortedActivePopupAds();
       if (!queue.length) return;
 
-      const latestAdSignature = queue.map((a) => `${a.id}_${a.priority}_${a.durationSec}`).join('|');
+      const latestAdSignature = queue.map((a) => `${a.id}_${a.priority}_${a.durationSec}_${a.expiresAt || ''}`).join('|');
       if (!forceShow && sessionStorage.getItem('rexall_pre_app_ads_seen_sig') === latestAdSignature) {
         return;
       }
@@ -1158,7 +1284,7 @@
 
     window.dismissAllPreAppAds = function () {
       clearPreAppAdTimer();
-      const latestAdSignature = (preAppAdQueue || []).map((a) => `${a.id}_${a.priority}_${a.durationSec}`).join('|');
+      const latestAdSignature = (preAppAdQueue || []).map((a) => `${a.id}_${a.priority}_${a.durationSec}_${a.expiresAt || ''}`).join('|');
       if (latestAdSignature) {
         sessionStorage.setItem('rexall_pre_app_ads_seen_sig', latestAdSignature);
       }
@@ -1167,7 +1293,7 @@
 
     function renderPublicLocalAds() {
       const activeBanners = (localAds || [])
-        .filter((ad) => ad && ad.active !== false && ad.placement !== 'POPUP_ONLY')
+        .filter((ad) => ad && isAdCurrentlyRunning(ad) && ad.placement !== 'POPUP_ONLY')
         .sort((a, b) => Number(a.priority || 5) - Number(b.priority || 5));
 
       const html = activeBanners.map((ad) => `
@@ -1218,6 +1344,7 @@
         document.getElementById('adminLockScreen').classList.add('hidden');
         document.getElementById('adminUnlockedContent').classList.remove('hidden');
         populateAdminSettingsFields();
+        recalculateSuggestedAdPrice();
         renderAdminCustomerList();
         renderAdminAdsList();
         renderAdminExpiringCustomers();
@@ -1252,6 +1379,7 @@
       document.getElementById('settingEmailJsPublicKey').value = storeConfig.emailJsPublicKey || '';
     }
 
+    // ==================== CUSTOMER & POS ADMIN ====================
     window.renderAdminCustomerList = function () {
       const query = (document.getElementById('adminCustomerSearchInput')?.value || '').trim().toLowerCase();
       const all = Object.values(customers);
@@ -1358,7 +1486,86 @@
       showToast(`Deleted customer ${deletedName}.`);
     };
 
-    // ==================== ADMIN LOCAL ADVERTISING ====================
+    // ==================== ADMIN LOCAL ADVERTISING & SUBSCRIPTIONS ====================
+    function buildAdvertiserAppLinksEmail(ad, mode = 'published') {
+      const toEmail = ad.businessEmail || '';
+      const expDateStr = ad.expiresAt ? new Date(ad.expiresAt).toLocaleDateString() : 'N/A';
+      const subject = mode === 'renewal'
+        ? `5-Day Renewal Reminder: ${ad.title} Ad on Rexall Discount Reward`
+        : `Your Ad Is Live on Rexall Discount Reward (Priority #${ad.priority})`;
+
+      const body =
+        `Hello ${ad.title},\n\n` +
+        (mode === 'renewal'
+          ? `Your local advertisement subscription on Rexall Discount Reward expires in 5 days (${expDateStr}). Please visit Rexall Discount Reward (9807 Lorain Ave, Cleveland, OH) to renew in-store by Cash or Card so your priority spot does not automatically expire and pass to the next business.\n\n`
+          : `Thank you for advertising with Rexall Discount Reward! Your ad is scheduled at Priority #${ad.priority} (${ad.durationSec}s pop-up) for ${ad.validityDays} days (Expires: ${expDateStr}).\nPayment: $${Number(ad.price || 50).toFixed(2)} via ${ad.paymentMethod || 'Cash at Store'} (${ad.paymentStatus || 'Paid at Store'}).\n\nClick any of our app links below to view your advertisement:\n`) +
+        `• GitHub Pages App: ${APP_LINKS.github}\n` +
+        `• Cloudflare App: ${APP_LINKS.cloudflare}\n` +
+        `• Netlify App: ${APP_LINKS.netlify}\n\n` +
+        `Rexall Discount Reward\n9807 Lorain Ave, Cleveland, OH 44102\n216-961-1323 • hanallc07@gmail.com`;
+
+      return {
+        toEmail,
+        subject,
+        body,
+        mailtoHref: `mailto:${encodeURIComponent(toEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
+      };
+    }
+
+    function sendAdvertiserEmail(ad, mode = 'published') {
+      if (!ad.businessEmail) return;
+      const mail = buildAdvertiserAppLinksEmail(ad, mode);
+      if (storeConfig.emailJsServiceId && storeConfig.emailJsTemplateId && storeConfig.emailJsPublicKey) {
+        fetch('https://api.emailjs.com/api/v1.0/email/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            service_id: storeConfig.emailJsServiceId,
+            template_id: storeConfig.emailJsTemplateId,
+            user_id: storeConfig.emailJsPublicKey,
+            template_params: {
+              to_email: mail.toEmail,
+              subject: mail.subject,
+              message: mail.body,
+              business_name: ad.title,
+              github_url: APP_LINKS.github,
+              cloudflare_url: APP_LINKS.cloudflare,
+              netlify_url: APP_LINKS.netlify
+            }
+          })
+        }).catch((err) => console.warn('Advertiser EmailJS error:', err));
+      } else {
+        const a = document.createElement('a');
+        a.href = mail.mailtoHref;
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    }
+
+    window.sendAdvertiserRenewalNow = function (adId) {
+      const ad = localAds.find((a) => a.id === adId);
+      if (!ad) return;
+      sendAdvertiserEmail(ad, 'renewal');
+      showToast(`Prepared 5-day renewal email with all app links for ${ad.title}.`);
+    };
+
+    window.renewAdSubscription = async function (adId) {
+      const ad = localAds.find((a) => a.id === adId);
+      if (!ad) return;
+      const days = Number(ad.validityDays || 30);
+      const nowIso = new Date().toISOString();
+      ad.expiresAt = new Date(Date.now() + days * 86400000).toISOString();
+      ad.renewedAt = nowIso;
+      ad.active = true;
+      ad.paymentStatus = 'Paid at Store';
+      await persistStoreConfigToCloud();
+      renderPublicLocalAds();
+      renderAdminAdsList();
+      showToast(`Renewed ${ad.title} for ${days} days & synced across all 3 apps!`);
+    };
+
     window.handleAdFileUpload = function (event) {
       const file = event.target.files && event.target.files[0];
       if (!file) return;
@@ -1373,27 +1580,42 @@
     window.handleAddLocalAd = async function (e) {
       e.preventDefault();
       const title = document.getElementById('adTitleInput').value.trim();
+      const businessEmail = document.getElementById('adBusinessEmailInput').value.trim();
+      const businessPhone = document.getElementById('adBusinessPhoneInput').value.trim();
       const description = document.getElementById('adDescInput').value.trim();
-      const linkUrl = document.getElementById('adLinkUrlInput').value.trim();
       const priority = parseInt(document.getElementById('adPrioritySelect').value, 10) || 1;
       const durationSec = parseInt(document.getElementById('adDurationSelect').value, 10) || 5;
+      const validityDays = parseInt(document.getElementById('adValiditySelect').value, 10) || 30;
+      const paymentMethod = document.getElementById('adPaymentMethodSelect').value || 'Cash at Store';
+      const paymentStatus = document.getElementById('adPaymentStatusSelect').value || 'Paid at Store';
+      const price = Math.max(50, parseFloat(document.getElementById('adPriceInput').value) || 50);
       const placement = document.getElementById('adPlacementSelect').value || 'POPUP_AND_BANNERS';
+      const linkUrl = document.getElementById('adLinkUrlInput').value.trim();
       const urlVal = document.getElementById('adImageUrlInput').value.trim();
       const imageUrl = uploadedAdImageBase64 || urlVal || '';
+      const sendEmailNow = document.getElementById('adSendAdvertiserEmailCheck').checked;
 
-      if (!title || !description) return;
+      if (!title || !description || !businessEmail) return;
 
+      const nowMs = Date.now();
       const newAd = {
-        id: 'ad_' + Date.now(),
+        id: 'ad_' + nowMs,
         title,
+        businessEmail,
+        businessPhone,
         description,
-        linkUrl,
         priority,
         durationSec,
+        validityDays,
+        paymentMethod,
+        paymentStatus,
+        price,
         placement,
+        linkUrl,
         imageUrl,
         active: true,
-        createdAt: new Date().toISOString()
+        createdAt: new Date(nowMs).toISOString(),
+        expiresAt: new Date(nowMs + validityDays * 86400000).toISOString()
       };
 
       localAds = localAds.filter((a) => Number(a.priority) !== priority);
@@ -1402,11 +1624,17 @@
 
       uploadedAdImageBase64 = '';
       e.target.reset();
+      recalculateSuggestedAdPrice();
 
       await persistStoreConfigToCloud();
       renderPublicLocalAds();
       renderAdminAdsList();
-      showToast(`Priority #${priority} ad saved & synced to all 3 web apps!`);
+
+      if (sendEmailNow) {
+        sendAdvertiserEmail(newAd, 'published');
+      }
+
+      showToast(`Priority #${priority} subscription ($${price}, ${validityDays}d) saved & synced to all 3 apps!`);
     };
 
     window.toggleLocalAdActive = async function (adId) {
@@ -1428,36 +1656,88 @@
 
     function renderAdminAdsList() {
       const container = document.getElementById('adminAdsListContainer');
+      const alertBox = document.getElementById('adminAdRenewalAlertBox');
+
+      // Check for ads with <= 5 days left (not yet expired)
+      const expiringSoon = (localAds || []).filter((ad) => {
+        if (!ad || isAdExpired(ad)) return false;
+        const d = getAdDaysLeft(ad);
+        return d <= 5;
+      });
+
+      if (expiringSoon.length && alertBox) {
+        alertBox.innerHTML = `
+          <p class="font-black text-amber-950">5-Day Renewal Alert (${expiringSoon.length} Business${expiringSoon.length > 1 ? 'es' : ''}):</p>
+          ${expiringSoon.map((ad) => {
+            const d = Math.max(0, getAdDaysLeft(ad));
+            const mail = buildAdvertiserAppLinksEmail(ad, 'renewal');
+            return `
+              <div class="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-amber-200">
+                <span><strong>${escapeHtml(ad.title)}</strong> (Priority #${ad.priority}) expires in <strong>${d} day(s)</strong> (${escapeHtml(ad.businessEmail)})</span>
+                <a href="${mail.mailtoHref}" class="px-2.5 py-1 rounded-lg bg-amber-600 text-white font-bold">Send 5-Day Renewal Email</a>
+              </div>
+            `;
+          }).join('')}
+        `;
+        alertBox.classList.remove('hidden');
+      } else if (alertBox) {
+        alertBox.classList.add('hidden');
+      }
+
       if (!localAds.length) {
-        container.innerHTML = `<p class="text-xs text-slate-400">No local sponsor ads configured yet.</p>`;
+        container.innerHTML = `<p class="text-xs text-slate-400">No local sponsor subscriptions configured yet.</p>`;
         return;
       }
 
       const sorted = [...localAds].sort((a, b) => Number(a.priority || 5) - Number(b.priority || 5));
-      container.innerHTML = sorted.map((ad) => `
-        <div class="p-3.5 rounded-2xl bg-white border border-slate-200 flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <div class="flex items-center gap-2">
-              <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-900">
-                Priority #${ad.priority || 1} &bull; ${ad.durationSec || 5}s
-              </span>
-              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${ad.active !== false ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600'}">
-                ${ad.active !== false ? 'Live' : 'Paused'}
-              </span>
+      container.innerHTML = sorted.map((ad) => {
+        const expired = isAdExpired(ad);
+        const daysLeft = getAdDaysLeft(ad);
+        const running = isAdCurrentlyRunning(ad);
+        const mail = buildAdvertiserAppLinksEmail(ad, 'published');
+
+        let statusBadge = '';
+        if (expired) {
+          statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-100 text-rose-800">Expired (Discontinued — Next Priority Active)</span>`;
+        } else if (!running) {
+          statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-600">Paused</span>`;
+        } else if (daysLeft <= 5) {
+          statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-200 text-amber-950">Expiring in ${daysLeft}d (Renewal Due)</span>`;
+        } else {
+          statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Live (${daysLeft}d left)</span>`;
+        }
+
+        return `
+          <div class="p-3.5 rounded-2xl bg-white border ${expired ? 'border-rose-200 opacity-80' : 'border-slate-200'} flex flex-wrap items-center justify-between gap-3">
+            <div class="space-y-1">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-900">
+                  Priority #${ad.priority || 1} &bull; ${ad.durationSec || 5}s
+                </span>
+                ${statusBadge}
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700">
+                  $${Number(ad.price || 50).toFixed(2)} &bull; ${escapeHtml(ad.paymentMethod || 'Cash at Store')} (${escapeHtml(ad.paymentStatus || 'Paid at Store')})
+                </span>
+              </div>
+              <p class="text-sm font-extrabold text-slate-900">${escapeHtml(ad.title)} <span class="text-xs font-semibold text-slate-500">&bull; ${escapeHtml(ad.businessEmail || '')}</span></p>
+              <p class="text-xs text-slate-600">${escapeHtml(ad.description)}</p>
+              <p class="text-[10px] text-slate-400">Term: ${ad.validityDays || 30} days &bull; Expires: ${ad.expiresAt ? new Date(ad.expiresAt).toLocaleDateString() : 'N/A'}</p>
             </div>
-            <p class="text-sm font-extrabold text-slate-900 mt-1">${escapeHtml(ad.title)}</p>
-            <p class="text-xs text-slate-600">${escapeHtml(ad.description)}</p>
+            <div class="flex flex-wrap items-center gap-2">
+              ${ad.businessEmail ? `<a href="${mail.mailtoHref}" class="px-3 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-800 text-xs font-bold">Email App Links</a>` : ''}
+              <button type="button" onclick="renewAdSubscription('${ad.id}')" class="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold">
+                Renew ${ad.validityDays || 30}d
+              </button>
+              <button type="button" onclick="toggleLocalAdActive('${ad.id}')" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-bold">
+                ${ad.active !== false ? 'Pause' : 'Activate'}
+              </button>
+              <button type="button" onclick="deleteLocalAd('${ad.id}')" class="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold">
+                Delete
+              </button>
+            </div>
           </div>
-          <div class="flex items-center gap-2">
-            <button type="button" onclick="toggleLocalAdActive('${ad.id}')" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-bold">
-              ${ad.active !== false ? 'Pause' : 'Activate'}
-            </button>
-            <button type="button" onclick="deleteLocalAd('${ad.id}')" class="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold">
-              Delete
-            </button>
-          </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
     // ==================== EMAIL & EXPIRY NOTIFICATIONS ====================
