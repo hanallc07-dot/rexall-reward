@@ -257,12 +257,12 @@
         </div>
 
         <div class="flex flex-wrap items-center justify-between gap-2 text-xs text-emerald-100">
-          <span id="dashExpiryText">Points valid for 365 days from last visit</span>
+          <span id="dashExpiryText">Points valid for 90 days from last visit</span>
           <span id="dashReferralCodeText" class="font-bold text-amber-200">Share phone # for referral bonus!</span>
         </div>
       </div>
 
-      <!-- Expiry Warning Banner (if within 45 days) -->
+      <!-- Expiry Warning Banner (if within 15 days) -->
       <div id="dashExpiryAlertBox" class="hidden p-4 rounded-2xl bg-amber-50 border border-amber-300 text-amber-950 text-xs font-bold"></div>
 
       <!-- Dashboard Local Sponsor Banners -->
@@ -440,7 +440,7 @@
               </div>
             </div>
 
-            <!-- Customer Directory Table -->
+            <!-- Customer Directory Table (With Quick Delete Button) -->
             <div id="adminCustomerListContainer" class="max-h-72 overflow-y-auto divide-y divide-slate-200 bg-white rounded-xl border border-slate-200"></div>
           </div>
         </div>
@@ -720,8 +720,8 @@
           <div class="bg-white p-4 rounded-2xl border border-slate-200 space-y-3">
             <div class="flex items-center justify-between">
               <div>
-                <h4 class="text-sm font-extrabold text-slate-900">Expiring Points Reminders (365-Day Rule)</h4>
-                <p class="text-xs text-slate-500">Customers whose points expire within 60 days or have expiring balances.</p>
+                <h4 class="text-sm font-extrabold text-slate-900">Expiring Points Reminders (90-Day Rule)</h4>
+                <p class="text-xs text-slate-500">Customers whose points expire within 90 days of last visit.</p>
               </div>
               <button
                 type="button"
@@ -809,14 +809,16 @@
       netlify: 'https://rexall-discount-reward.netlify.app/'
     };
 
+    const POINTS_VALIDITY_DAYS = 90;
     const DEFAULT_ADMIN_NAME = 'aaravarayah';
     const DEFAULT_ADMIN_PIN = '123456';
-    const STORAGE_KEY = 'rexall_discount_reward_state_v4';
+    const STORAGE_KEY = 'rexall_discount_reward_state_v5';
 
     let db = null;
     let isCloudConnected = false;
 
     let customers = {};
+    let deletedCustomerPhones = {};
     let localAds = [];
     let emailDispatchLogs = [];
     let storeConfig = {
@@ -866,9 +868,19 @@
         .replace(/"/g, '&quot;');
     }
 
+    function computePointsExpiryIso(fromMs = Date.now()) {
+      return new Date(fromMs + POINTS_VALIDITY_DAYS * 24 * 60 * 60 * 1000).toISOString();
+    }
+
     function saveStateToStorage() {
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ customers, localAds, emailDispatchLogs, storeConfig }));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          customers,
+          deletedCustomerPhones,
+          localAds,
+          emailDispatchLogs,
+          storeConfig
+        }));
       } catch (e) {
         console.warn('LocalStorage save warning:', e);
       }
@@ -880,6 +892,9 @@
         if (!raw) return;
         const parsed = JSON.parse(raw);
         if (parsed.customers && typeof parsed.customers === 'object') customers = parsed.customers;
+        if (parsed.deletedCustomerPhones && typeof parsed.deletedCustomerPhones === 'object') {
+          deletedCustomerPhones = parsed.deletedCustomerPhones;
+        }
         if (Array.isArray(parsed.localAds)) localAds = parsed.localAds;
         if (Array.isArray(parsed.emailDispatchLogs)) emailDispatchLogs = parsed.emailDispatchLogs;
         if (parsed.storeConfig && typeof parsed.storeConfig === 'object') {
@@ -957,8 +972,12 @@
 
     // ==================== CLOUD FIRESTORE SYNC ====================
     async function persistCustomerToCloud(customerObj) {
+      if (!customerObj || !customerObj.phone) return;
+      if (deletedCustomerPhones[customerObj.phone]) {
+        delete deletedCustomerPhones[customerObj.phone];
+      }
       saveStateToStorage();
-      if (!db || !customerObj || !customerObj.phone) return;
+      if (!db) return;
       try {
         await setDoc(doc(db, 'rexall_customers', customerObj.phone), customerObj, { merge: true });
       } catch (err) {
@@ -967,13 +986,24 @@
     }
 
     async function removeCustomerFromCloud(phone) {
+      if (!phone) return;
+      delete customers[phone];
+      deletedCustomerPhones[phone] = Date.now();
       saveStateToStorage();
-      if (!db || !phone) return;
-      try {
-        await deleteDoc(doc(db, 'rexall_customers', phone));
-      } catch (err) {
-        console.error('Error deleting customer from Firestore:', err);
+
+      if (activeCustomerPhone === phone) {
+        activeCustomerPhone = null;
+        showLoginView();
       }
+
+      if (db) {
+        try {
+          await deleteDoc(doc(db, 'rexall_customers', phone));
+        } catch (err) {
+          console.error('Error deleting customer from Firestore:', err);
+        }
+      }
+      await persistStoreConfigToCloud();
     }
 
     async function persistStoreConfigToCloud() {
@@ -983,6 +1013,7 @@
         await setDoc(doc(db, 'rexall_settings', 'store_config'), {
           ...storeConfig,
           localAds,
+          deletedCustomerPhones,
           emailDispatchLogs: emailDispatchLogs.slice(0, 50)
         }, { merge: true });
       } catch (err) {
@@ -1008,12 +1039,30 @@
             clearTimeout(timeoutId);
             isCloudConnected = true;
             updateCloudBadge('connected', 'Cloud Synced');
+
+            const cloudPhones = new Set();
             snapshot.forEach((docSnap) => {
               const data = docSnap.data();
               if (data && data.phone) {
-                customers[data.phone] = data;
+                cloudPhones.add(data.phone);
+                if (!deletedCustomerPhones[data.phone]) {
+                  customers[data.phone] = data;
+                }
               }
             });
+
+            // Remove any local customers that were deleted on another web app
+            Object.keys(customers).forEach((localPhone) => {
+              if (!cloudPhones.has(localPhone)) {
+                delete customers[localPhone];
+              }
+            });
+
+            if (activeCustomerPhone && !customers[activeCustomerPhone]) {
+              activeCustomerPhone = null;
+              showLoginView();
+            }
+
             saveStateToStorage();
             if (activeCustomerPhone && customers[activeCustomerPhone]) {
               renderDashboard();
@@ -1045,6 +1094,18 @@
               if (d.emailJsServiceId !== undefined) storeConfig.emailJsServiceId = d.emailJsServiceId;
               if (d.emailJsTemplateId !== undefined) storeConfig.emailJsTemplateId = d.emailJsTemplateId;
               if (d.emailJsPublicKey !== undefined) storeConfig.emailJsPublicKey = d.emailJsPublicKey;
+              if (d.deletedCustomerPhones && typeof d.deletedCustomerPhones === 'object') {
+                deletedCustomerPhones = { ...deletedCustomerPhones, ...d.deletedCustomerPhones };
+                Object.keys(deletedCustomerPhones).forEach((delPhone) => {
+                  if (customers[delPhone]) {
+                    delete customers[delPhone];
+                  }
+                });
+                if (activeCustomerPhone && !customers[activeCustomerPhone]) {
+                  activeCustomerPhone = null;
+                  showLoginView();
+                }
+              }
               if (Array.isArray(d.localAds)) localAds = d.localAds;
               if (Array.isArray(d.emailDispatchLogs)) emailDispatchLogs = d.emailDispatchLogs;
 
@@ -1054,6 +1115,7 @@
                 startPreAppAdsSequence(false);
               }
               if (!document.getElementById('adminUnlockedContent').classList.contains('hidden')) {
+                renderAdminCustomerList();
                 renderAdminAdsList();
                 renderAdminExpiringCustomers();
               }
@@ -1116,15 +1178,16 @@
 
       if (!digits || !name) return;
 
-      const nowIso = new Date().toISOString();
-      const expiryIso = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString();
+      const nowMs = Date.now();
+      const nowIso = new Date(nowMs).toISOString();
+      const expiryIso = computePointsExpiryIso(nowMs);
       let startingPoints = 25;
       const history = [
         {
           date: nowIso,
           type: 'Welcome Bonus',
           points: 25,
-          note: 'First-time VIP registration gift'
+          note: `First-time VIP registration gift (valid ${POINTS_VALIDITY_DAYS} days)`
         }
       ];
 
@@ -1137,6 +1200,8 @@
           note: `Referred by ${customers[refDigits].name}`
         });
         customers[refDigits].points = (customers[refDigits].points || 0) + 10;
+        customers[refDigits].lastActivity = nowIso;
+        customers[refDigits].expiresAt = expiryIso;
         customers[refDigits].history = customers[refDigits].history || [];
         customers[refDigits].history.unshift({
           date: nowIso,
@@ -1166,7 +1231,7 @@
       }
 
       activeCustomerPhone = digits;
-      showToast(`Welcome ${name}! +${startingPoints} Bonus Points added.`);
+      showToast(`Welcome ${name}! +${startingPoints} Bonus Points added (valid ${POINTS_VALIDITY_DAYS} days).`);
       renderDashboard();
     };
 
@@ -1189,13 +1254,13 @@
       document.getElementById('dashPointsBalance').textContent = pts.toLocaleString();
       document.getElementById('dashDollarValue').textContent = `$${dollars}`;
 
-      const expDate = member.expiresAt ? new Date(member.expiresAt) : new Date(Date.now() + 365 * 86400000);
+      const expDate = member.expiresAt ? new Date(member.expiresAt) : new Date(computePointsExpiryIso(Date.now()));
       const daysLeft = Math.max(0, Math.ceil((expDate.getTime() - Date.now()) / 86400000));
-      document.getElementById('dashExpiryText').textContent = `Expires: ${expDate.toLocaleDateString()} (${daysLeft} days left)`;
+      document.getElementById('dashExpiryText').textContent = `Points expire in ${daysLeft} days (${expDate.toLocaleDateString()}) • ${POINTS_VALIDITY_DAYS}-day rule`;
 
       const expiryBox = document.getElementById('dashExpiryAlertBox');
-      if (pts > 0 && daysLeft <= 45) {
-        expiryBox.textContent = `Reminder: Your ${pts} points ($${dollars}) will expire in ${daysLeft} days unless you visit or redeem!`;
+      if (pts > 0 && daysLeft <= 15) {
+        expiryBox.textContent = `Reminder: Your ${pts} points ($${dollars}) will expire in ${daysLeft} day(s) unless you visit or redeem!`;
         expiryBox.classList.remove('hidden');
       } else {
         expiryBox.classList.add('hidden');
@@ -1424,14 +1489,23 @@
       }
 
       container.innerHTML = filtered.map((c) => `
-        <div onclick="selectAdminCustomer('${c.phone}')" class="p-3 hover:bg-emerald-50 cursor-pointer flex items-center justify-between gap-2 transition">
-          <div>
+        <div class="p-3 hover:bg-emerald-50 flex items-center justify-between gap-2 transition">
+          <div onclick="selectAdminCustomer('${c.phone}')" class="cursor-pointer flex-1">
             <p class="text-xs font-extrabold text-slate-900">${escapeHtml(c.name)}</p>
             <p class="text-[11px] text-slate-500">${formatPhoneDisplay(c.phone)} ${c.email ? '• ' + escapeHtml(c.email) : ''}</p>
           </div>
-          <span class="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800 text-xs font-extrabold">
-            ${Number(c.points || 0)} pts ($${(Number(c.points || 0) / 100).toFixed(2)})
-          </span>
+          <div class="flex items-center gap-2 shrink-0">
+            <span onclick="selectAdminCustomer('${c.phone}')" class="cursor-pointer px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800 text-xs font-extrabold">
+              ${Number(c.points || 0)} pts ($${(Number(c.points || 0) / 100).toFixed(2)})
+            </span>
+            <button
+              type="button"
+              onclick="deleteCustomerByPhone('${c.phone}')"
+              class="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 text-[11px] font-extrabold"
+            >
+              Delete
+            </button>
+          </div>
         </div>
       `).join('');
     };
@@ -1455,23 +1529,24 @@
         return;
       }
       const earnedPts = Math.round(dollars * 2);
-      const nowIso = new Date().toISOString();
+      const nowMs = Date.now();
+      const nowIso = new Date(nowMs).toISOString();
       c.points = Number(c.points || 0) + earnedPts;
       c.lastActivity = nowIso;
-      c.expiresAt = new Date(Date.now() + 365 * 86400000).toISOString();
+      c.expiresAt = computePointsExpiryIso(nowMs);
       c.history = c.history || [];
       c.history.unshift({
         date: nowIso,
         type: 'In-Store Purchase',
         points: earnedPts,
-        note: `$${dollars.toFixed(2)} purchase at register`
+        note: `$${dollars.toFixed(2)} purchase at register (90-day expiry)`
       });
 
       document.getElementById('posPurchaseDollarsInput').value = '';
       await persistCustomerToCloud(c);
       selectAdminCustomer(c.phone);
       renderAdminCustomerList();
-      showToast(`Added +${earnedPts} points to ${c.name}!`);
+      showToast(`Added +${earnedPts} points to ${c.name} (90-day expiry)!`);
     };
 
     window.handlePosRedeemPoints = async function () {
@@ -1482,9 +1557,11 @@
         showToast('Invalid redeem amount or insufficient points.');
         return;
       }
-      const nowIso = new Date().toISOString();
+      const nowMs = Date.now();
+      const nowIso = new Date(nowMs).toISOString();
       c.points = Number(c.points || 0) - ptsToRedeem;
       c.lastActivity = nowIso;
+      c.expiresAt = computePointsExpiryIso(nowMs);
       c.history = c.history || [];
       c.history.unshift({
         date: nowIso,
@@ -1500,17 +1577,23 @@
       showToast(`Redeemed ${ptsToRedeem} pts ($${(ptsToRedeem / 100).toFixed(2)}) for ${c.name}.`);
     };
 
-    window.deleteSelectedCustomer = async function () {
-      const c = customers[selectedAdminPhone];
+    window.deleteCustomerByPhone = async function (phone) {
+      const c = customers[phone];
       if (!c) return;
-      const phoneToDelete = c.phone;
       const deletedName = c.name;
-      delete customers[phoneToDelete];
-      selectedAdminPhone = null;
-      document.getElementById('adminPosSelectedBox').classList.add('hidden');
-      await removeCustomerFromCloud(phoneToDelete);
+      if (selectedAdminPhone === phone) {
+        selectedAdminPhone = null;
+        document.getElementById('adminPosSelectedBox').classList.add('hidden');
+      }
+      await removeCustomerFromCloud(phone);
       renderAdminCustomerList();
-      showToast(`Deleted customer ${deletedName}.`);
+      renderAdminExpiringCustomers();
+      showToast(`Deleted ${deletedName} across all web apps.`);
+    };
+
+    window.deleteSelectedCustomer = async function () {
+      if (!selectedAdminPhone) return;
+      await deleteCustomerByPhone(selectedAdminPhone);
     };
 
     // ==================== ADMIN LOCAL ADVERTISING & SUBSCRIPTIONS ====================
@@ -1565,7 +1648,6 @@
       renderAdvertiserEmailLog();
     }
 
-    // Sends exclusively to the saved business's email (plus optional CC) — never triggers OS mailto pop-up
     function sendAdvertiserEmail(ad, mode = 'published') {
       if (!ad || !ad.businessEmail) return;
       const mail = buildAdvertiserAppLinksEmail(ad, mode);
@@ -1916,10 +1998,10 @@
         return;
       }
       container.innerHTML = withPoints.map((c) => {
-        const exp = c.expiresAt ? new Date(c.expiresAt) : new Date(Date.now() + 365 * 86400000);
+        const exp = c.expiresAt ? new Date(c.expiresAt) : new Date(computePointsExpiryIso(Date.now()));
         const days = Math.max(0, Math.ceil((exp.getTime() - Date.now()) / 86400000));
-        const mailSubject = encodeURIComponent('Your Rexall Discount Reward Points Reminder');
-        const mailBody = encodeURIComponent(`Hi ${c.name}, you have ${c.points} points ($${(c.points / 100).toFixed(2)}) at Rexall Discount Reward expiring on ${exp.toLocaleDateString()}. Visit us at 9807 Lorain Ave to use your points!`);
+        const mailSubject = encodeURIComponent('Your Rexall Discount Reward Points Reminder (90-Day Policy)');
+        const mailBody = encodeURIComponent(`Hi ${c.name}, you have ${c.points} points ($${(c.points / 100).toFixed(2)}) at Rexall Discount Reward expiring on ${exp.toLocaleDateString()} (${days} days left under our 90-day policy). Visit us at 9807 Lorain Ave to use your points!`);
         return `
           <div class="py-2.5 flex items-center justify-between gap-2">
             <div>
