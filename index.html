@@ -892,16 +892,32 @@
     }
 
     // ==================== 90-DAY GRADUAL 25-POINT DECAY ====================
+    function parseTimestampMs(raw, fallbackMs = Date.now()) {
+      if (typeof raw === "number" && Number.isFinite(raw) && raw > 0) {
+        return raw;
+      }
+      if (typeof raw === "string" && raw.trim()) {
+        const num = Number(raw);
+        if (Number.isFinite(num) && num > 0) return num;
+        const parsed = Date.parse(raw);
+        if (Number.isFinite(parsed) && parsed > 0) return parsed;
+      }
+      return fallbackMs;
+    }
+
     function applyNinetyDayDecay(customer) {
       if (!customer) return customer;
       const now = Date.now();
-      const lastAct = Number(customer.lastActivity || customer.createdAt || now);
-      const elapsed = now - lastAct;
+      const createdMs = parseTimestampMs(customer.createdAt, now);
+      const lastAct = parseTimestampMs(customer.lastActivity, createdMs);
+      const elapsed = Math.max(0, now - lastAct);
       const cycles = Math.floor(elapsed / NINETY_DAYS_MS);
       const currentPoints = Math.max(0, Number(customer.points || 0));
 
       let updated = {
         ...customer,
+        createdAt: createdMs,
+        lastActivity: lastAct,
         expiresAt: lastAct + NINETY_DAYS_MS
       };
 
@@ -1152,7 +1168,8 @@
 
       const pts = Math.max(0, Number(customer.points || 0));
       const creditDollars = (pts / 100).toFixed(2);
-      const lastAct = Number(customer.lastActivity || customer.createdAt || Date.now());
+      const createdMs = parseTimestampMs(customer.createdAt, Date.now());
+      const lastAct = parseTimestampMs(customer.lastActivity, createdMs);
       const ninetyExpiryDate = new Date(lastAct + NINETY_DAYS_MS);
       const daysRemaining = Math.max(0, Math.ceil((ninetyExpiryDate.getTime() - Date.now()) / (24 * 60 * 60 * 1000)));
 
@@ -1758,7 +1775,8 @@
       noBox.classList.add("hidden");
       selBox.classList.remove("hidden");
 
-      const lastAct = Number(c.lastActivity || c.createdAt || Date.now());
+      const createdMs = parseTimestampMs(c.createdAt, Date.now());
+      const lastAct = parseTimestampMs(c.lastActivity, createdMs);
       const expDate = new Date(lastAct + NINETY_DAYS_MS);
       const daysLeft = Math.max(0, Math.ceil((expDate.getTime() - Date.now()) / (24 * 60 * 60 * 1000)));
 
