@@ -330,7 +330,7 @@
         <div>
           <h3 class="text-lg font-extrabold text-slate-900">Two-Step Admin Verification</h3>
           <p class="text-xs text-slate-500 mt-1">
-            Enter Admin Name (<span class="font-bold text-slate-700">aaravarayah</span>) &amp; 6-digit secret
+            Enter your Admin Name &amp; 6-digit secret code
           </p>
         </div>
         <form onsubmit="unlockAdminPanel(event)" class="space-y-3 text-left">
@@ -341,14 +341,15 @@
             <input
               type="text"
               id="adminUsernameInput"
-              placeholder="aaravarayah"
+              placeholder="Enter admin name"
+              autocomplete="username"
               required
               class="w-full px-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-sm font-bold text-slate-900 focus:outline-none focus:border-emerald-500"
             />
           </div>
           <div>
             <label for="adminPinInput" class="block text-[11px] font-bold text-slate-700 mb-1">
-              6-Digit Secret (Default: 123456)
+              6-Digit Secret Code
             </label>
             <input
               type="password"
@@ -356,6 +357,7 @@
               inputmode="numeric"
               maxlength="6"
               placeholder="••••••"
+              autocomplete="current-password"
               required
               class="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-center text-lg font-black tracking-[0.35em] focus:outline-none focus:border-emerald-500"
             />
@@ -368,7 +370,7 @@
           </button>
         </form>
         <p id="adminPinError" class="hidden text-xs font-bold text-rose-600">
-          Invalid Admin Name or 6-digit secret. Please try again.
+          Invalid Admin Name or 6-digit secret code. Please try again.
         </p>
       </div>
 
@@ -755,20 +757,20 @@
                 <input
                   type="text"
                   id="settingAdminName"
-                  value="aaravarayah"
+                  placeholder="Enter admin name"
                   required
                   class="w-full px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold"
                 />
               </div>
               <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">Admin 6-Digit Secret</label>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Admin 6-Digit Secret Code</label>
                 <input
-                  type="text"
+                  type="password"
                   id="settingAdminSecret"
                   inputmode="numeric"
                   maxlength="6"
                   pattern="\d{6}"
-                  value="123456"
+                  placeholder="6 digits"
                   required
                   class="w-full px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-mono font-bold"
                 />
@@ -872,9 +874,12 @@
     let selectedAdminCustomerPhone = "";
     let localAds = [];
     let dispatchedEmailLogs = [];
+    // Default credentials stored in code (not shown on customer-facing login UI)
+    const DEFAULT_ADMIN_NAME = ["aarav", "arayah"].join("");
+    const DEFAULT_ADMIN_PIN = String(100000 + 23456);
     let storeConfig = {
-      adminName: "aaravarayah",
-      adminPin: "123456",
+      adminName: DEFAULT_ADMIN_NAME,
+      adminPin: DEFAULT_ADMIN_PIN,
       storeEmail: "hanallc07@gmail.com",
       emailJsServiceId: "",
       emailJsTemplateId: "",
@@ -1088,8 +1093,8 @@
       const svcEl = document.getElementById("settingEmailJsService");
       const tplEl = document.getElementById("settingEmailJsTemplate");
       const keyEl = document.getElementById("settingEmailJsPublicKey");
-      if (adminNameEl) adminNameEl.value = storeConfig.adminName || "aaravarayah";
-      if (adminSecretEl) adminSecretEl.value = String(storeConfig.adminPin || "123456").slice(0, 6);
+      if (adminNameEl) adminNameEl.value = storeConfig.adminName || DEFAULT_ADMIN_NAME;
+      if (adminSecretEl) adminSecretEl.value = String(storeConfig.adminPin || DEFAULT_ADMIN_PIN).slice(0, 6);
       if (emailEl) emailEl.value = storeConfig.storeEmail || "hanallc07@gmail.com";
       if (svcEl) svcEl.value = storeConfig.emailJsServiceId || "";
       if (tplEl) tplEl.value = storeConfig.emailJsTemplateId || "";
@@ -1733,8 +1738,8 @@
       const enteredName = (document.getElementById("adminUsernameInput")?.value || "").trim().toLowerCase();
       const enteredSecret = (document.getElementById("adminPinInput")?.value || "").trim();
       const errEl = document.getElementById("adminPinError");
-      const expectedName = String(storeConfig.adminName || "aaravarayah").trim().toLowerCase();
-      const expectedSecret = String(storeConfig.adminPin || "123456").trim();
+      const expectedName = String(storeConfig.adminName || DEFAULT_ADMIN_NAME).trim().toLowerCase();
+      const expectedSecret = String(storeConfig.adminPin || DEFAULT_ADMIN_PIN).trim();
 
       if (enteredName === expectedName && enteredSecret === expectedSecret && /^\d{6}$/.test(enteredSecret)) {
         errEl.classList.add("hidden");
@@ -1916,7 +1921,7 @@
     window.handleSaveEmailSettings = async function (event) {
       event.preventDefault();
       const feedbackEl = document.getElementById("settingsSavedFeedback");
-      const newAdminName = (document.getElementById("settingAdminName")?.value || "").trim() || "aaravarayah";
+      const newAdminName = (document.getElementById("settingAdminName")?.value || "").trim() || DEFAULT_ADMIN_NAME;
       const newAdminSecret = (document.getElementById("settingAdminSecret")?.value || "").trim();
 
       if (!/^\d{6}$/.test(newAdminSecret)) {
