@@ -455,7 +455,7 @@
               <div>
                 <h3 class="text-sm font-extrabold text-slate-900">Add / Renew Local Business Ad Subscription</h3>
                 <p class="text-xs text-slate-500">
-                  Sends an email to the business with all 3 app links, tracks Cash/Card in-store payment, validity (30d–1yr), duration pricing (5s–30s), and auto-rotates expired slots.
+                  Automatically dispatches from <strong>hanallc07@gmail.com</strong> (with optional CC) containing all 3 app links, tracks Cash/Card in-store payment, validity (30d–1yr), duration pricing (5s–30s), and auto-rotates expired slots.
                 </p>
               </div>
               <button
@@ -479,7 +479,7 @@
                 />
               </div>
               <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">Business Email (Receives All App Links) *</label>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Business Email (To) *</label>
                 <input
                   type="email"
                   id="adBusinessEmailInput"
@@ -488,6 +488,16 @@
                   class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold"
                 />
               </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">CC Email (Optional — separate multiple with commas)</label>
+                <input
+                  type="text"
+                  id="adCcEmailInput"
+                  placeholder="manager@business.com, partner@business.com"
+                  class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold"
+                />
+              </div>
+
               <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">Business Phone (Optional)</label>
                 <input
@@ -498,7 +508,7 @@
                 />
               </div>
 
-              <div class="sm:col-span-2 lg:col-span-3">
+              <div class="sm:col-span-2">
                 <label class="block text-xs font-bold text-slate-700 mb-1">Offer / Business Details *</label>
                 <input
                   type="text"
@@ -609,14 +619,14 @@
                   </div>
                   <label class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-900">
                     <input type="checkbox" id="adSendAdvertiserEmailCheck" checked class="w-4 h-4 accent-emerald-600" />
-                    Email business with all 3 app links &amp; receipt
+                    Auto-send from hanallc07@gmail.com (with CC &amp; all 3 app links)
                   </label>
                 </div>
                 <button
                   type="submit"
                   class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold"
                 >
-                  Save Subscription &amp; Sync All Apps
+                  Save Subscription &amp; Auto-Send Email
                 </button>
               </div>
             </form>
@@ -636,11 +646,11 @@
           <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
             <h3 class="text-sm font-extrabold text-slate-900">New Customer &amp; Advertiser Email Settings</h3>
             <p class="text-xs text-slate-500">
-              Automatically notifies <strong>hanallc07@gmail.com</strong> when a new customer registers, and sends app links + 5-day renewal reminders to local advertisers.
+              Automatically notifies <strong>hanallc07@gmail.com</strong> when a new customer registers, and sends app links + 5-day renewal reminders from <strong>hanallc07@gmail.com</strong> (including any CC recipients).
             </p>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">Store Alert Email</label>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Store Sender / Alert Email</label>
                 <input
                   type="email"
                   id="settingStoreEmailInput"
@@ -655,7 +665,7 @@
                 </label>
               </div>
               <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">EmailJS Service ID (Optional for silent background send)</label>
+                <label class="block text-xs font-bold text-slate-700 mb-1">EmailJS Service ID (For zero-popup background send)</label>
                 <input
                   type="text"
                   id="settingEmailJsServiceId"
@@ -905,7 +915,7 @@
       let baseByTerm = 50;
       if (days === 60) baseByTerm = 90;
       else if (days === 90) baseByTerm = 125;
-      else if (days >= 365) baseByTerm = 399; // Special Yearly Rate
+      else if (days >= 365) baseByTerm = 399;
 
       let durationAddon = 0;
       if (dur === 10) durationAddon = 25;
@@ -1487,14 +1497,25 @@
     };
 
     // ==================== ADMIN LOCAL ADVERTISING & SUBSCRIPTIONS ====================
+    function normalizeCcList(ccRaw) {
+      return String(ccRaw || '')
+        .split(/[,;\s]+/)
+        .map((s) => s.trim())
+        .filter((s) => s.includes('@'));
+    }
+
     function buildAdvertiserAppLinksEmail(ad, mode = 'published') {
+      const senderEmail = storeConfig.storeEmail || 'hanallc07@gmail.com';
       const toEmail = ad.businessEmail || '';
+      const ccList = normalizeCcList(ad.ccEmail);
       const expDateStr = ad.expiresAt ? new Date(ad.expiresAt).toLocaleDateString() : 'N/A';
+
       const subject = mode === 'renewal'
         ? `5-Day Renewal Reminder: ${ad.title} Ad on Rexall Discount Reward`
         : `Your Ad Is Live on Rexall Discount Reward (Priority #${ad.priority})`;
 
       const body =
+        `From: ${senderEmail}\n` +
         `Hello ${ad.title},\n\n` +
         (mode === 'renewal'
           ? `Your local advertisement subscription on Rexall Discount Reward expires in 5 days (${expDateStr}). Please visit Rexall Discount Reward (9807 Lorain Ave, Cleveland, OH) to renew in-store by Cash or Card so your priority spot does not automatically expire and pass to the next business.\n\n`
@@ -1502,13 +1523,16 @@
         `• GitHub Pages App: ${APP_LINKS.github}\n` +
         `• Cloudflare App: ${APP_LINKS.cloudflare}\n` +
         `• Netlify App: ${APP_LINKS.netlify}\n\n` +
-        `Rexall Discount Reward\n9807 Lorain Ave, Cleveland, OH 44102\n216-961-1323 • hanallc07@gmail.com`;
+        `Rexall Discount Reward\n9807 Lorain Ave, Cleveland, OH 44102\n216-961-1323 • ${senderEmail}`;
 
+      const ccParam = ccList.length ? `&cc=${encodeURIComponent(ccList.join(','))}` : '';
       return {
+        fromEmail: senderEmail,
         toEmail,
+        ccList,
         subject,
         body,
-        mailtoHref: `mailto:${encodeURIComponent(toEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
+        mailtoHref: `mailto:${encodeURIComponent(toEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}${ccParam}`
       };
     }
 
@@ -1524,7 +1548,10 @@
             template_id: storeConfig.emailJsTemplateId,
             user_id: storeConfig.emailJsPublicKey,
             template_params: {
+              from_email: mail.fromEmail,
+              reply_to: mail.fromEmail,
               to_email: mail.toEmail,
+              cc_email: mail.ccList.join(', '),
               subject: mail.subject,
               message: mail.body,
               business_name: ad.title,
@@ -1533,7 +1560,9 @@
               netlify_url: APP_LINKS.netlify
             }
           })
-        }).catch((err) => console.warn('Advertiser EmailJS error:', err));
+        })
+          .then(() => showToast(`Sent from ${mail.fromEmail} to ${mail.toEmail}${mail.ccList.length ? ' (CC: ' + mail.ccList.join(', ') + ')' : ''}`))
+          .catch((err) => console.warn('Advertiser EmailJS error:', err));
       } else {
         const a = document.createElement('a');
         a.href = mail.mailtoHref;
@@ -1548,7 +1577,6 @@
       const ad = localAds.find((a) => a.id === adId);
       if (!ad) return;
       sendAdvertiserEmail(ad, 'renewal');
-      showToast(`Prepared 5-day renewal email with all app links for ${ad.title}.`);
     };
 
     window.renewAdSubscription = async function (adId) {
@@ -1581,6 +1609,7 @@
       e.preventDefault();
       const title = document.getElementById('adTitleInput').value.trim();
       const businessEmail = document.getElementById('adBusinessEmailInput').value.trim();
+      const ccEmail = document.getElementById('adCcEmailInput').value.trim();
       const businessPhone = document.getElementById('adBusinessPhoneInput').value.trim();
       const description = document.getElementById('adDescInput').value.trim();
       const priority = parseInt(document.getElementById('adPrioritySelect').value, 10) || 1;
@@ -1602,6 +1631,7 @@
         id: 'ad_' + nowMs,
         title,
         businessEmail,
+        ccEmail,
         businessPhone,
         description,
         priority,
@@ -1634,7 +1664,7 @@
         sendAdvertiserEmail(newAd, 'published');
       }
 
-      showToast(`Priority #${priority} subscription ($${price}, ${validityDays}d) saved & synced to all 3 apps!`);
+      showToast(`Priority #${priority} ad saved & auto-email triggered from hanallc07@gmail.com!`);
     };
 
     window.toggleLocalAdActive = async function (adId) {
@@ -1658,7 +1688,6 @@
       const container = document.getElementById('adminAdsListContainer');
       const alertBox = document.getElementById('adminAdRenewalAlertBox');
 
-      // Check for ads with <= 5 days left (not yet expired)
       const expiringSoon = (localAds || []).filter((ad) => {
         if (!ad || isAdExpired(ad)) return false;
         const d = getAdDaysLeft(ad);
@@ -1695,6 +1724,7 @@
         const daysLeft = getAdDaysLeft(ad);
         const running = isAdCurrentlyRunning(ad);
         const mail = buildAdvertiserAppLinksEmail(ad, 'published');
+        const ccList = normalizeCcList(ad.ccEmail);
 
         let statusBadge = '';
         if (expired) {
@@ -1719,7 +1749,7 @@
                   $${Number(ad.price || 50).toFixed(2)} &bull; ${escapeHtml(ad.paymentMethod || 'Cash at Store')} (${escapeHtml(ad.paymentStatus || 'Paid at Store')})
                 </span>
               </div>
-              <p class="text-sm font-extrabold text-slate-900">${escapeHtml(ad.title)} <span class="text-xs font-semibold text-slate-500">&bull; ${escapeHtml(ad.businessEmail || '')}</span></p>
+              <p class="text-sm font-extrabold text-slate-900">${escapeHtml(ad.title)} <span class="text-xs font-semibold text-slate-500">&bull; ${escapeHtml(ad.businessEmail || '')}${ccList.length ? ' (CC: ' + escapeHtml(ccList.join(', ')) + ')' : ''}</span></p>
               <p class="text-xs text-slate-600">${escapeHtml(ad.description)}</p>
               <p class="text-[10px] text-slate-400">Term: ${ad.validityDays || 30} days &bull; Expires: ${ad.expiresAt ? new Date(ad.expiresAt).toLocaleDateString() : 'N/A'}</p>
             </div>
@@ -1744,7 +1774,7 @@
     function notifyStoreOfNewRegistration(member) {
       const toEmail = storeConfig.storeEmail || 'hanallc07@gmail.com';
       const subject = `New Rexall Loyalty Member: ${member.name} (${formatPhoneDisplay(member.phone)})`;
-      const body = `New customer registered on Rexall Discount Reward:\n\nName: ${member.name}\nPhone: ${formatPhoneDisplay(member.phone)}\nEmail: ${member.email || 'Not provided'}\nStarting Points: ${member.points}\nRegistered At: ${new Date(member.createdAt).toLocaleString()}`;
+      const body = `From: ${toEmail}\nNew customer registered on Rexall Discount Reward:\n\nName: ${member.name}\nPhone: ${formatPhoneDisplay(member.phone)}\nEmail: ${member.email || 'Not provided'}\nStarting Points: ${member.points}\nRegistered At: ${new Date(member.createdAt).toLocaleString()}`;
 
       if (storeConfig.emailJsServiceId && storeConfig.emailJsTemplateId && storeConfig.emailJsPublicKey) {
         fetch('https://api.emailjs.com/api/v1.0/email/send', {
@@ -1755,6 +1785,7 @@
             template_id: storeConfig.emailJsTemplateId,
             user_id: storeConfig.emailJsPublicKey,
             template_params: {
+              from_email: toEmail,
               to_email: toEmail,
               subject,
               message: body,
