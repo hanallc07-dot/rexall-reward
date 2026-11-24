@@ -324,29 +324,52 @@
 
       <!-- Admin PIN Unlock Screen -->
       <div id="adminLockScreen" class="p-8 max-w-sm mx-auto text-center space-y-4">
-        <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-800 flex items-center justify-center mx-auto font-black text-lg">
-          PIN
+        <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-800 flex items-center justify-center mx-auto font-black text-sm">
+          2FA
         </div>
         <div>
-          <h3 class="text-lg font-extrabold text-slate-900">Enter Store Admin PIN</h3>
-          <p class="text-xs text-slate-500 mt-1">Default PIN: 1234 (or your configured store PIN)</p>
+          <h3 class="text-lg font-extrabold text-slate-900">Two-Step Admin Verification</h3>
+          <p class="text-xs text-slate-500 mt-1">
+            Enter Admin Name (<span class="font-bold text-slate-700">aaravarayah</span>) &amp; 6-digit secret
+          </p>
         </div>
-        <form onsubmit="unlockAdminPanel(event)" class="space-y-3">
-          <input
-            type="password"
-            id="adminPinInput"
-            placeholder="••••"
-            required
-            class="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-center text-lg font-black tracking-widest focus:outline-none focus:border-emerald-500"
-          />
+        <form onsubmit="unlockAdminPanel(event)" class="space-y-3 text-left">
+          <div>
+            <label for="adminUsernameInput" class="block text-[11px] font-bold text-slate-700 mb-1">
+              Admin Name
+            </label>
+            <input
+              type="text"
+              id="adminUsernameInput"
+              placeholder="aaravarayah"
+              required
+              class="w-full px-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-sm font-bold text-slate-900 focus:outline-none focus:border-emerald-500"
+            />
+          </div>
+          <div>
+            <label for="adminPinInput" class="block text-[11px] font-bold text-slate-700 mb-1">
+              6-Digit Secret (Default: 123456)
+            </label>
+            <input
+              type="password"
+              id="adminPinInput"
+              inputmode="numeric"
+              maxlength="6"
+              placeholder="••••••"
+              required
+              class="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-center text-lg font-black tracking-[0.35em] focus:outline-none focus:border-emerald-500"
+            />
+          </div>
           <button
             type="submit"
             class="w-full py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-extrabold transition"
           >
-            Unlock Admin Console
+            Verify &amp; Unlock Admin Console
           </button>
         </form>
-        <p id="adminPinError" class="hidden text-xs font-bold text-rose-600">Incorrect PIN. Please try again.</p>
+        <p id="adminPinError" class="hidden text-xs font-bold text-rose-600">
+          Invalid Admin Name or 6-digit secret. Please try again.
+        </p>
       </div>
 
       <!-- Admin Unlocked Content -->
@@ -728,6 +751,29 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Admin Verification Name</label>
+                <input
+                  type="text"
+                  id="settingAdminName"
+                  value="aaravarayah"
+                  required
+                  class="w-full px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold"
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Admin 6-Digit Secret</label>
+                <input
+                  type="text"
+                  id="settingAdminSecret"
+                  inputmode="numeric"
+                  maxlength="6"
+                  pattern="\d{6}"
+                  value="123456"
+                  required
+                  class="w-full px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-mono font-bold"
+                />
+              </div>
+              <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">Store Owner Notification Email</label>
                 <input
                   type="email"
@@ -827,7 +873,8 @@
     let localAds = [];
     let dispatchedEmailLogs = [];
     let storeConfig = {
-      adminPin: "1234",
+      adminName: "aaravarayah",
+      adminPin: "123456",
       storeEmail: "hanallc07@gmail.com",
       emailJsServiceId: "",
       emailJsTemplateId: "",
@@ -1035,10 +1082,14 @@
     }
 
     function populateEmailSettingsInputs() {
+      const adminNameEl = document.getElementById("settingAdminName");
+      const adminSecretEl = document.getElementById("settingAdminSecret");
       const emailEl = document.getElementById("settingStoreEmail");
       const svcEl = document.getElementById("settingEmailJsService");
       const tplEl = document.getElementById("settingEmailJsTemplate");
       const keyEl = document.getElementById("settingEmailJsPublicKey");
+      if (adminNameEl) adminNameEl.value = storeConfig.adminName || "aaravarayah";
+      if (adminSecretEl) adminSecretEl.value = String(storeConfig.adminPin || "123456").slice(0, 6);
       if (emailEl) emailEl.value = storeConfig.storeEmail || "hanallc07@gmail.com";
       if (svcEl) svcEl.value = storeConfig.emailJsServiceId || "";
       if (tplEl) tplEl.value = storeConfig.emailJsTemplateId || "";
@@ -1356,7 +1407,7 @@
       let total = monthlyBase;
       if (termDays === 60) total = Math.round(monthlyBase * 1.85);
       else if (termDays === 90) total = Math.round(monthlyBase * 2.65);
-      else if (termDays === 365) total = Math.round(monthlyBase * 8.5); // Special yearly discount
+      else if (termDays === 365) total = Math.round(monthlyBase * 8.5);
 
       document.getElementById("adPriceInput").value = total;
       document.getElementById("adSuggestedPriceHint").textContent =
@@ -1679,9 +1730,13 @@
 
     window.unlockAdminPanel = function (event) {
       event.preventDefault();
-      const entered = document.getElementById("adminPinInput").value.trim();
+      const enteredName = (document.getElementById("adminUsernameInput")?.value || "").trim().toLowerCase();
+      const enteredSecret = (document.getElementById("adminPinInput")?.value || "").trim();
       const errEl = document.getElementById("adminPinError");
-      if (entered === String(storeConfig.adminPin || "1234")) {
+      const expectedName = String(storeConfig.adminName || "aaravarayah").trim().toLowerCase();
+      const expectedSecret = String(storeConfig.adminPin || "123456").trim();
+
+      if (enteredName === expectedName && enteredSecret === expectedSecret && /^\d{6}$/.test(enteredSecret)) {
         errEl.classList.add("hidden");
         document.getElementById("adminLockScreen").classList.add("hidden");
         document.getElementById("adminUnlockedContent").classList.remove("hidden");
@@ -1860,12 +1915,27 @@
 
     window.handleSaveEmailSettings = async function (event) {
       event.preventDefault();
+      const feedbackEl = document.getElementById("settingsSavedFeedback");
+      const newAdminName = (document.getElementById("settingAdminName")?.value || "").trim() || "aaravarayah";
+      const newAdminSecret = (document.getElementById("settingAdminSecret")?.value || "").trim();
+
+      if (!/^\d{6}$/.test(newAdminSecret)) {
+        if (feedbackEl) {
+          feedbackEl.textContent = "Admin secret must be exactly 6 digits.";
+        }
+        return;
+      }
+
+      storeConfig.adminName = newAdminName;
+      storeConfig.adminPin = newAdminSecret;
       storeConfig.storeEmail = document.getElementById("settingStoreEmail").value.trim() || "hanallc07@gmail.com";
       storeConfig.emailJsServiceId = document.getElementById("settingEmailJsService").value.trim();
       storeConfig.emailJsTemplateId = document.getElementById("settingEmailJsTemplate").value.trim();
       storeConfig.emailJsPublicKey = document.getElementById("settingEmailJsPublicKey").value.trim();
       await persistStoreConfigToCloud();
-      document.getElementById("settingsSavedFeedback").textContent = "Saved & synced across all 3 apps!";
+      if (feedbackEl) {
+        feedbackEl.textContent = "Saved & synced across all 3 apps!";
+      }
     };
 
     function escapeHtml(str) {
