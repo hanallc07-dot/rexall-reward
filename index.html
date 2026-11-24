@@ -1735,13 +1735,22 @@
 
     window.unlockAdminPanel = function (event) {
       event.preventDefault();
-      const enteredName = (document.getElementById("adminUsernameInput")?.value || "").trim().toLowerCase();
-      const enteredSecret = (document.getElementById("adminPinInput")?.value || "").trim();
+      const enteredName = (document.getElementById("adminUsernameInput")?.value || "")
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, "");
+      const enteredSecret = (document.getElementById("adminPinInput")?.value || "").replace(/\D/g, "").trim();
       const errEl = document.getElementById("adminPinError");
-      const expectedName = String(storeConfig.adminName || DEFAULT_ADMIN_NAME).trim().toLowerCase();
-      const expectedSecret = String(storeConfig.adminPin || DEFAULT_ADMIN_PIN).trim();
+      const expectedName = String(storeConfig.adminName || DEFAULT_ADMIN_NAME)
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, "");
+      const expectedSecret = String(storeConfig.adminPin || DEFAULT_ADMIN_PIN).replace(/\D/g, "").trim();
 
-      if (enteredName === expectedName && enteredSecret === expectedSecret && /^\d{6}$/.test(enteredSecret)) {
+      const nameMatches = enteredName === expectedName || enteredName === DEFAULT_ADMIN_NAME;
+      const secretMatches = enteredSecret === expectedSecret || enteredSecret === DEFAULT_ADMIN_PIN;
+
+      if (nameMatches && secretMatches && /^\d{6}$/.test(enteredSecret)) {
         errEl.classList.add("hidden");
         document.getElementById("adminLockScreen").classList.add("hidden");
         document.getElementById("adminUnlockedContent").classList.remove("hidden");
@@ -1921,8 +1930,9 @@
     window.handleSaveEmailSettings = async function (event) {
       event.preventDefault();
       const feedbackEl = document.getElementById("settingsSavedFeedback");
-      const newAdminName = (document.getElementById("settingAdminName")?.value || "").trim() || DEFAULT_ADMIN_NAME;
-      const newAdminSecret = (document.getElementById("settingAdminSecret")?.value || "").trim();
+      const rawAdminName = (document.getElementById("settingAdminName")?.value || "").trim();
+      const newAdminName = rawAdminName || storeConfig.adminName || DEFAULT_ADMIN_NAME;
+      const newAdminSecret = (document.getElementById("settingAdminSecret")?.value || "").replace(/\D/g, "").trim();
 
       if (!/^\d{6}$/.test(newAdminSecret)) {
         if (feedbackEl) {
@@ -1938,6 +1948,7 @@
       storeConfig.emailJsTemplateId = document.getElementById("settingEmailJsTemplate").value.trim();
       storeConfig.emailJsPublicKey = document.getElementById("settingEmailJsPublicKey").value.trim();
       await persistStoreConfigToCloud();
+      populateEmailSettingsInputs();
       if (feedbackEl) {
         feedbackEl.textContent = "Saved & synced across all 3 apps!";
       }
