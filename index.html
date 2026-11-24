@@ -575,6 +575,50 @@
               </div>
 
               <!-- Add Purchase Points -->
+              <form onsubmit="handleAdminPosAddPoints(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-end">
+                <div class="sm:col-span-2">
+                  <label class="block text-[10px] font-bold uppercase text-slate-600 mb-1">Purchase Amount ($)</label>
+                  <input type="number" id="posPurchaseAmountInput" step="0.01" min="0.01" oninput="updatePosPointsPreview()" required placeholder="e.g., 24.50" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold" />
+                </div>
+                <button type="submit" class="py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold">
+                  + Add (<span id="posLivePointsPreview">0</span> pts)
+                </button>
+              </form>
+
+              <!-- Quick Redeem Buttons -->
+              <div class="flex flex-wrap gap-2">
+                <button type="button" onclick="handleAdminPosRedeem(100, 1)" class="px-3 py-1.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 text-xs font-bold">Redeem $1 (100 pts)</button>
+                <button type="button" onclick="handleAdminPosRedeem(500, 5)" class="px-3 py-1.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 text-xs font-bold">Redeem $5 (500 pts)</button>
+                <button type="button" onclick="handleAdminPosRedeem(1000, 10)" class="px-3 py-1.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 text-xs font-bold">Redeem $10 (1,000 pts)</button>
+              </div>
+
+              <!-- Manual Bonus / Deduction -->
+              <form onsubmit="handleAdminPosManualPoints(event)" class="grid grid-cols-1 sm:grid-cols-4 gap-2 items-end pt-2 border-t border-slate-100">
+                <div>
+                  <label class="block text-[10px] font-bold uppercase text-slate-600 mb-1">+/- Points</label>
+                  <input type="number" id="posManualPointsInput" required placeholder="e.g., 50 or -50" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold" />
+                </div>
+                <div class="sm:col-span-2">
+                  <label class="block text-[10px] font-bold uppercase text-slate-600 mb-1">Reason / Note</label>
+                  <input type="text" id="posManualNoteInput" placeholder="e.g., Birthday Bonus" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs" />
+                </div>
+                <button type="submit" class="py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold">
+                  Apply Pts
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- Customer Directory with Delete Button -->
+          <div class="border border-slate-200 rounded-2xl overflow-hidden">
+            <div class="p-3 bg-slate-50 border-b flex flex-wrap items-center justify-between gap-2">
+              <span class="text-xs font-bold text-slate-800">All Loyalty Members (Click to Select or Delete)</span>
+              <input type="text" id="adminSearchInput" oninput="renderAdminDirectory()" placeholder="Filter members..." class="px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs" />
+            </div>
+            <div id="adminCustomerList" class="divide-y divide-slate-100 max-h-60 overflow-y-auto"></div>
+          </div>
+        </div>
+
         <!-- ==================== TAB 2: MULTIPLE LOCAL ADVERTISING OPTIONS (PRIORITY 1-5 & DURATION) ==================== -->
         <div id="adminTabPanel_ads" class="hidden space-y-4">
           <div class="bg-amber-50/60 p-4 rounded-2xl border border-amber-200 space-y-3">
@@ -893,6 +937,8 @@
     let preAppAdIndex = 0;
     let preAppCountdownSeconds = 0;
     let preAppCountdownInterval = null;
+
+    function normalizePhone(raw) {
       return String(raw || '').replace(/\D/g, '');
     }
 
@@ -1156,59 +1202,60 @@
       if (host.includes('netlify.app')) return 'Netlify';
       return host || 'Store Cloud';
     }
-          }
-        });
 
-        db.collection('rexall_customers').onSnapshot((snapshot) => {
-          const cloudCustomers = {};
-          snapshot.forEach((doc) => {
-            const d = doc.data() || {};
-            const key = normalizePhone(d.phone || doc.id);
-            if (key) {
-              cloudCustomers[key] = {
-                name: d.name || 'Member',
-                phone: key,
-                email: d.email || '',
-                points: Math.max(0, Number(d.points || 0)),
-                totalRedeemedDollars: Number(d.totalRedeemedDollars || 0),
-                referralCount: Number(d.referralCount || 0),
-                referredBy: d.referredBy || '',
-                createdAt: d.createdAt || new Date().toISOString(),
-                lastActivityAt: d.lastActivityAt || new Date().toISOString()
-              };
-            }
-          });
-          customers = cloudCustomers;
-          saveStateToStorage();
-          if (activePhone && customers[activePhone]) renderDashboard();
-          if (!document.getElementById('adminUnlockedContent').classList.contains('hidden')) {
-            renderAdminStatsAndDirectory();
-            refreshSelectedPosCustomer();
-            renderAdminExpiringCustomers();
-          }
-        });
-
-        db.collection('rexall_transactions').orderBy('timestamp', 'desc').limit(500).onSnapshot((snapshot) => {
-          const cloudTxns = [];
-          snapshot.forEach((doc) => {
-            const t = doc.data() || {};
-            cloudTxns.push({
-              id: t.id || doc.id,
-              phone: normalizePhone(t.phone),
-              type: t.type || 'EARNED',
-              pointsDelta: Number(t.pointsDelta || 0),
-              dollars: Number(t.dollars || 0),
-              note: t.note || '',
-              timestamp: t.timestamp || new Date().toISOString()
-            });
-          });
-          transactions = cloudTxns;
-          saveStateToStorage();
-          if (activePhone && customers[activePhone]) renderCustomerHistory();
-        });
-      } catch (err) {
-        updateSyncStatus(false, 'Local Only');
+    // ==================== CUSTOMER LOGIN & REGISTRATION ====================
+    function handlePhoneCheck(e) {
+      e.preventDefault();
+      const norm = normalizePhone(document.getElementById('inputPhoneNumber').value);
+      if (norm.length < 7) {
+        showToast('Please enter a valid 7 to 10-digit phone number.', 'error');
+        return;
       }
+      if (customers[norm]) {
+        activePhone = norm;
+        saveStateToStorage();
+        showDashboardView();
+        showToast(`Welcome back, ${customers[norm].name}!`);
+      } else {
+        document.getElementById('phoneLookupStep').classList.add('hidden');
+        document.getElementById('registerStep').classList.remove('hidden');
+        document.getElementById('regPhoneNumber').value = formatPhoneDisplay(norm);
+        document.getElementById('regFullName').focus();
+      }
+    }
+
+    function backToPhoneLookup() {
+      document.getElementById('registerStep').classList.add('hidden');
+      document.getElementById('phoneLookupStep').classList.remove('hidden');
+    }
+
+    function handleNewRegistration(e) {
+      e.preventDefault();
+      const fullName = document.getElementById('regFullName').value.trim();
+      const normPhone = normalizePhone(document.getElementById('regPhoneNumber').value);
+      const refVal = (document.getElementById('regReferrerPhone').value || '').trim();
+      if (!fullName || normPhone.length < 7) {
+        showToast('Enter your full name and valid phone number.', 'error');
+        return;
+      }
+      if (!refVal && !skipReferralPromptOnce) {
+        document.getElementById('referralAskModal').classList.remove('hidden');
+        return;
+      }
+      executeCustomerRegistration();
+    }
+
+    function chooseHasReferrer() {
+      document.getElementById('referralAskModal').classList.add('hidden');
+      document.getElementById('regReferrerPhone').focus();
+    }
+
+    function chooseNoReferrerAndRegister() {
+      document.getElementById('referralAskModal').classList.add('hidden');
+      skipReferralPromptOnce = true;
+      executeCustomerRegistration();
+    }
+
     // ==================== NEW CUSTOMER EMAIL NOTIFICATION TO hanallc07@gmail.com ====================
     async function notifyStoreNewCustomerRegistration(customerObj, referrerObj) {
       if (storeSettings.autoEmailNewCustomer === false) return;
@@ -1384,6 +1431,135 @@
             'Visit Rexall Discount Reward at 9807 Lorain Ave to redeem your discount or earn points to extend your balance.';
         }
       } else {
+        expNotice.textContent = `Valid for ${Math.max(0, daysLeft)} days`;
+        expBanner.classList.add('hidden');
+      }
+
+      const nextTarget = pts < 100 ? 100 : pts < 500 ? 500 : 1000;
+      const nextDollar = nextTarget / 100;
+      const pct = Math.min(100, Math.round((pts / nextTarget) * 100));
+      document.getElementById('nextRewardLabel').textContent = `Next Reward: $${nextDollar} Off (${nextTarget.toLocaleString()} pts)`;
+      document.getElementById('nextRewardPercent').textContent = `${pct}%`;
+      document.getElementById('nextRewardProgress').style.width = `${pct}%`;
+
+      [100, 500, 1000].forEach((tier) => {
+        const card = document.getElementById(`redeemCard${tier}`);
+        const status = document.getElementById(`redeemStatus${tier}`);
+        if (!card || !status) return;
+        if (pts >= tier) {
+          card.className = 'p-4 rounded-2xl border-2 border-emerald-400 bg-emerald-50/70 flex flex-col justify-between';
+          status.textContent = 'Unlocked! Ready at checkout';
+          status.className = 'text-xs text-emerald-700 mt-2 font-bold';
+        } else {
+          card.className = 'p-4 rounded-2xl border border-slate-200 bg-slate-50 flex flex-col justify-between';
+          status.textContent = `${tier - pts} more pts needed`;
+          status.className = 'text-xs text-slate-500 mt-2 font-medium';
+        }
+      });
+
+      renderCustomerHistory();
+    }
+
+    function setHistoryFilter(filter) {
+      currentHistoryFilter = filter;
+      ['ALL', 'EARNED', 'REDEEMED'].forEach((f) => {
+        const key = f === 'ALL' ? 'All' : f === 'EARNED' ? 'Earned' : 'Redeemed';
+        const btn = document.getElementById(`filter${key}Btn`);
+        if (btn) {
+          btn.className = f === filter
+            ? 'px-2.5 py-1 rounded-lg text-xs font-semibold bg-white text-slate-900 shadow-2xs transition'
+            : 'px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition';
+        }
+      });
+      renderCustomerHistory();
+    }
+
+    function renderCustomerHistory() {
+      const listEl = document.getElementById('customerHistoryList');
+      if (!listEl || !activePhone) return;
+      const rows = (transactions || []).filter((t) => {
+        if (normalizePhone(t.phone) !== activePhone) return false;
+        if (currentHistoryFilter === 'ALL') return true;
+        return t.type === currentHistoryFilter;
+      });
+      if (!rows.length) {
+        listEl.innerHTML = '<p class="py-6 text-center text-xs text-slate-400">No points activity yet.</p>';
+        return;
+      }
+      listEl.innerHTML = rows.slice(0, 50).map((t) => {
+        const delta = Number(t.pointsDelta || 0);
+        const dateStr = t.timestamp ? new Date(t.timestamp).toLocaleDateString() : '';
+        return `<div class="py-3 flex items-center justify-between gap-2 text-xs">
+          <div>
+            <p class="font-bold text-slate-900">${escapeHtml(t.note || 'Loyalty Activity')}</p>
+            <p class="text-[11px] text-slate-400">${escapeHtml(dateStr)}</p>
+          </div>
+          <span class="font-extrabold ${delta >= 0 ? 'text-emerald-700' : 'text-amber-700'}">
+            ${delta >= 0 ? '+' : ''}${delta} pts
+          </span>
+        </div>`;
+      }).join('');
+    }
+
+    function copyCustomerReferralLink() {
+      if (!activePhone) return;
+      const base = `${window.location.origin}${window.location.pathname}`;
+      const inviteUrl = `${base}?ref=${encodeURIComponent(activePhone)}`;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(inviteUrl).then(() => showToast('Referral invite link copied!'));
+      } else {
+        showToast(`Share code: ${formatPhoneDisplay(activePhone)}`);
+      }
+    }
+
+    function openChangePhoneModal() {
+      document.getElementById('changePhoneNewInput').value = '';
+      document.getElementById('changePhoneModal').classList.remove('hidden');
+    }
+    function closeChangePhoneModal() {
+      document.getElementById('changePhoneModal').classList.add('hidden');
+    }
+    async function handleCustomerChangePhone(e) {
+      e.preventDefault();
+      if (!activePhone || !customers[activePhone]) return;
+      const newNorm = normalizePhone(document.getElementById('changePhoneNewInput').value);
+      if (newNorm.length < 7 || customers[newNorm]) {
+        showToast('Enter a valid unused phone number.', 'error');
+        return;
+      }
+      const oldCust = customers[activePhone];
+      const updated = { ...oldCust, phone: newNorm, lastActivityAt: new Date().toISOString() };
+      customers[newNorm] = updated;
+      delete customers[activePhone];
+      await persistCustomerToCloud(newNorm, updated);
+      await deleteCustomerFromCloud(activePhone);
+      activePhone = newNorm;
+      saveStateToStorage();
+      closeChangePhoneModal();
+      renderDashboard();
+      showToast('Phone number updated!');
+    }
+
+    function openCustomerEmailModal() {
+      const cust = activePhone ? customers[activePhone] : null;
+      document.getElementById('customerEmailInput').value = cust?.email || '';
+      document.getElementById('customerEmailModal').classList.remove('hidden');
+    }
+    function closeCustomerEmailModal() {
+      document.getElementById('customerEmailModal').classList.add('hidden');
+    }
+    async function handleSaveCustomerEmail(e) {
+      e.preventDefault();
+      if (!activePhone || !customers[activePhone]) return;
+      const email = document.getElementById('customerEmailInput').value.trim();
+      customers[activePhone].email = email;
+      saveStateToStorage();
+      await persistCustomerToCloud(activePhone, customers[activePhone]);
+      closeCustomerEmailModal();
+      renderDashboard();
+      showToast('Notification email saved!');
+    }
+
     // ==================== PRE-APP POP-UP ADS (PRIORITY #1 TO #5 & 5s/10s/15s/30s) ====================
     function getSortedActivePopupAds() {
       return (localAds || [])
