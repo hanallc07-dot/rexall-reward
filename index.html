@@ -1040,12 +1040,26 @@
 
     function initFirebaseSync() {
       try {
-        if (!window.firebase) { updateSyncStatus(false, 'Local Only'); return; }
-        if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+        if (!window.firebase) {
+          updateSyncStatus(false, 'Firebase SDK Blocked');
+          return;
+        }
+        if (!firebase.apps.length) {
+          firebase.initializeApp(FIREBASE_CONFIG);
+        }
         db = firebase.firestore();
-        updateSyncStatus(true, 'Cloud Synced');
+        updateSyncStatus(false, 'Connecting...');
+
+        const syncTimeout = setTimeout(() => {
+          const currentLabel = document.getElementById('syncStatusText')?.textContent || '';
+          if (currentLabel === 'Connecting...') {
+            updateSyncStatus(false, 'Sync Retry');
+          }
+        }, 7000);
 
         db.collection('rexall_settings').doc('store_config').onSnapshot((doc) => {
+          clearTimeout(syncTimeout);
+          updateSyncStatus(true, 'Cloud Synced');
           if (doc.exists) {
             const d = doc.data() || {};
             if (d.adminName && String(d.adminName).trim()) adminName = String(d.adminName).trim();
@@ -1064,6 +1078,84 @@
               renderAdminAdsList();
               renderAdminExpiringCustomers();
             }
+          }
+        }, (err) => {
+          clearTimeout(syncTimeout);
+          updateSyncStatus(false, 'Cloud Error');
+          showToast('Firestore settings sync error: ' + (err.message || 'Check rules/network'), 'error');
+        });
+
+        db.collection('rexall_customers').onSnapshot((snapshot) => {
+          clearTimeout(syncTimeout);
+          updateSyncStatus(true, 'Cloud Synced');
+          const cloudCustomers = {};
+          snapshot.forEach((doc) => {
+            const d = doc.data() || {};
+            const key = normalizePhone(d.phone || doc.id);
+            if (key) {
+              cloudCustomers[key] = {
+                name: d.name || 'Member',
+                phone: key,
+                email: d.email || '',
+                points: Math.max(0, Number(d.points || 0)),
+                totalRedeemedDollars: Number(d.totalRedeemedDollars || 0),
+                referralCount: Number(d.referralCount || 0),
+                referredBy: d.referredBy || '',
+                createdAt: d.createdAt || new Date().toISOString(),
+                lastActivityAt: d.lastActivityAt || new Date().toISOString()
+              };
+            }
+          });
+          customers = cloudCustomers;
+          saveStateToStorage();
+          if (activePhone && customers[activePhone]) renderDashboard();
+          if (!document.getElementById('adminUnlockedContent').classList.contains('hidden')) {
+            renderAdminStatsAndDirectory();
+            refreshSelectedPosCustomer();
+            renderAdminExpiringCustomers();
+          }
+        }, (err) => {
+          clearTimeout(syncTimeout);
+          updateSyncStatus(false, 'Cloud Error');
+          showToast('Customer sync error: ' + (err.message || 'Check Firestore rules'), 'error');
+        });
+
+        db.collection('rexall_transactions').orderBy('timestamp', 'desc').limit(500).onSnapshot((snapshot) => {
+          clearTimeout(syncTimeout);
+          updateSyncStatus(true, 'Cloud Synced');
+          const cloudTxns = [];
+          snapshot.forEach((doc) => {
+            const t = doc.data() || {};
+            cloudTxns.push({
+              id: t.id || doc.id,
+              phone: normalizePhone(t.phone),
+              type: t.type || 'EARNED',
+              pointsDelta: Number(t.pointsDelta || 0),
+              dollars: Number(t.dollars || 0),
+              note: t.note || '',
+              timestamp: t.timestamp || new Date().toISOString()
+            });
+          });
+          transactions = cloudTxns;
+          saveStateToStorage();
+          if (activePhone && customers[activePhone]) renderCustomerHistory();
+        }, (err) => {
+          clearTimeout(syncTimeout);
+          updateSyncStatus(false, 'Cloud Error');
+        });
+      } catch (err) {
+        updateSyncStatus(false, 'Local Only');
+        showToast('Firebase init error: ' + (err.message || 'Unknown error'), 'error');
+      }
+    }
+
+    function getCurrentMirrorLabel() {
+      const host = (window.location.hostname || '').toLowerCase();
+      if (host.includes('github.io')) return 'GitHub Pages';
+      if (host.includes('workers.dev') || host.includes('pages.dev')) return 'Cloudflare';
+      if (host.includes('netlify.app')) return 'Netlify';
+      return host || 'Store Cloud';
+    }
           }
         });
 
