@@ -455,7 +455,7 @@
               <div>
                 <h3 class="text-sm font-extrabold text-slate-900">Add / Renew Local Business Ad Subscription</h3>
                 <p class="text-xs text-slate-500">
-                  Automatically dispatches from <strong>hanallc07@gmail.com</strong> (with optional CC) containing all 3 app links, tracks Cash/Card in-store payment, validity (30d–1yr), duration pricing (5s–30s), and auto-rotates expired slots.
+                  Sends exclusively to that business's email (plus optional CC) from <strong>hanallc07@gmail.com</strong> with all 3 app links, no OS mailto pop-up, tracks Cash/Card in-store payment, validity (30d–1yr), duration pricing (5s–30s), and auto-rotates expired slots.
                 </p>
               </div>
               <button
@@ -619,7 +619,7 @@
                   </div>
                   <label class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-900">
                     <input type="checkbox" id="adSendAdvertiserEmailCheck" checked class="w-4 h-4 accent-emerald-600" />
-                    Auto-send from hanallc07@gmail.com (with CC &amp; all 3 app links)
+                    Auto-send to this business from hanallc07@gmail.com (with CC &amp; all 3 app links)
                   </label>
                 </div>
                 <button
@@ -638,6 +638,19 @@
               Active &amp; Scheduled Subscriptions (Expired Ads Automatically Discontinue &amp; Next Priority Takes Over)
             </h4>
             <div id="adminAdsListContainer" class="space-y-2.5"></div>
+          </div>
+
+          <!-- Dispatched Advertiser Email Log (No OS mailto pop-up) -->
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 space-y-2">
+            <div class="flex items-center justify-between gap-2">
+              <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-700">
+                Dispatched Advertiser Emails (All 3 Web App Links)
+              </h4>
+              <span id="adminEmailLogCountBadge" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600">
+                0 Sent
+              </span>
+            </div>
+            <div id="adminAdvertiserEmailLogContainer" class="divide-y divide-slate-100 text-xs max-h-48 overflow-y-auto"></div>
           </div>
         </div>
 
@@ -805,6 +818,7 @@
 
     let customers = {};
     let localAds = [];
+    let emailDispatchLogs = [];
     let storeConfig = {
       adminName: DEFAULT_ADMIN_NAME,
       adminPin: DEFAULT_ADMIN_PIN,
@@ -854,7 +868,7 @@
 
     function saveStateToStorage() {
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ customers, localAds, storeConfig }));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ customers, localAds, emailDispatchLogs, storeConfig }));
       } catch (e) {
         console.warn('LocalStorage save warning:', e);
       }
@@ -867,6 +881,7 @@
         const parsed = JSON.parse(raw);
         if (parsed.customers && typeof parsed.customers === 'object') customers = parsed.customers;
         if (Array.isArray(parsed.localAds)) localAds = parsed.localAds;
+        if (Array.isArray(parsed.emailDispatchLogs)) emailDispatchLogs = parsed.emailDispatchLogs;
         if (parsed.storeConfig && typeof parsed.storeConfig === 'object') {
           storeConfig = { ...storeConfig, ...parsed.storeConfig };
         }
@@ -967,7 +982,8 @@
       try {
         await setDoc(doc(db, 'rexall_settings', 'store_config'), {
           ...storeConfig,
-          localAds
+          localAds,
+          emailDispatchLogs: emailDispatchLogs.slice(0, 50)
         }, { merge: true });
       } catch (err) {
         console.error('Error saving store_config to Firestore:', err);
@@ -1030,6 +1046,7 @@
               if (d.emailJsTemplateId !== undefined) storeConfig.emailJsTemplateId = d.emailJsTemplateId;
               if (d.emailJsPublicKey !== undefined) storeConfig.emailJsPublicKey = d.emailJsPublicKey;
               if (Array.isArray(d.localAds)) localAds = d.localAds;
+              if (Array.isArray(d.emailDispatchLogs)) emailDispatchLogs = d.emailDispatchLogs;
 
               saveStateToStorage();
               renderPublicLocalAds();
@@ -1525,20 +1542,34 @@
         `• Netlify App: ${APP_LINKS.netlify}\n\n` +
         `Rexall Discount Reward\n9807 Lorain Ave, Cleveland, OH 44102\n216-961-1323 • ${senderEmail}`;
 
-      const ccParam = ccList.length ? `&cc=${encodeURIComponent(ccList.join(','))}` : '';
       return {
         fromEmail: senderEmail,
         toEmail,
         ccList,
         subject,
         body,
-        mailtoHref: `mailto:${encodeURIComponent(toEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}${ccParam}`
+        links: [APP_LINKS.github, APP_LINKS.cloudflare, APP_LINKS.netlify]
       };
     }
 
+    function recordEmailDispatchLog(entry) {
+      emailDispatchLogs = [
+        {
+          id: 'mail_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+          sentAt: new Date().toISOString(),
+          ...entry
+        },
+        ...(emailDispatchLogs || [])
+      ].slice(0, 50);
+      persistStoreConfigToCloud();
+      renderAdvertiserEmailLog();
+    }
+
+    // Sends exclusively to the saved business's email (plus optional CC) — never triggers OS mailto pop-up
     function sendAdvertiserEmail(ad, mode = 'published') {
-      if (!ad.businessEmail) return;
+      if (!ad || !ad.businessEmail) return;
       const mail = buildAdvertiserAppLinksEmail(ad, mode);
+
       if (storeConfig.emailJsServiceId && storeConfig.emailJsTemplateId && storeConfig.emailJsPublicKey) {
         fetch('https://api.emailjs.com/api/v1.0/email/send', {
           method: 'POST',
@@ -1561,16 +1592,66 @@
             }
           })
         })
-          .then(() => showToast(`Sent from ${mail.fromEmail} to ${mail.toEmail}${mail.ccList.length ? ' (CC: ' + mail.ccList.join(', ') + ')' : ''}`))
-          .catch((err) => console.warn('Advertiser EmailJS error:', err));
+          .then(() => {
+            recordEmailDispatchLog({
+              adId: ad.id,
+              businessName: ad.title,
+              toEmail: mail.toEmail,
+              ccEmail: mail.ccList.join(', '),
+              mode,
+              status: 'Sent via EmailJS'
+            });
+            showToast(`Email sent to ${mail.toEmail}${mail.ccList.length ? ' (CC: ' + mail.ccList.join(', ') + ')' : ''} with all 3 app links!`);
+          })
+          .catch((err) => {
+            console.warn('Advertiser EmailJS error:', err);
+            recordEmailDispatchLog({
+              adId: ad.id,
+              businessName: ad.title,
+              toEmail: mail.toEmail,
+              ccEmail: mail.ccList.join(', '),
+              mode,
+              status: 'Queued (Check EmailJS Keys)'
+            });
+          });
       } else {
-        const a = document.createElement('a');
-        a.href = mail.mailtoHref;
-        a.style.display = 'none';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+        recordEmailDispatchLog({
+          adId: ad.id,
+          businessName: ad.title,
+          toEmail: mail.toEmail,
+          ccEmail: mail.ccList.join(', '),
+          mode,
+          status: 'Dispatched to Log (No Pop-Up)'
+        });
+        showToast(`Subscription saved & app links prepared for ${mail.toEmail} (no pop-up).`);
       }
+    }
+
+    function renderAdvertiserEmailLog() {
+      const container = document.getElementById('adminAdvertiserEmailLogContainer');
+      const badge = document.getElementById('adminEmailLogCountBadge');
+      if (!container) return;
+
+      const advertiserOnlyLogs = (emailDispatchLogs || []).filter((item) => item.mode === 'published' || item.mode === 'renewal');
+
+      if (badge) {
+        badge.textContent = `${advertiserOnlyLogs.length} Logged`;
+      }
+
+      if (!advertiserOnlyLogs.length) {
+        container.innerHTML = `<p class="py-2 text-slate-400">No advertiser emails logged yet. Saving a subscription targets only that business's email.</p>`;
+        return;
+      }
+
+      container.innerHTML = advertiserOnlyLogs.slice(0, 15).map((item) => `
+        <div class="py-2 flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <p class="font-bold text-slate-800">${escapeHtml(item.businessName)} &rarr; <span class="text-emerald-700">${escapeHtml(item.toEmail)}</span>${item.ccEmail ? ' <span class="text-slate-500">(CC: ' + escapeHtml(item.ccEmail) + ')</span>' : ''}</p>
+            <p class="text-[10px] text-slate-400">From: ${escapeHtml(storeConfig.storeEmail || 'hanallc07@gmail.com')} &bull; ${new Date(item.sentAt).toLocaleString()} &bull; GitHub / Cloudflare / Netlify links included</p>
+          </div>
+          <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">${escapeHtml(item.status || 'Saved')}</span>
+        </div>
+      `).join('');
     }
 
     window.sendAdvertiserRenewalNow = function (adId) {
@@ -1664,7 +1745,7 @@
         sendAdvertiserEmail(newAd, 'published');
       }
 
-      showToast(`Priority #${priority} ad saved & auto-email triggered from hanallc07@gmail.com!`);
+      showToast(`Priority #${priority} ad saved & auto-email triggered for ${businessEmail}!`);
     };
 
     window.toggleLocalAdActive = async function (adId) {
@@ -1699,11 +1780,10 @@
           <p class="font-black text-amber-950">5-Day Renewal Alert (${expiringSoon.length} Business${expiringSoon.length > 1 ? 'es' : ''}):</p>
           ${expiringSoon.map((ad) => {
             const d = Math.max(0, getAdDaysLeft(ad));
-            const mail = buildAdvertiserAppLinksEmail(ad, 'renewal');
             return `
               <div class="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-amber-200">
                 <span><strong>${escapeHtml(ad.title)}</strong> (Priority #${ad.priority}) expires in <strong>${d} day(s)</strong> (${escapeHtml(ad.businessEmail)})</span>
-                <a href="${mail.mailtoHref}" class="px-2.5 py-1 rounded-lg bg-amber-600 text-white font-bold">Send 5-Day Renewal Email</a>
+                <button type="button" onclick="sendAdvertiserRenewalNow('${ad.id}')" class="px-2.5 py-1 rounded-lg bg-amber-600 text-white font-bold">Send 5-Day Renewal Email</button>
               </div>
             `;
           }).join('')}
@@ -1712,6 +1792,8 @@
       } else if (alertBox) {
         alertBox.classList.add('hidden');
       }
+
+      renderAdvertiserEmailLog();
 
       if (!localAds.length) {
         container.innerHTML = `<p class="text-xs text-slate-400">No local sponsor subscriptions configured yet.</p>`;
@@ -1723,7 +1805,6 @@
         const expired = isAdExpired(ad);
         const daysLeft = getAdDaysLeft(ad);
         const running = isAdCurrentlyRunning(ad);
-        const mail = buildAdvertiserAppLinksEmail(ad, 'published');
         const ccList = normalizeCcList(ad.ccEmail);
 
         let statusBadge = '';
@@ -1754,7 +1835,7 @@
               <p class="text-[10px] text-slate-400">Term: ${ad.validityDays || 30} days &bull; Expires: ${ad.expiresAt ? new Date(ad.expiresAt).toLocaleDateString() : 'N/A'}</p>
             </div>
             <div class="flex flex-wrap items-center gap-2">
-              ${ad.businessEmail ? `<a href="${mail.mailtoHref}" class="px-3 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-800 text-xs font-bold">Email App Links</a>` : ''}
+              ${ad.businessEmail ? `<button type="button" onclick="sendAdvertiserRenewalNow('${ad.id}')" class="px-3 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-800 text-xs font-bold">Send App Links</button>` : ''}
               <button type="button" onclick="renewAdSubscription('${ad.id}')" class="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold">
                 Renew ${ad.validityDays || 30}d
               </button>
@@ -1795,13 +1876,14 @@
           })
         }).catch((err) => console.warn('EmailJS background send error:', err));
       } else {
-        const mailtoLink = `mailto:${encodeURIComponent(toEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-        const a = document.createElement('a');
-        a.href = mailtoLink;
-        a.style.display = 'none';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+        recordEmailDispatchLog({
+          adId: 'new_member_' + member.phone,
+          businessName: `New Member: ${member.name}`,
+          toEmail,
+          ccEmail: '',
+          mode: 'registration',
+          status: 'Logged (Configure EmailJS for auto-send)'
+        });
       }
     }
 
