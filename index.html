@@ -109,7 +109,7 @@
         </span>
         <h2 class="text-2xl font-black tracking-tight text-slate-900">Check Points or Join</h2>
         <p class="text-xs sm:text-sm text-slate-500">
-          Enter your 10-digit mobile number to view your points or register for <strong>+25 instant bonus points</strong>.
+          Enter your 10-digit mobile number to view your points or register for <strong>+25 instant bonus points</strong> (+25 extra if referred by an existing member).
         </p>
       </div>
 
@@ -144,9 +144,9 @@
         <span class="inline-block px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-amber-50 text-amber-800 border border-amber-200">
           New VIP Member Registration
         </span>
-        <h2 class="text-xl font-black text-slate-900">Claim Your +25 Welcome Gift</h2>
+        <h2 class="text-xl font-black text-slate-900">Claim Your +25 Registration Gift</h2>
         <p class="text-xs text-slate-500">
-          Registering mobile number <strong id="registerPhoneDisplay" class="text-slate-900"></strong>. Referred by an existing friend? Enter their phone number below so you get <strong>50 points total (+25 welcome + 25 referral)</strong> and your friend gets <strong>+25 bonus points</strong>!
+          Registering mobile number <strong id="registerPhoneDisplay" class="text-slate-900"></strong>. Referred by an existing customer? Enter their phone number below so you get <strong>50 points total (+25 new registration + 25 referral bonus)</strong> and your referring customer gets <strong>+25 bonus points</strong>!
         </p>
       </div>
 
@@ -352,8 +352,17 @@
       <!-- Step 2: Unlocked Admin Dashboard -->
       <div id="adminUnlockedBody" class="hidden p-5 sm:p-6 space-y-5 max-h-[82vh] overflow-y-auto">
 
-        <!-- Cloud Sync Diagnostic Alert (Only shown if Firestore rules block writes) -->
-        <div id="cloudDiagnosticBanner" class="hidden p-3 rounded-2xl bg-rose-50 border border-rose-200 text-xs text-rose-800 font-semibold"></div>
+        <!-- Cloud Sync Diagnostic Alert -->
+        <div id="cloudDiagnosticBanner" class="hidden p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-xs text-rose-800 font-semibold space-y-2">
+          <p id="cloudDiagnosticText"></p>
+          <button
+            type="button"
+            onclick="forceCloudSyncNow()"
+            class="px-3 py-1 rounded-lg bg-rose-700 hover:bg-rose-800 text-white text-[11px] font-bold transition"
+          >
+            Test Cloud Connection Again
+          </button>
+        </div>
 
         <!-- Navigation Tabs -->
         <div class="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-3">
@@ -737,8 +746,9 @@
 
   <!-- Firebase Live Cloud Sync & Store Application Logic -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
+      initializeFirestore,
       getFirestore,
       collection,
       doc,
@@ -749,7 +759,7 @@
       onSnapshot
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    const APP_BUILD_VERSION = "2026.11.25.07";
+    const APP_BUILD_VERSION = "2026.11.25.10";
 
     const FIREBASE_CONFIG = {
       apiKey: "AIzaSyD_eAv4AHiYCg6zif08hbv4pvYxtlic3j8",
@@ -759,6 +769,8 @@
       messagingSenderId: "822129140931",
       appId: "1:822129140931:web:4be79d901dc16422836e76"
     };
+
+    const FIRESTORE_REST_BASE = `https://firestore.googleapis.com/v1/projects/${FIREBASE_CONFIG.projectId}/databases/(default)/documents`;
 
     const STORE_APP_LINKS = {
       github: "https://hanallc07-dot.github.io/rexall-reward/",
@@ -770,6 +782,7 @@
     const DAY_MS = 24 * 60 * 60 * 1000;
 
     let db = null;
+    let listenersStarted = false;
     let customersMap = {};
     let adsList = [];
     let emailLogsList = [];
@@ -817,7 +830,6 @@
       return fallback;
     }
 
-    // 90-day expiration from registration/activity with gradual 25-point decay down to 0 (never deletes customer)
     function evaluateCustomerPointsPolicy(cust) {
       if (!cust) return null;
       const now = Date.now();
@@ -860,6 +872,7 @@
     function setCloudStatusConnected(connected, errMsg = "") {
       const badge = document.getElementById("cloudStatusBadge");
       const diag = document.getElementById("cloudDiagnosticBanner");
+      const diagText = document.getElementById("cloudDiagnosticText");
       if (badge) {
         if (connected) {
           badge.className = "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition cursor-pointer";
@@ -869,9 +882,9 @@
           badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-500"></span> Cloud Blocked (Click Retry)`;
         }
       }
-      if (diag) {
+      if (diag && diagText) {
         if (!connected && errMsg) {
-          diag.textContent = `Firestore Sync Notice: ${errMsg}. Make sure Firestore Rules allow read/write on rexall_ads, rexall_customers, rexall_settings, and rexall_email_logs.`;
+          diagText.textContent = `Firestore Sync Notice: ${errMsg}. In Firebase Console -> Firestore Database -> Rules, allow read, write on rexall_ads, rexall_customers, rexall_settings, and rexall_email_logs, then click Test Cloud Connection Again.`;
           diag.classList.remove("hidden");
         } else {
           diag.classList.add("hidden");
@@ -901,6 +914,109 @@
       } catch (err) {}
     }
 
+    // Firestore REST helpers so cloud reads/writes never stall on SDK transport
+    function toFirestoreValue(val) {
+      if (val === null || val === undefined) return { nullValue: null };
+      if (typeof val === "boolean") return { booleanValue: val };
+      if (typeof val === "number") {
+        if (Number.isInteger(val)) return { integerValue: String(val) };
+        return { doubleValue: val };
+      }
+      if (typeof val === "string") return { stringValue: val };
+      if (Array.isArray(val)) {
+        return { arrayValue: { values: val.map(toFirestoreValue) } };
+      }
+      if (typeof val === "object") {
+        const fields = {};
+        Object.entries(val).forEach(([k, v]) => {
+          fields[k] = toFirestoreValue(v);
+        });
+        return { mapValue: { fields } };
+      }
+      return { stringValue: String(val) };
+    }
+
+    function fromFirestoreValue(fsVal) {
+      if (!fsVal || typeof fsVal !== "object") return null;
+      if ("nullValue" in fsVal) return null;
+      if ("booleanValue" in fsVal) return fsVal.booleanValue;
+      if ("integerValue" in fsVal) return Number(fsVal.integerValue);
+      if ("doubleValue" in fsVal) return Number(fsVal.doubleValue);
+      if ("stringValue" in fsVal) return fsVal.stringValue;
+      if ("arrayValue" in fsVal) {
+        const arr = fsVal.arrayValue?.values || [];
+        return arr.map(fromFirestoreValue);
+      }
+      if ("mapValue" in fsVal) {
+        const obj = {};
+        const fields = fsVal.mapValue?.fields || {};
+        Object.entries(fields).forEach(([k, v]) => {
+          obj[k] = fromFirestoreValue(v);
+        });
+        return obj;
+      }
+      return null;
+    }
+
+    function parseFirestoreDoc(docJson) {
+      if (!docJson || !docJson.fields) return null;
+      const obj = {};
+      Object.entries(docJson.fields).forEach(([k, v]) => {
+        obj[k] = fromFirestoreValue(v);
+      });
+      return obj;
+    }
+
+    async function restListCollection(colName) {
+      const url = `${FIRESTORE_REST_BASE}/${colName}?key=${encodeURIComponent(FIREBASE_CONFIG.apiKey)}&pageSize=100`;
+      const resp = await fetch(url);
+      if (!resp.ok) {
+        const txt = await resp.text();
+        throw new Error(`HTTP ${resp.status} reading ${colName}: ${txt.slice(0, 140)}`);
+      }
+      const data = await resp.json();
+      const docs = Array.isArray(data.documents) ? data.documents : [];
+      return docs.map(parseFirestoreDoc).filter(Boolean);
+    }
+
+    async function restGetDoc(colName, docId) {
+      const url = `${FIRESTORE_REST_BASE}/${colName}/${encodeURIComponent(docId)}?key=${encodeURIComponent(FIREBASE_CONFIG.apiKey)}`;
+      const resp = await fetch(url);
+      if (resp.status === 404) return null;
+      if (!resp.ok) {
+        const txt = await resp.text();
+        throw new Error(`HTTP ${resp.status} reading ${colName}/${docId}: ${txt.slice(0, 140)}`);
+      }
+      const data = await resp.json();
+      return parseFirestoreDoc(data);
+    }
+
+    async function restSetDoc(colName, docId, payloadObj) {
+      const url = `${FIRESTORE_REST_BASE}/${colName}/${encodeURIComponent(docId)}?key=${encodeURIComponent(FIREBASE_CONFIG.apiKey)}`;
+      const fields = {};
+      Object.entries(payloadObj).forEach(([k, v]) => {
+        fields[k] = toFirestoreValue(v);
+      });
+      const resp = await fetch(url, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fields })
+      });
+      if (!resp.ok) {
+        const txt = await resp.text();
+        throw new Error(`HTTP ${resp.status} writing ${colName}/${docId}: ${txt.slice(0, 140)}`);
+      }
+    }
+
+    async function restDeleteDoc(colName, docId) {
+      const url = `${FIRESTORE_REST_BASE}/${colName}/${encodeURIComponent(docId)}?key=${encodeURIComponent(FIREBASE_CONFIG.apiKey)}`;
+      const resp = await fetch(url, { method: "DELETE" });
+      if (!resp.ok && resp.status !== 404) {
+        const txt = await resp.text();
+        throw new Error(`HTTP ${resp.status} deleting ${colName}/${docId}: ${txt.slice(0, 140)}`);
+      }
+    }
+
     function applyAdsSnapshot(nextAds) {
       adsList = nextAds;
       saveLocalCache();
@@ -918,26 +1034,24 @@
       if (!cust || !cust.phone) return;
       customersMap[cust.phone] = cust;
       saveLocalCache();
-      if (db) {
-        try {
-          await setDoc(doc(db, "rexall_customers", cust.phone), cust);
-          setCloudStatusConnected(true);
-        } catch (err) {
-          setCloudStatusConnected(false, err?.message || "Customer write blocked");
-        }
+      try {
+        await restSetDoc("rexall_customers", cust.phone, cust);
+        if (db) setDoc(doc(db, "rexall_customers", cust.phone), cust).catch(() => {});
+        setCloudStatusConnected(true);
+      } catch (err) {
+        setCloudStatusConnected(false, err?.message || "Customer write blocked");
       }
     }
 
     async function removeCustomerFromCloud(phone) {
       delete customersMap[phone];
       saveLocalCache();
-      if (db) {
-        try {
-          await deleteDoc(doc(db, "rexall_customers", phone));
-          setCloudStatusConnected(true);
-        } catch (err) {
-          setCloudStatusConnected(false, err?.message || "Customer delete blocked");
-        }
+      try {
+        await restDeleteDoc("rexall_customers", phone);
+        if (db) deleteDoc(doc(db, "rexall_customers", phone)).catch(() => {});
+        setCloudStatusConnected(true);
+      } catch (err) {
+        setCloudStatusConnected(false, err?.message || "Customer delete blocked");
       }
     }
 
@@ -948,13 +1062,12 @@
       saveLocalCache();
       renderScrollingLocalAds();
       renderAdminAdsList();
-      if (db) {
-        try {
-          await setDoc(doc(db, "rexall_ads", ad.id), ad);
-          setCloudStatusConnected(true);
-        } catch (err) {
-          setCloudStatusConnected(false, err?.message || "Ad write blocked by Firestore Rules");
-        }
+      try {
+        await restSetDoc("rexall_ads", ad.id, ad);
+        if (db) setDoc(doc(db, "rexall_ads", ad.id), ad).catch(() => {});
+        setCloudStatusConnected(true);
+      } catch (err) {
+        setCloudStatusConnected(false, err?.message || "Ad write blocked by Firestore Rules");
       }
     }
 
@@ -963,13 +1076,12 @@
       saveLocalCache();
       renderScrollingLocalAds();
       renderAdminAdsList();
-      if (db) {
-        try {
-          await deleteDoc(doc(db, "rexall_ads", adId));
-          setCloudStatusConnected(true);
-        } catch (err) {
-          setCloudStatusConnected(false, err?.message || "Ad delete blocked");
-        }
+      try {
+        await restDeleteDoc("rexall_ads", adId);
+        if (db) deleteDoc(doc(db, "rexall_ads", adId)).catch(() => {});
+        setCloudStatusConnected(true);
+      } catch (err) {
+        setCloudStatusConnected(false, err?.message || "Ad delete blocked");
       }
     }
 
@@ -977,75 +1089,110 @@
       emailLogsList.unshift(logEntry);
       emailLogsList = emailLogsList.slice(0, 40);
       saveLocalCache();
-      if (db) {
-        try {
-          await setDoc(doc(db, "rexall_email_logs", logEntry.id), logEntry);
-          setCloudStatusConnected(true);
-        } catch (err) {}
-      }
+      try {
+        await restSetDoc("rexall_email_logs", logEntry.id, logEntry);
+        if (db) setDoc(doc(db, "rexall_email_logs", logEntry.id), logEntry).catch(() => {});
+        setCloudStatusConnected(true);
+      } catch (err) {}
     }
 
     async function persistSettingsToCloud() {
+      const payload = {
+        ...storeConfig,
+        buildSyncVersion: APP_BUILD_VERSION,
+        updatedAt: Date.now()
+      };
       saveLocalCache();
-      if (db) {
-        try {
-          await setDoc(doc(db, "rexall_settings", "store_config"), {
-            ...storeConfig,
-            buildSyncVersion: APP_BUILD_VERSION,
-            updatedAt: Date.now()
-          });
-          setCloudStatusConnected(true);
-        } catch (err) {
-          setCloudStatusConnected(false, err?.message || "Settings write blocked");
-        }
+      try {
+        await restSetDoc("rexall_settings", "store_config", payload);
+        if (db) setDoc(doc(db, "rexall_settings", "store_config"), payload).catch(() => {});
+        setCloudStatusConnected(true);
+      } catch (err) {
+        setCloudStatusConnected(false, err?.message || "Settings write blocked");
       }
     }
 
-    // Active pull + real-time listeners so Cloudflare and GitHub Pages stay 100% synced
-    window.forceCloudSyncNow = async function () {
-      if (!db) {
+    function ensureFirebaseDb() {
+      if (db) return true;
+      try {
+        const app = getApps().length ? getApp() : initializeApp(FIREBASE_CONFIG);
         try {
-          const app = initializeApp(FIREBASE_CONFIG);
+          db = initializeFirestore(app, { experimentalForceLongPolling: true });
+        } catch (fsInitErr) {
           db = getFirestore(app);
-        } catch (err) {
-          setCloudStatusConnected(false, err?.message || "Firebase init failed");
-          return;
         }
+        return true;
+      } catch (err) {
+        return false;
+      }
+    }
+
+    function startRealtimeListeners() {
+      if (!db || listenersStarted) return;
+      listenersStarted = true;
+
+      onSnapshot(
+        collection(db, "rexall_customers"),
+        (snap) => {
+          const nextMap = {};
+          snap.forEach((docSnap) => {
+            const data = docSnap.data();
+            if (data && data.phone) nextMap[data.phone] = data;
+          });
+          setCloudStatusConnected(true);
+          applyCustomersSnapshot(nextMap);
+        },
+        () => {}
+      );
+
+      onSnapshot(
+        collection(db, "rexall_ads"),
+        (snap) => {
+          const nextAds = [];
+          snap.forEach((docSnap) => {
+            const data = docSnap.data();
+            if (data && data.id) nextAds.push(data);
+          });
+          setCloudStatusConnected(true);
+          applyAdsSnapshot(nextAds);
+        },
+        () => {}
+      );
+    }
+
+    window.forceCloudSyncNow = async function () {
+      ensureFirebaseDb();
+      startRealtimeListeners();
+
+      const badge = document.getElementById("cloudStatusBadge");
+      if (badge) {
+        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span> Syncing...`;
       }
 
       try {
-        const [adsSnap, custSnap, settingsSnap, logsSnap] = await Promise.all([
-          getDocs(collection(db, "rexall_ads")),
-          getDocs(collection(db, "rexall_customers")),
-          getDoc(doc(db, "rexall_settings", "store_config")),
-          getDocs(collection(db, "rexall_email_logs"))
+        const [adsDocs, custDocs, settingsDoc, logsDocs] = await Promise.all([
+          restListCollection("rexall_ads"),
+          restListCollection("rexall_customers"),
+          restGetDoc("rexall_settings", "store_config"),
+          restListCollection("rexall_email_logs")
         ]);
 
-        const nextAds = [];
-        adsSnap.forEach((docSnap) => {
-          const data = docSnap.data();
-          if (data && data.id) nextAds.push(data);
-        });
+        const nextAds = adsDocs.filter((d) => d && d.id);
         applyAdsSnapshot(nextAds);
 
         const nextMap = {};
-        custSnap.forEach((docSnap) => {
-          const data = docSnap.data();
-          if (data && data.phone) nextMap[data.phone] = data;
+        custDocs.forEach((d) => {
+          if (d && d.phone) nextMap[d.phone] = d;
         });
         applyCustomersSnapshot(nextMap);
 
-        if (settingsSnap.exists()) {
-          storeConfig = { ...storeConfig, ...settingsSnap.data() };
+        if (settingsDoc) {
+          storeConfig = { ...storeConfig, ...settingsDoc };
           saveLocalCache();
           populateSettingsInputs();
         }
 
-        const nextLogs = [];
-        logsSnap.forEach((docSnap) => {
-          const data = docSnap.data();
-          if (data && data.id) nextLogs.push(data);
-        });
+        const nextLogs = logsDocs.filter((d) => d && d.id);
         nextLogs.sort((a, b) => (b.sentAt || 0) - (a.sentAt || 0));
         emailLogsList = nextLogs.slice(0, 40);
         saveLocalCache();
@@ -1053,78 +1200,14 @@
 
         setCloudStatusConnected(true);
       } catch (err) {
-        setCloudStatusConnected(false, err?.message || "Cloud read error");
+        setCloudStatusConnected(false, err?.message || "Firestore connection failed");
       }
     };
 
     function initFirebaseSync() {
       loadLocalCache();
       renderScrollingLocalAds();
-      try {
-        const app = initializeApp(FIREBASE_CONFIG);
-        db = getFirestore(app);
-
-        window.forceCloudSyncNow();
-
-        onSnapshot(
-          collection(db, "rexall_customers"),
-          (snap) => {
-            const nextMap = {};
-            snap.forEach((docSnap) => {
-              const data = docSnap.data();
-              if (data && data.phone) nextMap[data.phone] = data;
-            });
-            setCloudStatusConnected(true);
-            applyCustomersSnapshot(nextMap);
-          },
-          (err) => setCloudStatusConnected(false, err?.message || "Customers listener error")
-        );
-
-        onSnapshot(
-          collection(db, "rexall_ads"),
-          (snap) => {
-            const nextAds = [];
-            snap.forEach((docSnap) => {
-              const data = docSnap.data();
-              if (data && data.id) nextAds.push(data);
-            });
-            setCloudStatusConnected(true);
-            applyAdsSnapshot(nextAds);
-          },
-          (err) => setCloudStatusConnected(false, err?.message || "Ads listener error")
-        );
-
-        onSnapshot(
-          collection(db, "rexall_email_logs"),
-          (snap) => {
-            const nextLogs = [];
-            snap.forEach((docSnap) => {
-              const data = docSnap.data();
-              if (data && data.id) nextLogs.push(data);
-            });
-            nextLogs.sort((a, b) => (b.sentAt || 0) - (a.sentAt || 0));
-            emailLogsList = nextLogs.slice(0, 40);
-            saveLocalCache();
-            renderEmailLogs();
-          },
-          () => {}
-        );
-
-        onSnapshot(
-          doc(db, "rexall_settings", "store_config"),
-          (docSnap) => {
-            if (docSnap.exists()) {
-              storeConfig = { ...storeConfig, ...docSnap.data() };
-              saveLocalCache();
-              populateSettingsInputs();
-              renderAdminAdsList();
-            }
-          },
-          () => {}
-        );
-      } catch (err) {
-        setCloudStatusConnected(false, err?.message || "Firebase init error");
-      }
+      window.forceCloudSyncNow();
     }
 
     function populateSettingsInputs() {
@@ -1212,14 +1295,18 @@
       track.style.setProperty("--marquee-duration", `${durationSeconds}s`);
     }
 
-    // Customer Lookup, Registration (with +25 Welcome + 25 Referral) & Dashboard
+    // Customer Lookup, Registration (with +25 Registration + 25 Referral) & Dashboard
     window.showLoginView = function () {
       activeCustomerPhone = null;
       pendingRegisterPhone = null;
       document.getElementById("loginView").classList.remove("hidden");
       document.getElementById("registerView").classList.add("hidden");
       document.getElementById("dashboardView").classList.add("hidden");
-      document.getElementById("loginMessage").classList.add("hidden");
+      const msgEl = document.getElementById("loginMessage");
+      if (msgEl) {
+        msgEl.textContent = "";
+        msgEl.classList.add("hidden");
+      }
     };
 
     window.signOutCustomer = function () {
@@ -1283,18 +1370,19 @@
       const todayStr = new Date(now).toLocaleDateString();
       const history = [
         {
-          title: "Welcome Bonus (New VIP Registration)",
+          title: "New Registration Points",
           points: 25,
           date: todayStr
         }
       ];
       let startingPoints = 25;
+      let validReferralApplied = false;
 
-      // Referral Bonus: +25 to new registrant + 25 to referring friend
-      if (refDigits.length === 10 && customersMap[refDigits]) {
+      if (refDigits.length === 10 && customersMap[refDigits] && !customersMap[pendingRegisterPhone]) {
+        validReferralApplied = true;
         startingPoints += 25;
         history.unshift({
-          title: `Friend Referral Bonus (Referred by ${formatPhone(refDigits)})`,
+          title: `Referral Bonus (Referred by ${formatPhone(refDigits)})`,
           points: 25,
           date: todayStr
         });
@@ -1307,7 +1395,7 @@
         updatedReferrer.expiresAt = now + NINETY_DAYS_MS;
         updatedReferrer.history = [
           {
-            title: `Friend Referral Reward (${fullName} • ${formatPhone(pendingRegisterPhone)})`,
+            title: `Referral Bonus — New Member ${fullName} (${formatPhone(pendingRegisterPhone)})`,
             points: 25,
             date: todayStr
           },
@@ -1316,10 +1404,12 @@
         await persistCustomerToCloud(updatedReferrer);
       }
 
+      const registeredPhone = pendingRegisterPhone;
       const newCustomer = {
-        phone: pendingRegisterPhone,
+        phone: registeredPhone,
         name: fullName,
         points: startingPoints,
+        referredBy: validReferralApplied ? refDigits : null,
         createdAt: now,
         lastActivity: now,
         expiresAt: now + NINETY_DAYS_MS,
@@ -1329,16 +1419,16 @@
       await persistCustomerToCloud(newCustomer);
 
       const ownerEmail = storeConfig.storeEmail || "hanallc07@gmail.com";
-      const refDisplay = refDigits.length === 10 ? formatPhone(refDigits) : "None";
+      const refDisplay = validReferralApplied ? formatPhone(refDigits) : "None";
       await dispatchWelcomeOrAlertEmail({
         businessName: `New Customer Registration: ${fullName}`,
         toEmail: ownerEmail,
         ccEmail: "",
-        subject: `New VIP Customer Registered: ${fullName} (${formatPhone(pendingRegisterPhone)})`,
+        subject: `New VIP Customer Registered: ${fullName} (${formatPhone(registeredPhone)})`,
         messageBody:
           `A new customer registered on Rexall Discount Reward:\n\n` +
           `• Name: ${fullName}\n` +
-          `• Mobile Number: ${formatPhone(pendingRegisterPhone)}\n` +
+          `• Mobile Number: ${formatPhone(registeredPhone)}\n` +
           `• Starting Points: ${startingPoints} pts ($${(startingPoints / 100).toFixed(2)} credit value)\n` +
           `• Referred By: ${refDisplay}\n` +
           `• Registered Date: ${new Date(now).toLocaleString()}\n` +
@@ -1349,9 +1439,21 @@
           `• Netlify: ${STORE_APP_LINKS.netlify}`
       });
 
-      activeCustomerPhone = pendingRegisterPhone;
+      activeCustomerPhone = null;
       pendingRegisterPhone = null;
-      renderCustomerDashboard();
+      document.getElementById("registerView").classList.add("hidden");
+      document.getElementById("dashboardView").classList.add("hidden");
+      document.getElementById("loginView").classList.remove("hidden");
+
+      const phoneInput = document.getElementById("loginPhoneInput");
+      if (phoneInput) phoneInput.value = formatPhone(registeredPhone);
+
+      const loginMsg = document.getElementById("loginMessage");
+      if (loginMsg) {
+        loginMsg.textContent = `Registration complete for ${fullName}! You received ${startingPoints} points. Click "Continue to Rewards" to log in.`;
+        loginMsg.className = "text-xs font-bold text-center text-emerald-700";
+        loginMsg.classList.remove("hidden");
+      }
     };
 
     function renderCustomerDashboard() {
