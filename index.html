@@ -3,20 +3,38 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Rexall Discount Reward — VIP Loyalty & Store Portal</title>
+  <title>Rexall Discount Reward • VIP Loyalty & Local Community Hub</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <style>
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     }
-    .no-scrollbar::-webkit-scrollbar {
-      display: none;
+
+    /* Smooth right-to-left scrolling ticker for unlimited priority local ads */
+    .ad-marquee-viewport {
+      overflow: hidden;
+      position: relative;
+      width: 100%;
     }
-    .no-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
+    .ad-marquee-track {
+      display: flex;
+      width: max-content;
+      gap: 1rem;
+      animation: rexallScrollRightToLeft var(--marquee-duration, 32s) linear infinite;
+    }
+    .ad-marquee-viewport:hover .ad-marquee-track {
+      animation-play-state: paused;
+    }
+    @keyframes rexallScrollRightToLeft {
+      0% {
+        transform: translateX(0);
+      }
+      100% {
+        transform: translateX(-50%);
+      }
     }
   </style>
 </head>
@@ -26,7 +44,7 @@
   <header class="bg-white border-b border-slate-200 sticky top-0 z-30">
     <div class="max-w-5xl mx-auto px-4 py-3.5 flex items-center justify-between gap-3">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-black text-lg shadow-xs">
+        <div class="w-10 h-10 rounded-xl bg-emerald-700 text-white font-black text-lg flex items-center justify-center shadow-xs">
           R
         </div>
         <div>
@@ -40,18 +58,14 @@
       </div>
 
       <div class="flex items-center gap-2">
-        <div
-          id="cloudSyncBadge"
-          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200"
-        >
-          <span id="cloudSyncDot" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span id="cloudSyncText">Cloud Synced</span>
-        </div>
-
+        <span id="cloudStatusBadge" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          Cloud Synced
+        </span>
         <button
           type="button"
           onclick="openAdminModal()"
-          class="px-3.5 py-1.5 rounded-full bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition shadow-xs"
+          class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition shadow-xs"
         >
           Admin Backup
         </button>
@@ -59,128 +73,142 @@
     </div>
   </header>
 
-  <!-- Main Customer & Local Deals Container -->
-  <main class="flex-1 max-w-5xl w-full mx-auto px-4 py-6 sm:py-8 space-y-6">
+  <!-- Main Content -->
+  <main class="flex-1 max-w-5xl w-full mx-auto px-4 py-6 space-y-6">
 
-    <!-- Local Community Spotlight / Active Store Ad Banner -->
-    <section id="publicSpotlightSection" class="hidden">
-      <div class="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
-        <div class="px-5 py-2.5 bg-amber-50 border-b border-amber-200 flex items-center justify-between gap-2">
+    <!-- Right-to-Left Priority Local Business Scrolling Banner -->
+    <section id="localAdBannerSection" class="hidden rounded-2xl bg-gradient-to-r from-amber-50 via-white to-emerald-50 border border-amber-200 shadow-xs overflow-hidden">
+      <div class="px-4 py-2 bg-amber-100/80 border-b border-amber-200 flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-amber-600 animate-pulse"></span>
           <span class="text-[11px] font-extrabold uppercase tracking-wider text-amber-900">
-            Featured Local Partner &bull; Cleveland Community Spotlight
+            Featured Local Partners &bull; Priority Community Spotlight
           </span>
-          <span id="spotlightExpiryTag" class="text-[11px] font-semibold text-amber-800"></span>
         </div>
-        <div id="publicSpotlightBody" class="p-5 flex flex-col sm:flex-row items-center gap-5">
-          <!-- Populated dynamically from active ad or subscription -->
-        </div>
+        <span id="activeAdCountLabel" class="text-[11px] font-bold text-amber-900">
+          Active Sponsors
+        </span>
+      </div>
+
+      <div class="ad-marquee-viewport py-3.5 px-3">
+        <div id="adMarqueeTrack" class="ad-marquee-track"></div>
       </div>
     </section>
 
-    <!-- Customer Login / Registration Card -->
-    <section id="customerAuthSection" class="max-w-md mx-auto">
-      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-6">
-        <div class="text-center space-y-1.5">
-          <span class="inline-block px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">
-            Free VIP Membership
-          </span>
-          <h2 class="text-2xl font-black tracking-tight text-slate-900">Check Points or Join</h2>
-          <p class="text-xs text-slate-500 font-medium">
-            Enter your 10-digit mobile number to view your points or register for +25 instant bonus points.
-          </p>
+    <!-- View 1: Customer Login / Registration -->
+    <section id="loginView" class="max-w-md mx-auto bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-5">
+      <div class="text-center space-y-2">
+        <span class="inline-block px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">
+          Free VIP Membership
+        </span>
+        <h2 class="text-2xl font-black tracking-tight text-slate-900">Check Points or Join</h2>
+        <p class="text-xs sm:text-sm text-slate-500">
+          Enter your 10-digit mobile number to view your points or register for <strong>+25 instant bonus points</strong>.
+        </p>
+      </div>
+
+      <form onsubmit="handleCustomerLookup(event)" class="space-y-4">
+        <div>
+          <label for="loginPhoneInput" class="block text-xs font-bold text-slate-700 mb-1.5">
+            Mobile Phone Number
+          </label>
+          <input
+            type="tel"
+            id="loginPhoneInput"
+            placeholder="(216) 555-0199"
+            required
+            class="w-full px-4 py-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-base font-bold text-slate-900 focus:outline-none focus:border-emerald-600 focus:bg-white transition"
+          />
         </div>
 
-        <!-- Step 1: Phone Lookup -->
-        <form id="phoneLookupForm" onsubmit="handleCustomerLookup(event)" class="space-y-4">
-          <div>
-            <label for="loginPhoneInput" class="block text-xs font-bold text-slate-700 mb-1.5">
-              Mobile Phone Number
-            </label>
-            <input
-              type="tel"
-              id="loginPhoneInput"
-              placeholder="(216) 555-0199"
-              required
-              class="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-base font-bold text-slate-900 focus:outline-none focus:border-emerald-600 focus:bg-white transition"
-            />
-          </div>
+        <button
+          type="submit"
+          class="w-full py-3.5 rounded-2xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-sm shadow-sm transition active:scale-[0.99]"
+        >
+          Continue to Rewards
+        </button>
+      </form>
+
+      <p id="loginMessage" class="hidden text-xs font-semibold text-center text-rose-600"></p>
+    </section>
+
+    <!-- View 2: New Customer Registration (with Referral Option) -->
+    <section id="registerView" class="hidden max-w-md mx-auto bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-5">
+      <div class="space-y-1.5">
+        <span class="inline-block px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-amber-50 text-amber-800 border border-amber-200">
+          New VIP Member Registration
+        </span>
+        <h2 class="text-xl font-black text-slate-900">Claim Your +25 Welcome Gift</h2>
+        <p class="text-xs text-slate-500">
+          Registering mobile number <strong id="registerPhoneDisplay" class="text-slate-900"></strong>. Referred by an existing friend? Enter their phone number below so you get <strong>50 points total (+25 welcome + 25 referral)</strong> and your friend gets <strong>+25 bonus points</strong>!
+        </p>
+      </div>
+
+      <form onsubmit="handleNewMemberRegister(event)" class="space-y-4">
+        <div>
+          <label for="registerNameInput" class="block text-xs font-bold text-slate-700 mb-1.5">
+            Full Name *
+          </label>
+          <input
+            type="text"
+            id="registerNameInput"
+            placeholder="Enter your full name"
+            required
+            class="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm font-bold text-slate-900 focus:outline-none focus:border-emerald-600 focus:bg-white"
+          />
+        </div>
+
+        <div>
+          <label for="registerReferralInput" class="block text-xs font-bold text-slate-700 mb-1.5">
+            Referring Friend's Mobile Number (Optional)
+          </label>
+          <input
+            type="tel"
+            id="registerReferralInput"
+            placeholder="(216) 555-0144 — +25 extra bonus pts"
+            class="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm font-semibold text-slate-900 focus:outline-none focus:border-emerald-600 focus:bg-white"
+          />
+        </div>
+
+        <div class="flex items-center gap-2 pt-1">
+          <button
+            type="button"
+            onclick="showLoginView()"
+            class="px-4 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition"
+          >
+            Back
+          </button>
           <button
             type="submit"
-            class="w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm transition shadow-sm"
+            class="flex-1 py-3 rounded-2xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-sm shadow-sm transition"
           >
-            Continue to Rewards
+            Complete VIP Registration
           </button>
-        </form>
+        </div>
+      </form>
 
-        <!-- Step 2: New Member Registration (Shown if phone not yet registered) -->
-        <form id="newMemberForm" onsubmit="handleNewMemberRegister(event)" class="hidden space-y-4 pt-4 border-t border-slate-100">
-          <div class="p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 font-semibold">
-            Welcome! Complete your profile to get <strong>+25 Welcome Points</strong> (or <strong>+50 Points</strong> if referred by a friend).
-          </div>
-          <div>
-            <label for="regNameInput" class="block text-xs font-bold text-slate-700 mb-1">
-              Full Name
-            </label>
-            <input
-              type="text"
-              id="regNameInput"
-              placeholder="Enter your full name"
-              required
-              class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-semibold focus:outline-none focus:border-emerald-600"
-            />
-          </div>
-          <div>
-            <label for="regReferralPhoneInput" class="block text-xs font-bold text-slate-700 mb-1">
-              Referring Friend's Phone (Optional — Both get +25 Bonus Pts!)
-            </label>
-            <input
-              type="tel"
-              id="regReferralPhoneInput"
-              placeholder="(216) 555-0123"
-              class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-semibold focus:outline-none focus:border-emerald-600"
-            />
-          </div>
-          <div class="flex gap-2">
-            <button
-              type="button"
-              onclick="cancelRegistrationForm()"
-              class="px-4 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition"
-            >
-              Back
-            </button>
-            <button
-              type="submit"
-              class="flex-1 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-extrabold transition shadow-xs"
-            >
-              Claim Bonus &amp; Join
-            </button>
-          </div>
-        </form>
-
-        <p id="authFeedbackMessage" class="hidden text-center text-xs font-bold text-rose-600"></p>
-      </div>
+      <p id="registerErrorMsg" class="hidden text-xs font-semibold text-rose-600 text-center"></p>
     </section>
 
-    <!-- Customer Logged-In VIP Dashboard -->
-    <section id="customerDashboardSection" class="hidden max-w-2xl mx-auto space-y-5">
-      <!-- Green VIP Loyalty Card -->
-      <div class="rounded-3xl bg-gradient-to-br from-emerald-700 via-emerald-600 to-teal-700 text-white p-6 sm:p-8 shadow-lg space-y-5">
+    <!-- View 3: Customer VIP Dashboard (Read-only balance, qualification & history) -->
+    <section id="dashboardView" class="hidden max-w-2xl mx-auto space-y-5">
+      <div class="rounded-3xl bg-gradient-to-br from-emerald-800 via-emerald-700 to-teal-700 text-white p-6 sm:p-7 shadow-md space-y-5">
         <div class="flex items-start justify-between gap-3">
           <div>
-            <span class="text-[11px] font-extrabold uppercase tracking-widest text-emerald-200">
+            <span class="text-[10px] font-extrabold uppercase tracking-widest text-emerald-200">
               VIP Loyalty Member
             </span>
             <h2 id="dashCustomerName" class="text-2xl sm:text-3xl font-black tracking-tight mt-0.5">
-              Member Name
+              Customer Name
             </h2>
-            <p id="dashCustomerPhone" class="text-xs font-semibold text-emerald-100 mt-0.5">
+            <p id="dashCustomerPhone" class="text-xs sm:text-sm font-semibold text-emerald-100 mt-0.5">
               (216) 000-0000
             </p>
           </div>
           <button
             type="button"
             onclick="signOutCustomer()"
-            class="px-3.5 py-1.5 rounded-full bg-white/15 hover:bg-white/25 text-white text-xs font-bold transition"
+            class="px-3.5 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold transition"
           >
             Sign Out
           </button>
@@ -188,165 +216,134 @@
 
         <div class="grid grid-cols-2 gap-3 bg-white/10 rounded-2xl p-4 border border-white/15">
           <div>
-            <p class="text-[11px] font-bold uppercase tracking-wider text-emerald-200">
+            <p class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-200">
               Available Points
             </p>
-            <p id="dashAvailablePoints" class="text-3xl sm:text-4xl font-black mt-1">
-              0
-            </p>
+            <p id="dashCustomerPoints" class="text-3xl sm:text-4xl font-black mt-1">0</p>
           </div>
           <div>
-            <p class="text-[11px] font-bold uppercase tracking-wider text-emerald-200">
+            <p class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-200">
               Store Credit Value
             </p>
-            <p id="dashCreditValue" class="text-3xl sm:text-4xl font-black text-amber-300 mt-1">
-              $0.00
-            </p>
+            <p id="dashCustomerCredit" class="text-3xl sm:text-4xl font-black text-amber-300 mt-1">$0.00</p>
           </div>
         </div>
 
-        <!-- Points Qualification Banner (View-only for customers; Cashier redeems in Admin POS) -->
-        <div id="dashQualificationBanner" class="px-4 py-2.5 rounded-2xl bg-white/10 border border-white/15 text-xs font-bold text-amber-200">
-          Earn 100 points to qualify for $1.00 Off store credit at checkout (redeemed by cashier).
+        <!-- Reward Qualification Status Banner -->
+        <div id="dashQualificationBanner" class="rounded-2xl bg-black/20 border border-white/15 px-4 py-3 text-xs font-semibold text-emerald-50">
+          Checking reward qualification...
         </div>
 
-        <div class="flex flex-wrap items-center justify-between gap-2 text-xs font-semibold text-emerald-100 pt-1">
-          <span id="dashExpiryInfo">Points expire in 90 days</span>
-          <span class="text-amber-200 font-bold">Share your phone # to earn +25 referral pts!</span>
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-emerald-100 pt-1 border-t border-white/15">
+          <span id="dashExpiryNotice">Points expire in 90 days &bull; -25 pts per 90d inactive</span>
+          <span class="font-bold text-amber-300">Share your phone # for +25 referral pts!</span>
         </div>
       </div>
 
-      <!-- Recent Points & Redemption Activity -->
-      <div class="bg-white rounded-3xl border border-slate-200 shadow-xs p-5 sm:p-6 space-y-3">
+      <!-- Recent Points Activity -->
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-xs p-5 sm:p-6 space-y-4">
         <div class="flex items-center justify-between">
-          <h3 class="text-base font-extrabold text-slate-900">Recent Points Activity</h3>
-          <span class="text-xs font-semibold text-slate-400">Synced with Store POS</span>
+          <h3 class="text-sm sm:text-base font-extrabold text-slate-900">Recent Points Activity</h3>
+          <span class="text-[11px] font-semibold text-slate-400">Synced with Store POS</span>
         </div>
-        <div id="dashHistoryList" class="divide-y divide-slate-100">
-          <!-- Populated dynamically -->
-        </div>
+        <div id="dashHistoryList" class="divide-y divide-slate-100"></div>
       </div>
     </section>
 
   </main>
 
-  <!-- Store Footer & Backup Host Switcher -->
-  <footer class="bg-white border-t border-slate-200 py-4 px-4 mt-auto">
-    <div class="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+  <!-- Store Footer -->
+  <footer class="bg-white border-t border-slate-200 mt-10">
+    <div class="max-w-5xl mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
       <div>
-        <p class="font-bold text-slate-700">Rexall Discount &bull; 9807 Lorain Ave, Cleveland, OH &bull; 216-961-1323</p>
-        <p class="text-[11px]">No points on Lottery. Redeem is store credit only. No Cash Value.</p>
+        <strong class="text-slate-800">Rexall Discount</strong> &bull; 9807 Lorain Ave, Cleveland, OH &bull; 216-961-1323
+        <p class="text-[11px] text-slate-400 mt-0.5">No points on Lottery. Redeem is store credit only. No Cash Value.</p>
       </div>
-      <div class="flex items-center gap-1.5">
-        <span class="text-[11px] font-semibold text-slate-400">Mirrors:</span>
-        <a
-          href="https://hanallc07-dot.github.io/rexall-reward/"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px]"
-        >
-          GitHub
-        </a>
-        <a
-          href="https://rexall-reward.hanallc07.workers.dev/"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px]"
-        >
-          Cloudflare
-        </a>
-        <a
-          href="https://rexall-discount-reward.netlify.app/"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px]"
-        >
-          Netlify
-        </a>
+      <div class="flex items-center gap-2 text-[11px] font-bold">
+        <span class="text-slate-400">Mirrors:</span>
+        <a href="https://hanallc07-dot.github.io/rexall-reward/" target="_blank" rel="noopener" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700">GitHub</a>
+        <a href="https://rexall-reward.hanallc07.workers.dev/" target="_blank" rel="noopener" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700">Cloudflare</a>
+        <a href="https://rexall-discount-reward.netlify.app/" target="_blank" rel="noopener" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700">Netlify</a>
       </div>
     </div>
   </footer>
 
-  <!-- STORE ADMIN & CLOUD SYNC CONSOLE MODAL -->
-  <div id="adminConsoleModal" class="hidden fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5">
-    <div class="bg-white w-full max-w-4xl max-h-[92vh] rounded-3xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden">
+  <!-- Store Admin & Cloud Sync Modal -->
+  <div id="adminModal" class="hidden fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
+    <div class="bg-white w-full max-w-4xl rounded-3xl shadow-2xl border border-slate-200 overflow-hidden my-auto">
 
       <!-- Modal Top Header -->
       <div class="bg-slate-900 text-white px-5 py-4 flex items-center justify-between gap-3">
         <div>
-          <h2 class="text-base sm:text-lg font-black tracking-tight">Store Admin &amp; Cloud Sync Console</h2>
-          <p class="text-[11px] text-slate-300">
-            Changes here automatically update GitHub Pages, Cloudflare, and Netlify
-          </p>
+          <h2 class="text-base sm:text-lg font-extrabold tracking-tight">Store Admin &amp; Cloud Sync Console</h2>
+          <p class="text-[11px] text-slate-300">Changes here automatically update GitHub Pages, Cloudflare, and Netlify</p>
         </div>
         <button
           type="button"
           onclick="closeAdminModal()"
-          class="px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition"
+          class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold transition"
         >
           Close &times;
         </button>
       </div>
 
-      <!-- Two-Step Admin Login Screen (No default credentials exposed on UI) -->
-      <div id="adminPinLockScreen" class="p-8 sm:p-10 text-center space-y-5 my-auto">
-        <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-800 flex items-center justify-center font-black text-lg mx-auto">
+      <!-- Step 1: Hidden Two-Step Admin Verification Gate -->
+      <div id="adminLockScreen" class="p-8 sm:p-10 max-w-md mx-auto text-center space-y-5">
+        <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-800 font-black text-sm flex items-center justify-center mx-auto border border-slate-200">
           2FA
         </div>
-        <div class="space-y-1">
+        <div>
           <h3 class="text-xl font-black text-slate-900">Two-Step Admin Verification</h3>
-          <p class="text-xs text-slate-500">Enter your Store Admin Name and 6-digit security code</p>
+          <p class="text-xs text-slate-500 mt-1">Enter your authorized admin name and 6-digit security code</p>
         </div>
-        <form onsubmit="unlockAdminConsole(event)" class="max-w-xs mx-auto space-y-3 text-left">
+
+        <form onsubmit="unlockAdminConsole(event)" class="space-y-3 text-left">
           <div>
-            <label for="adminNameInput" class="block text-[11px] font-bold text-slate-600 mb-1">
-              Admin Name
-            </label>
+            <label for="adminNameInput" class="block text-xs font-bold text-slate-700 mb-1">Admin Name</label>
             <input
               type="text"
               id="adminNameInput"
               autocomplete="off"
               placeholder="Enter admin name"
               required
-              class="w-full px-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-center text-sm font-bold text-slate-900 focus:outline-none focus:border-emerald-600"
+              class="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm font-bold text-slate-900 focus:outline-none focus:border-emerald-600 focus:bg-white"
             />
           </div>
           <div>
-            <label for="adminPinInput" class="block text-[11px] font-bold text-slate-600 mb-1">
-              6-Digit Secret Code
-            </label>
+            <label for="adminPinInput" class="block text-xs font-bold text-slate-700 mb-1">6-Digit Secret Code</label>
             <input
               type="password"
               id="adminPinInput"
-              inputmode="numeric"
               maxlength="6"
-              placeholder="&bull;&bull;&bull;&bull;&bull;&bull;"
+              inputmode="numeric"
+              placeholder="••••••"
               required
-              class="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-center text-xl font-black tracking-widest focus:outline-none focus:border-emerald-600"
+              class="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-center text-lg tracking-[0.4em] font-black text-slate-900 focus:outline-none focus:border-emerald-600 focus:bg-white"
             />
           </div>
-          <p id="adminPinError" class="hidden text-center text-xs font-bold text-rose-600">
-            Incorrect Admin Name or 6-digit secret code. Please try again.
-          </p>
           <button
             type="submit"
-            class="w-full py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-extrabold transition"
+            class="w-full py-3.5 rounded-2xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-sm shadow-sm transition mt-2"
           >
             Verify &amp; Unlock Admin Console
           </button>
         </form>
+
+        <p id="adminPinError" class="hidden text-xs font-bold text-rose-600">
+          Invalid admin name or 6-digit code. Please try again.
+        </p>
       </div>
 
-      <!-- Unlocked Admin Console Body -->
-      <div id="adminUnlockedBody" class="hidden flex-1 flex flex-col overflow-hidden">
+      <!-- Step 2: Unlocked Admin Dashboard -->
+      <div id="adminUnlockedBody" class="hidden p-5 sm:p-6 space-y-5 max-h-[82vh] overflow-y-auto">
 
-        <!-- Admin Navigation Tabs -->
-        <div class="px-5 pt-3 bg-slate-50 border-b border-slate-200 flex items-center gap-2 overflow-x-auto no-scrollbar">
+        <!-- Navigation Tabs -->
+        <div class="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-3">
           <button
             type="button"
             id="tabBtnCustomers"
             onclick="switchAdminTab('customers')"
-            class="px-4 py-2.5 rounded-t-xl text-xs font-extrabold border-b-2 border-emerald-600 text-emerald-700 bg-white whitespace-nowrap"
+            class="px-4 py-2 rounded-xl text-xs font-extrabold bg-slate-900 text-white transition"
           >
             1. Cashier POS &amp; Customers
           </button>
@@ -354,464 +351,373 @@
             type="button"
             id="tabBtnAds"
             onclick="switchAdminTab('ads')"
-            class="px-4 py-2.5 rounded-t-xl text-xs font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap"
+            class="px-4 py-2 rounded-xl text-xs font-extrabold bg-slate-100 text-slate-700 hover:bg-slate-200 transition"
           >
-            2. Local Advertising &amp; Subscriptions
+            2. Local Business Ads &amp; Priority
           </button>
           <button
             type="button"
-            id="tabBtnEmails"
-            onclick="switchAdminTab('emails')"
-            class="px-4 py-2.5 rounded-t-xl text-xs font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap"
+            id="tabBtnEmail"
+            onclick="switchAdminTab('email')"
+            class="px-4 py-2 rounded-xl text-xs font-extrabold bg-slate-100 text-slate-700 hover:bg-slate-200 transition"
           >
-            3. Admin Security &amp; Email Settings
+            3. Security, Email &amp; Expiry Alerts
           </button>
         </div>
 
-        <!-- Scrollable Tab Content Area -->
-        <div class="flex-1 overflow-y-auto p-5 space-y-6">
-
-          <!-- TAB 1: CASHIER POS & CUSTOMERS -->
-          <div id="adminTabCustomers" class="space-y-5">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <!-- Customer Search & List -->
-              <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
-                <div class="flex items-center justify-between">
-                  <h3 class="text-sm font-extrabold text-slate-900">Registered VIP Members</h3>
-                  <span id="adminCustomerCount" class="text-xs font-bold text-emerald-700 bg-emerald-100 px-2.5 py-0.5 rounded-full">
-                    0 Members
-                  </span>
-                </div>
-                <input
-                  type="text"
-                  id="adminCustomerSearch"
-                  oninput="renderAdminCustomerList()"
-                  placeholder="Search by name or phone..."
-                  class="w-full px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold focus:outline-none focus:border-emerald-600"
-                />
-                <div id="adminCustomerList" class="max-h-96 overflow-y-auto divide-y divide-slate-200 bg-white rounded-xl border border-slate-200">
-                  <!-- Populated dynamically -->
-                </div>
-              </div>
-
-              <!-- Selected Customer POS Actions, Phone Update & History -->
-              <div class="bg-white p-4 rounded-2xl border border-slate-200 space-y-4">
-                <h3 class="text-sm font-extrabold text-slate-900">Cashier POS Terminal</h3>
-                <div id="posNoSelectionHint" class="p-6 rounded-xl bg-slate-50 border border-dashed border-slate-300 text-center text-xs text-slate-500">
-                  Click any customer on the left to add purchase points, redeem rewards, update their phone number, or view their transaction history.
-                </div>
-
-                <div id="posActionPanel" class="hidden space-y-4">
-                  <div class="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-between gap-2">
-                    <div>
-                      <p id="posSelectedName" class="text-sm font-black text-slate-900">Customer Name</p>
-                      <p id="posSelectedPhone" class="text-xs font-semibold text-slate-600">(216) 000-0000</p>
-                      <p id="posSelectedExpiry" class="text-[11px] font-bold text-emerald-700 mt-0.5">Expires in 90 days</p>
-                    </div>
-                    <div class="text-right space-y-1">
-                      <p id="posSelectedPoints" class="text-xl font-black text-emerald-700">0 pts</p>
-                      <button
-                        type="button"
-                        onclick="handleDeleteSelectedCustomer()"
-                        class="px-2.5 py-1 rounded-lg bg-rose-100 hover:bg-rose-200 text-rose-700 text-[10px] font-extrabold transition"
-                      >
-                        Delete Member
-                      </button>
-                    </div>
-                  </div>
-
-                  <!-- Add Purchase Amount -->
-                  <form onsubmit="handlePosAddPurchase(event)" class="space-y-2">
-                    <label class="block text-xs font-bold text-slate-700">
-                      Add Purchase ($1 = 2 pts, excl. Lottery)
-                    </label>
-                    <div class="flex gap-2">
-                      <input
-                        type="number"
-                        step="0.01"
-                        min="0.50"
-                        id="posPurchaseDollars"
-                        placeholder="25.00"
-                        required
-                        class="flex-1 px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold focus:outline-none focus:border-emerald-600"
-                      />
-                      <button
-                        type="submit"
-                        class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold transition"
-                      >
-                        + Add Pts
-                      </button>
-                    </div>
-                  </form>
-
-                  <!-- Admin-Only Redeem Points -->
-                  <form onsubmit="handlePosRedeem(event)" class="space-y-2 pt-2 border-t border-slate-100">
-                    <label class="block text-xs font-bold text-slate-700">
-                      Redeem Points (Admin Only &bull; 100 pts = $1.00 Off)
-                    </label>
-                    <div class="flex gap-2">
-                      <input
-                        type="number"
-                        step="100"
-                        min="100"
-                        id="posRedeemPointsInput"
-                        placeholder="100"
-                        required
-                        class="flex-1 px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold focus:outline-none focus:border-amber-500"
-                      />
-                      <button
-                        type="submit"
-                        class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-extrabold transition"
-                      >
-                        Redeem Credit
-                      </button>
-                    </div>
-                  </form>
-
-                  <!-- Admin-Only Phone Number Change -->
-                  <form onsubmit="handleAdminUpdateCustomerPhone(event)" class="space-y-2 pt-3 border-t border-slate-100">
-                    <label class="block text-xs font-bold text-slate-700">
-                      Update Customer Phone Number (Admin Only)
-                    </label>
-                    <div class="flex gap-2">
-                      <input
-                        type="tel"
-                        id="posNewPhoneInput"
-                        placeholder="(216) 555-0199"
-                        required
-                        class="flex-1 px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold focus:outline-none focus:border-sky-500"
-                      />
-                      <button
-                        type="submit"
-                        class="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-extrabold transition"
-                      >
-                        Change Phone
-                      </button>
-                    </div>
-                    <p id="posPhoneUpdateFeedback" class="hidden text-[11px] font-bold text-emerald-700"></p>
-                  </form>
-
-                  <!-- Selected Customer Full Transaction History -->
-                  <div class="pt-3 border-t border-slate-100 space-y-2">
-                    <div class="flex items-center justify-between">
-                      <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-600">
-                        Customer Transaction History
-                      </h4>
-                      <span id="posHistoryCountBadge" class="text-[11px] font-bold text-slate-400">
-                        0 records
-                      </span>
-                    </div>
-                    <div id="posSelectedHistoryList" class="max-h-48 overflow-y-auto divide-y divide-slate-100 bg-slate-50 rounded-xl px-3 border border-slate-200">
-                      <!-- Populated dynamically -->
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- TAB 2: LOCAL ADVERTISING & BUSINESS SUBSCRIPTIONS -->
-          <div id="adminTabAds" class="hidden space-y-6">
-
-            <!-- Expiring Within 5 Days Alert Banner -->
-            <div id="expiringSoonAlertBox" class="hidden p-4 rounded-2xl bg-amber-50 border-2 border-amber-300 space-y-2">
+        <!-- TAB 1: Cashier POS, Admin Redemption, Admin Phone Edit & Customer Transaction History -->
+        <div id="adminTabCustomers" class="space-y-5">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Customer Search & Select -->
+            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
               <div class="flex items-center justify-between">
-                <h4 class="text-xs font-black uppercase tracking-wider text-amber-900">
-                  Renewal Alert: Subscriptions Expiring Within 5 Days
-                </h4>
-                <span id="expiringSoonCount" class="px-2.5 py-0.5 rounded-full bg-amber-600 text-white text-[11px] font-extrabold">
-                  0
-                </span>
+                <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-700">Select Customer Account</h4>
+                <span id="totalMembersBadge" class="text-[11px] font-bold text-emerald-700">0 Members</span>
               </div>
-              <div id="expiringSoonList" class="space-y-1.5 text-xs text-amber-950"></div>
+              <input
+                type="text"
+                id="adminCustomerSearch"
+                oninput="renderAdminCustomerList()"
+                placeholder="Search by name or 10-digit phone..."
+                class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-900 focus:outline-none focus:border-emerald-600"
+              />
+              <div id="adminCustomerList" class="max-h-72 overflow-y-auto divide-y divide-slate-200 bg-white rounded-xl border border-slate-200"></div>
             </div>
 
-            <!-- Add Local Business Subscription Form -->
-            <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4">
-              <div class="flex flex-wrap items-center justify-between gap-2">
-                <div>
-                  <h3 class="text-sm font-extrabold text-slate-900">
-                    Add Local Business Ad Subscription (Cash or Card at Store)
-                  </h3>
-                  <p class="text-xs text-slate-500">
-                    Automatically publishes on GitHub Pages, Cloudflare &amp; Netlify and prepares the 3-link welcome email.
-                  </p>
-                </div>
-                <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-extrabold">
-                  Auto-Takeover on Expiry
-                </span>
+            <!-- POS Actions + Admin Phone Change + Selected Customer History -->
+            <div class="p-4 rounded-2xl bg-emerald-50/60 border border-emerald-200 space-y-4">
+              <h4 class="text-xs font-extrabold uppercase tracking-wider text-emerald-900">Cashier POS Terminal</h4>
+              <div id="posSelectedCustomerBox" class="p-3.5 rounded-xl bg-white border border-emerald-200 text-xs text-slate-500">
+                Click any customer on the left to add points, redeem store credit, update their phone number, or inspect their full transaction history.
               </div>
 
-              <form onsubmit="handleAddBusinessSubscription(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label class="block text-[11px] font-bold text-slate-700 mb-1">Business Name *</label>
+              <!-- Add Purchase Points -->
+              <div class="space-y-2">
+                <label class="block text-xs font-bold text-slate-700">Purchase Amount ($) &rarr; Adds 2 pts per $1</label>
+                <div class="flex gap-2">
                   <input
-                    type="text"
-                    id="subBusinessName"
-                    placeholder="e.g., Lorain Ave Bakery"
-                    required
-                    class="w-full px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    id="posPurchaseDollars"
+                    placeholder="e.g. 25.00"
+                    class="flex-1 px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-sm font-bold text-slate-900"
                   />
+                  <button
+                    type="button"
+                    onclick="adminAddPurchasePoints()"
+                    class="px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-extrabold transition"
+                  >
+                    + Add Points
+                  </button>
                 </div>
-                <div>
-                  <label class="block text-[11px] font-bold text-slate-700 mb-1">Business Email (Receives 3 App Links) *</label>
+              </div>
+
+              <!-- Admin-Only Redeem Points -->
+              <div class="space-y-2 pt-2 border-t border-emerald-200">
+                <label class="block text-xs font-bold text-slate-700">Redeem Points at Register (100 pts = $1.00 Off)</label>
+                <div class="flex gap-2">
                   <input
-                    type="email"
-                    id="subBusinessEmail"
-                    placeholder="owner@localbusiness.com"
-                    required
-                    class="w-full px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold"
+                    type="number"
+                    step="100"
+                    min="100"
+                    id="posRedeemPointsInput"
+                    placeholder="100"
+                    class="flex-1 px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-sm font-bold text-slate-900"
                   />
+                  <button
+                    type="button"
+                    onclick="adminRedeemPoints()"
+                    class="px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-extrabold transition"
+                  >
+                    Redeem Credit
+                  </button>
                 </div>
-                <div>
-                  <label class="block text-[11px] font-bold text-slate-700 mb-1">Business Phone</label>
+              </div>
+
+              <!-- Admin-Only Customer Phone Number Update -->
+              <div class="space-y-2 pt-2 border-t border-emerald-200">
+                <label class="block text-xs font-bold text-slate-700">Change Customer Mobile Number (Admin Only)</label>
+                <div class="flex gap-2">
                   <input
                     type="tel"
-                    id="subBusinessPhone"
-                    placeholder="(216) 555-0144"
-                    class="w-full px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold"
+                    id="adminNewCustomerPhoneInput"
+                    placeholder="New 10-digit mobile #"
+                    class="flex-1 px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-900"
                   />
-                </div>
-                <div>
-                  <label class="block text-[11px] font-bold text-slate-700 mb-1">CC / Store Email Copy</label>
-                  <input
-                    type="email"
-                    id="subCcEmail"
-                    value="hanallc07@gmail.com"
-                    class="w-full px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold"
-                  />
-                </div>
-                <div>
-                  <label class="block text-[11px] font-bold text-slate-700 mb-1">Subscription Validity &amp; Special Pricing *</label>
-                  <select
-                    id="subDurationSelect"
-                    onchange="updateSubscriptionPriceFromDuration()"
-                    class="w-full px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-900"
-                  >
-                    <option value="30">30 Days — $50.00 (Standard Monthly)</option>
-                    <option value="60">60 Days — $90.00 (Save $10)</option>
-                    <option value="90">90 Days — $125.00 (Save $25)</option>
-                    <option value="365">1 Year (365 Days) — $400.00 (Best Value: Save $200)</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="block text-[11px] font-bold text-slate-700 mb-1">Amount Paid ($) &amp; Store Payment Method *</label>
-                  <div class="flex gap-2">
-                    <input
-                      type="number"
-                      step="0.01"
-                      id="subAmountPaid"
-                      value="50.00"
-                      required
-                      class="w-28 px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-extrabold"
-                    />
-                    <select
-                      id="subPaymentMethod"
-                      class="flex-1 px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-900"
-                    >
-                      <option value="Cash at Store">Cash at Store</option>
-                      <option value="Card at Store">Card at Store</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="sm:col-span-2">
-                  <label class="block text-[11px] font-bold text-slate-700 mb-1">Ad Headline / Special Offer Text *</label>
-                  <input
-                    type="text"
-                    id="subHeadline"
-                    placeholder="e.g., Fresh Hot Coffee &amp; Pastries — Show Rexall VIP for 10% Off!"
-                    required
-                    class="w-full px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold"
-                  />
-                </div>
-                <div class="sm:col-span-2">
-                  <label class="block text-[11px] font-bold text-slate-700 mb-1">Ad Image URL or Website Link (Optional)</label>
-                  <input
-                    type="url"
-                    id="subImageUrl"
-                    placeholder="https://..."
-                    class="w-full px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold"
-                  />
-                </div>
-                <div class="sm:col-span-2 flex flex-wrap items-center justify-between gap-2 pt-1">
-                  <span id="subFormStatusText" class="text-xs font-bold text-emerald-700"></span>
                   <button
-                    type="submit"
-                    class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold transition shadow-xs"
+                    type="button"
+                    onclick="adminUpdateCustomerPhone()"
+                    class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-extrabold transition"
                   >
-                    Activate Subscription &amp; Send 3 App Links
+                    Update #
                   </button>
                 </div>
-              </form>
-            </div>
+              </div>
 
-            <!-- Active & Past Business Subscriptions List -->
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 space-y-3">
-              <div class="flex items-center justify-between">
-                <h3 class="text-sm font-extrabold text-slate-900">Active &amp; Past Local Business Subscriptions</h3>
-                <span id="subTotalCount" class="text-xs font-bold text-slate-500">0 Total</span>
-              </div>
-              <div id="businessSubscriptionsList" class="space-y-3">
-                <!-- Populated dynamically -->
-              </div>
-            </div>
-
-            <!-- Automated Email Delivery & Copy Log -->
-            <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3">
-              <div class="flex items-center justify-between">
-                <div>
-                  <h3 class="text-sm font-extrabold text-slate-900">Business Welcome Email Log &amp; 1-Click Copy</h3>
-                  <p class="text-[11px] text-slate-500">
-                    Every subscription logs the full message + GitHub, Cloudflare &amp; Netlify links here for instant 1-click copy.
-                  </p>
-                </div>
-              </div>
-              <div id="emailDispatchLogList" class="space-y-2.5">
-                <!-- Populated dynamically -->
-              </div>
-            </div>
-
-            <!-- Fallback / Default Store Ad Banner -->
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 space-y-3">
-              <div>
-                <h3 class="text-sm font-extrabold text-slate-900">Default Store Fallback Banner (Auto-Takeover)</h3>
-                <p class="text-xs text-slate-500">
-                  Automatically displays on all 3 web apps whenever no paid business subscription is active or after a paid ad expires.
-                </p>
-              </div>
-              <form onsubmit="handleSaveFallbackAd(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label class="block text-[11px] font-bold text-slate-700 mb-1">Fallback Title</label>
-                  <input
-                    type="text"
-                    id="fallbackAdTitle"
-                    value="Rexall Discount Daily Deals"
-                    class="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold"
-                  />
-                </div>
-                <div>
-                  <label class="block text-[11px] font-bold text-slate-700 mb-1">Fallback Banner Image URL (Optional)</label>
-                  <input
-                    type="url"
-                    id="fallbackAdImage"
-                    placeholder="https://..."
-                    class="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold"
-                  />
-                </div>
-                <div class="sm:col-span-2">
-                  <label class="block text-[11px] font-bold text-slate-700 mb-1">Fallback Message</label>
-                  <input
-                    type="text"
-                    id="fallbackAdText"
-                    value="Earn 2 Points per $1 Spent on everyday essentials! Advertise your local business here—ask at the counter."
-                    class="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold"
-                  />
-                </div>
-                <div class="sm:col-span-2 flex justify-end">
-                  <button
-                    type="submit"
-                    class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition"
-                  >
-                    Save Fallback Banner Across All 3 Apps
-                  </button>
-                </div>
-              </form>
+              <p id="posStatusMsg" class="hidden text-xs font-bold text-emerald-800"></p>
             </div>
           </div>
 
-          <!-- TAB 3: ADMIN SECURITY & EMAIL SETTINGS -->
-          <div id="adminTabEmails" class="hidden space-y-5">
-            <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4">
-              <div>
-                <h3 class="text-sm font-extrabold text-slate-900">
-                  Admin Login Credentials &amp; Automatic Email Settings (Syncs Across All 3 Web Apps)
-                </h3>
-                <p class="text-xs text-slate-500 mt-0.5">
-                  Update your Admin Name, 6-digit secret code, or EmailJS keys anytime. Changes sync automatically across GitHub Pages, Cloudflare, and Netlify.
-                </p>
-              </div>
+          <!-- Selected Customer Full Transaction History inside Admin -->
+          <div id="adminCustomerHistoryPanel" class="hidden p-4 rounded-2xl bg-white border border-slate-200 space-y-3">
+            <div class="flex items-center justify-between">
+              <h4 id="adminHistoryPanelTitle" class="text-xs font-extrabold uppercase tracking-wider text-slate-800">
+                Customer Transaction History
+              </h4>
+              <span id="adminHistoryCountBadge" class="text-[11px] font-bold text-slate-500">0 records</span>
+            </div>
+            <div id="adminCustomerHistoryList" class="max-h-56 overflow-y-auto divide-y divide-slate-100"></div>
+          </div>
+        </div>
 
-              <form onsubmit="handleSaveEmailSettings(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label class="block text-[11px] font-bold text-slate-700 mb-1">Admin Login Name</label>
-                  <input
-                    type="text"
-                    id="settingAdminName"
-                    placeholder="Enter admin login name"
-                    required
-                    class="w-full px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold"
-                  />
+        <!-- TAB 2: Unlimited Local Business Ads with Priority Pricing, Expiration & In-Store Renewal -->
+        <div id="adminTabAds" class="hidden space-y-5">
+          <!-- Renewal Alert Banner for Ads Expiring in <= 5 Days -->
+          <div id="adExpiryAlertBox" class="hidden p-4 rounded-2xl bg-amber-50 border border-amber-300 space-y-2">
+            <div class="flex items-center justify-between">
+              <h4 class="text-xs font-extrabold uppercase tracking-wider text-amber-900">
+                Upcoming Ad Subscription Renewals (5-Day Warning)
+              </h4>
+              <span class="text-[11px] font-bold text-amber-800">Collect renewal payment in-store</span>
+            </div>
+            <div id="adExpiryAlertList" class="space-y-1.5 text-xs text-amber-950"></div>
+          </div>
+
+          <!-- Priority Pricing Rate Card -->
+          <div class="p-4 rounded-2xl bg-slate-900 text-white space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <h4 class="text-xs font-extrabold uppercase tracking-wider text-amber-300">Priority Tier Pricing Schedule</h4>
+                <p class="text-[11px] text-slate-300">Higher priority appears first in the right-to-left customer scroll banner</p>
+              </div>
+              <button
+                type="button"
+                onclick="savePriorityRateSchedule()"
+                class="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-extrabold transition"
+              >
+                Save Priority Rates
+              </button>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+              <div class="p-2.5 rounded-xl bg-white/10 border border-white/15 space-y-1">
+                <label class="block text-[10px] font-extrabold uppercase text-amber-300">Priority 1 (Top VIP Spot / 30d)</label>
+                <div class="flex items-center gap-1">
+                  <span class="font-bold">$</span>
+                  <input type="number" step="1" min="0" id="ratePriority1" value="60" oninput="autoCalculateAdPrice()" class="w-full px-2 py-1 rounded bg-white text-slate-900 font-extrabold" />
                 </div>
-                <div>
-                  <label class="block text-[11px] font-bold text-slate-700 mb-1">6-Digit Admin Secret Code</label>
-                  <input
-                    type="text"
-                    id="settingAdminPin"
-                    inputmode="numeric"
-                    maxlength="6"
-                    pattern="\d{6}"
-                    placeholder="6-digit code"
-                    required
-                    class="w-full px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold tracking-widest"
-                  />
+              </div>
+              <div class="p-2.5 rounded-xl bg-white/10 border border-white/15 space-y-1">
+                <label class="block text-[10px] font-extrabold uppercase text-emerald-300">Priority 2 (Featured Spot / 30d)</label>
+                <div class="flex items-center gap-1">
+                  <span class="font-bold">$</span>
+                  <input type="number" step="1" min="0" id="ratePriority2" value="40" oninput="autoCalculateAdPrice()" class="w-full px-2 py-1 rounded bg-white text-slate-900 font-extrabold" />
                 </div>
-                <div>
-                  <label class="block text-[11px] font-bold text-slate-700 mb-1">Store Notification Email (CC &amp; New Signups)</label>
-                  <input
-                    type="email"
-                    id="settingStoreEmail"
-                    value="hanallc07@gmail.com"
-                    required
-                    class="w-full px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold"
-                  />
+              </div>
+              <div class="p-2.5 rounded-xl bg-white/10 border border-white/15 space-y-1">
+                <label class="block text-[10px] font-extrabold uppercase text-slate-200">Priority 3 (Standard Spot / 30d)</label>
+                <div class="flex items-center gap-1">
+                  <span class="font-bold">$</span>
+                  <input type="number" step="1" min="0" id="ratePriority3" value="25" oninput="autoCalculateAdPrice()" class="w-full px-2 py-1 rounded bg-white text-slate-900 font-extrabold" />
                 </div>
-                <div>
-                  <label class="block text-[11px] font-bold text-slate-700 mb-1">EmailJS Service ID (Optional for Zero-Popup Auto Send)</label>
-                  <input
-                    type="text"
-                    id="settingEmailJsService"
-                    placeholder="service_xxxxxxx"
-                    class="w-full px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold"
-                  />
-                </div>
-                <div>
-                  <label class="block text-[11px] font-bold text-slate-700 mb-1">EmailJS Template ID</label>
-                  <input
-                    type="text"
-                    id="settingEmailJsTemplate"
-                    placeholder="template_xxxxxxx"
-                    class="w-full px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold"
-                  />
-                </div>
-                <div>
-                  <label class="block text-[11px] font-bold text-slate-700 mb-1">EmailJS Public Key</label>
-                  <input
-                    type="text"
-                    id="settingEmailJsPublicKey"
-                    placeholder="Public Key"
-                    class="w-full px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold"
-                  />
-                </div>
-                <div class="sm:col-span-2 flex items-center justify-between pt-2">
-                  <span id="emailSettingsFeedback" class="text-xs font-bold text-emerald-700"></span>
-                  <button
-                    type="submit"
-                    class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold transition"
-                  >
-                    Save Credentials &amp; Settings Across All 3 Apps
-                  </button>
-                </div>
-              </form>
+              </div>
             </div>
           </div>
 
+          <!-- Add New Local Business Subscription Form -->
+          <form onsubmit="saveLocalBusinessAd(event)" class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
+            <div class="flex items-center justify-between">
+              <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-800">
+                Add New Local Business Ad (Unlimited Spots)
+              </h4>
+              <span class="text-[11px] font-bold text-emerald-700">Sends Welcome Email with 3 Web App Links</span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Business Name *</label>
+                <input type="text" id="adBizName" required placeholder="e.g. Chicago Food Market" class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-bold" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Business Phone *</label>
+                <input type="tel" id="adBizPhone" required placeholder="(440) 730-1525" class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-bold" />
+              </div>
+              <div class="sm:col-span-2">
+                <label class="block text-xs font-bold text-slate-700 mb-1">Business Address / Promo Headline *</label>
+                <input type="text" id="adBizAddress" required placeholder="9918 Lorain Ave, Cleveland OH 44102 • Fresh Hot Food Daily" class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-semibold" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Business Email (Receives Welcome &amp; Links) *</label>
+                <input type="email" id="adBizEmail" required placeholder="owner@localbusiness.com" class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-semibold" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">CC Email (Optional)</label>
+                <input type="email" id="adBizCcEmail" placeholder="manager@localbusiness.com" class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-semibold" />
+              </div>
+
+              <!-- Priority Tier, Duration, Price & In-Store Payment -->
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Scroll Priority Level *</label>
+                <select
+                  id="adPriorityTier"
+                  onchange="autoCalculateAdPrice()"
+                  class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-extrabold text-slate-900"
+                >
+                  <option value="1">Priority 1 (First in Scroll)</option>
+                  <option value="2" selected>Priority 2 (Featured)</option>
+                  <option value="3">Priority 3 (Standard)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Subscription Validity *</label>
+                <select
+                  id="adDurationDays"
+                  onchange="autoCalculateAdPrice()"
+                  class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-900"
+                >
+                  <option value="30">30 Days (1 Month)</option>
+                  <option value="60">60 Days (2 Months — 5% Off)</option>
+                  <option value="90">90 Days (3 Months — 10% Off)</option>
+                  <option value="365">1 Year (365 Days — 2 Months Free)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Subscription Price Paid ($)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  id="adAmountPaid"
+                  value="40.00"
+                  required
+                  class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-extrabold text-emerald-700"
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">In-Store Payment Method *</label>
+                <select
+                  id="adPaymentMethod"
+                  class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-900"
+                >
+                  <option value="Cash at store">Cash at store</option>
+                  <option value="Card at store">Card at store</option>
+                </select>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              class="w-full py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-extrabold shadow-xs transition"
+            >
+              Save Priority Ad, Record In-Store Payment &amp; Send Welcome Email
+            </button>
+          </form>
+
+          <p id="adActionStatus" class="hidden text-xs font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 p-3 rounded-xl"></p>
+
+          <!-- Active & Expired Business Subscriptions List (with In-Store Renewal & Priority Upgrade) -->
+          <div class="space-y-2.5">
+            <div class="flex items-center justify-between">
+              <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-800">
+                All Local Business Subscriptions (Priority Ordered &bull; Renew Anytime)
+              </h4>
+              <span id="adCountBadge" class="text-[11px] font-bold text-slate-500">0 ads</span>
+            </div>
+            <div id="adminAdsList" class="space-y-2.5"></div>
+          </div>
+
+          <!-- Email Dispatch History with 1-Click Copy Email & 3 Links -->
+          <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2.5">
+            <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-800">
+              Subscription Email Dispatch Log (1-Click Copy Email &amp; 3 Links)
+            </h4>
+            <div id="emailDispatchLogList" class="space-y-2"></div>
+          </div>
+        </div>
+
+        <!-- TAB 3: Two-Step Admin Security, Welcome Mailer Webhook & 90-Day Policy -->
+        <div id="adminTabEmail" class="hidden space-y-4">
+          <form onsubmit="saveStoreSettings(event)" class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
+            <div>
+              <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-800">
+                Admin Two-Step Login Credentials (Syncs Across All 3 Web Apps)
+              </h4>
+              <p class="text-[11px] text-slate-500 mt-1">
+                Change your Admin Name or 6-digit Secret anytime. Updates apply immediately on GitHub Pages, Cloudflare, and Netlify.
+              </p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Admin Name</label>
+                <input
+                  type="text"
+                  id="settingAdminName"
+                  required
+                  placeholder="Enter admin name"
+                  class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-900"
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">6-Digit Admin Secret</label>
+                <input
+                  type="text"
+                  id="settingAdminPin"
+                  maxlength="6"
+                  pattern="\d{6}"
+                  required
+                  placeholder="6 digits"
+                  class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-bold tracking-widest text-slate-900"
+                />
+              </div>
+            </div>
+
+            <div class="pt-3 border-t border-slate-200">
+              <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-800">
+                Store Alert Email &amp; Custom Welcome Mailer Webhook (No EmailJS Required)
+              </h4>
+              <p class="text-[11px] text-slate-500 mt-1">
+                Add a Cloudflare Worker / Formspree / Web3Forms endpoint URL below to send welcome emails to local businesses automatically, or use the 1-click Copy Email &amp; 3 Links log in Tab 2.
+              </p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Store Owner Alert Email</label>
+                <input
+                  type="email"
+                  id="settingStoreEmail"
+                  value="hanallc07@gmail.com"
+                  required
+                  class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-bold"
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Welcome Mailer Webhook URL (Cloudflare Worker / Formspree)</label>
+                <input
+                  type="url"
+                  id="settingMailerWebhookUrl"
+                  placeholder="https://your-worker.workers.dev/send-welcome"
+                  class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-semibold"
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-extrabold transition"
+            >
+              Save Security &amp; Mailer Settings Across All Web Apps
+            </button>
+          </form>
+
+          <p id="settingsSavedMsg" class="hidden text-xs font-bold text-emerald-700"></p>
         </div>
       </div>
-
     </div>
   </div>
 
-  <!-- Firebase Cloud Sync & Application Logic -->
+  <!-- Firebase Live Cloud Sync & Store Application Logic -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
@@ -826,58 +732,50 @@
     const APP_BUILD_VERSION = "2026.11.25.05";
 
     const FIREBASE_CONFIG = {
-      apiKey: "AIzaSyDummyKeyReplaceWithProjectKeyIfNeeded",
+      apiKey: "AIzaSyDummyKeyForRexallRewardProject",
       authDomain: "rexall-reward.firebaseapp.com",
       projectId: "rexall-reward",
       storageBucket: "rexall-reward.appspot.com",
       messagingSenderId: "102938475610",
-      appId: "1:102938475610:web:abcdef1234567890"
+      appId: "1:102938475610:web:rexallrewardapp"
     };
 
-    const APP_MIRROR_LINKS = {
+    const STORE_APP_LINKS = {
       github: "https://hanallc07-dot.github.io/rexall-reward/",
       cloudflare: "https://rexall-reward.hanallc07.workers.dev/",
       netlify: "https://rexall-discount-reward.netlify.app/"
     };
 
     const NINETY_DAYS_MS = 90 * 24 * 60 * 60 * 1000;
-    const FIVE_DAYS_MS = 5 * 24 * 60 * 60 * 1000;
-    const DECAY_STEP_POINTS = 25;
+    const DAY_MS = 24 * 60 * 60 * 1000;
 
     let db = null;
-    let isCloudConnected = false;
     let customersMap = {};
-    let subscriptionsList = [];
+    let adsList = [];
     let emailLogsList = [];
     let storeConfig = {
       adminName: "aaravarayah",
       adminPin: "123456",
       storeEmail: "hanallc07@gmail.com",
-      emailJsServiceId: "",
-      emailJsTemplateId: "",
-      emailJsPublicKey: "",
-      fallbackAdTitle: "Rexall Discount Daily Deals",
-      fallbackAdText: "Earn 2 Points per $1 Spent on everyday essentials! Advertise your local business here—ask at the counter.",
-      fallbackAdImage: ""
+      priority1Rate: 60,
+      priority2Rate: 40,
+      priority3Rate: 25,
+      mailerWebhookUrl: ""
     };
 
-    let currentCustomerPhone = localStorage.getItem("rexall_current_phone") || "";
-    let pendingRegistrationPhone = "";
-    let selectedAdminCustomerPhone = "";
+    let activeCustomerPhone = null;
+    let pendingRegisterPhone = null;
+    let selectedAdminCustomerPhone = null;
     let isAdminUnlocked = false;
 
     function normalizePhone(raw) {
-      const digits = String(raw || "").replace(/\D/g, "");
-      if (digits.length === 11 && digits.startsWith("1")) return digits.slice(1);
-      return digits;
+      return String(raw || "").replace(/\D/g, "").slice(-10);
     }
 
-    function formatPhoneDisplay(digits) {
-      const clean = normalizePhone(digits);
-      if (clean.length === 10) {
-        return `(${clean.slice(0, 3)}) ${clean.slice(3, 6)}-${clean.slice(6)}`;
-      }
-      return digits || "";
+    function formatPhone(digits) {
+      const d = normalizePhone(digits);
+      if (d.length !== 10) return digits || "";
+      return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`;
     }
 
     function escapeHtml(str) {
@@ -888,209 +786,156 @@
         .replace(/"/g, "&quot;");
     }
 
-    function parseTimestampMs(val, fallbackMs = Date.now()) {
-      if (typeof val === "number" && Number.isFinite(val) && val > 0) {
-        return val;
-      }
+    function parseValidTimestamp(val, fallback = Date.now()) {
+      if (typeof val === "number" && !Number.isNaN(val) && val > 0) return val;
       if (typeof val === "string" && val.trim()) {
+        const num = Number(val);
+        if (!Number.isNaN(num) && num > 0) return num;
         const parsed = Date.parse(val);
-        if (Number.isFinite(parsed) && parsed > 0) {
-          return parsed;
-        }
+        if (!Number.isNaN(parsed) && parsed > 0) return parsed;
       }
-      return fallbackMs;
+      return fallback;
     }
 
-    function saveLocalCache() {
-      try {
-        localStorage.setItem("rexall_customers_cache", JSON.stringify(customersMap));
-        localStorage.setItem("rexall_subs_cache", JSON.stringify(subscriptionsList));
-        localStorage.setItem("rexall_email_logs_cache", JSON.stringify(emailLogsList));
-        localStorage.setItem("rexall_store_config_cache", JSON.stringify(storeConfig));
-      } catch (e) {}
+    // 90-day expiration from registration/activity with gradual 25-point decay down to 0 (never deletes customer)
+    function evaluateCustomerPointsPolicy(cust) {
+      if (!cust) return null;
+      const now = Date.now();
+      const baseActivityMs = parseValidTimestamp(cust.lastActivity || cust.createdAt, now);
+      let currentPoints = Math.max(0, Number(cust.points || 0));
+      let anchorMs = baseActivityMs;
+      let elapsedMs = now - anchorMs;
+      let changed = false;
+
+      if (elapsedMs >= NINETY_DAYS_MS && currentPoints > 0) {
+        const cycles = Math.floor(elapsedMs / NINETY_DAYS_MS);
+        const deduction = Math.min(currentPoints, cycles * 25);
+        if (deduction > 0) {
+          currentPoints = Math.max(0, currentPoints - deduction);
+          anchorMs = anchorMs + cycles * NINETY_DAYS_MS;
+          const history = Array.isArray(cust.history) ? [...cust.history] : [];
+          history.unshift({
+            title: `90-Day Inactivity Adjustment (${cycles}x 90d)`,
+            points: -deduction,
+            date: new Date().toLocaleDateString()
+          });
+          cust.points = currentPoints;
+          cust.lastActivity = anchorMs;
+          cust.expiresAt = anchorMs + NINETY_DAYS_MS;
+          cust.history = history;
+          changed = true;
+        }
+      }
+
+      const nextExpiryMs = anchorMs + NINETY_DAYS_MS;
+      const daysLeft = Math.max(0, Math.ceil((nextExpiryMs - now) / DAY_MS));
+      return {
+        customer: cust,
+        changed,
+        nextExpiryMs,
+        daysLeft
+      };
+    }
+
+    function setCloudStatusConnected(connected) {
+      const badge = document.getElementById("cloudStatusBadge");
+      if (!badge) return;
+      if (connected) {
+        badge.className = "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200";
+        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500"></span> Cloud Synced`;
+      } else {
+        badge.className = "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200";
+        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500"></span> Local Sync Mode`;
+      }
     }
 
     function loadLocalCache() {
       try {
-        const c = localStorage.getItem("rexall_customers_cache");
-        if (c) customersMap = JSON.parse(c) || {};
-        const s = localStorage.getItem("rexall_subs_cache");
-        if (s) subscriptionsList = JSON.parse(s) || [];
-        const l = localStorage.getItem("rexall_email_logs_cache");
-        if (l) emailLogsList = JSON.parse(l) || [];
-        const cfg = localStorage.getItem("rexall_store_config_cache");
-        if (cfg) storeConfig = { ...storeConfig, ...(JSON.parse(cfg) || {}) };
-      } catch (e) {}
+        const c = localStorage.getItem("rexall_customers_v3");
+        const a = localStorage.getItem("rexall_ads_v3");
+        const e = localStorage.getItem("rexall_email_logs_v3");
+        const s = localStorage.getItem("rexall_settings_v3");
+        if (c) customersMap = JSON.parse(c);
+        if (a) adsList = JSON.parse(a);
+        if (e) emailLogsList = JSON.parse(e);
+        if (s) storeConfig = { ...storeConfig, ...JSON.parse(s) };
+      } catch (err) {}
     }
 
-    function setCloudStatusConnected(connected) {
-      isCloudConnected = connected;
-      const badge = document.getElementById("cloudSyncBadge");
-      const dot = document.getElementById("cloudSyncDot");
-      const text = document.getElementById("cloudSyncText");
-      if (!badge || !dot || !text) return;
-      if (connected) {
-        badge.className = "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200";
-        dot.className = "w-2 h-2 rounded-full bg-emerald-500";
-        text.textContent = "Cloud Synced";
-      } else {
-        badge.className = "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200";
-        dot.className = "w-2 h-2 rounded-full bg-amber-500";
-        text.textContent = "Local Backup Active";
-      }
+    function saveLocalCache() {
+      try {
+        localStorage.setItem("rexall_customers_v3", JSON.stringify(customersMap));
+        localStorage.setItem("rexall_ads_v3", JSON.stringify(adsList));
+        localStorage.setItem("rexall_email_logs_v3", JSON.stringify(emailLogsList));
+        localStorage.setItem("rexall_settings_v3", JSON.stringify(storeConfig));
+      } catch (err) {}
     }
 
-    async function persistCustomerToCloud(customerObj) {
-      const phone = normalizePhone(customerObj.phone);
-      const cleanRecord = { ...customerObj, phone };
-      customersMap[phone] = cleanRecord;
+    async function persistCustomerToCloud(cust) {
+      if (!cust || !cust.phone) return;
+      customersMap[cust.phone] = cust;
       saveLocalCache();
       if (db) {
         try {
-          await setDoc(doc(db, "rexall_customers", phone), cleanRecord, { merge: true });
-        } catch (err) {
-          console.warn("Firestore customer write fallback:", err);
-        }
-      }
-    }
-
-    async function deleteCustomerFromCloud(phone) {
-      const clean = normalizePhone(phone);
-      delete customersMap[clean];
-      saveLocalCache();
-      if (db) {
-        try {
-          await deleteDoc(doc(db, "rexall_customers", clean));
-        } catch (err) {
-          console.warn("Firestore customer delete fallback:", err);
-        }
-      }
-    }
-
-    async function persistSubscriptionToCloud(subObj) {
-      const idx = subscriptionsList.findIndex((s) => s.id === subObj.id);
-      if (idx >= 0) subscriptionsList[idx] = subObj;
-      else subscriptionsList.unshift(subObj);
-      saveLocalCache();
-      if (db) {
-        try {
-          await setDoc(doc(db, "rexall_subscriptions", subObj.id), subObj, { merge: true });
-        } catch (err) {
-          console.warn("Firestore subscription write fallback:", err);
-        }
-      }
-    }
-
-    async function deleteSubscriptionFromCloud(subId) {
-      subscriptionsList = subscriptionsList.filter((s) => s.id !== subId);
-      saveLocalCache();
-      if (db) {
-        try {
-          await deleteDoc(doc(db, "rexall_subscriptions", subId));
-        } catch (err) {
-          console.warn("Firestore subscription delete fallback:", err);
-        }
-      }
-    }
-
-    async function persistEmailLogToCloud(logObj) {
-      emailLogsList.unshift(logObj);
-      if (emailLogsList.length > 50) emailLogsList = emailLogsList.slice(0, 50);
-      saveLocalCache();
-      if (db) {
-        try {
-          await setDoc(doc(db, "rexall_email_logs", logObj.id), logObj, { merge: true });
+          await setDoc(doc(db, "rexall_customers", cust.phone), cust);
         } catch (err) {}
       }
     }
 
-    async function persistStoreConfigToCloud() {
-      const stampedConfig = {
-        ...storeConfig,
-        buildVersion: APP_BUILD_VERSION,
-        updatedAt: Date.now()
-      };
-      storeConfig = stampedConfig;
+    async function removeCustomerFromCloud(phone) {
+      delete customersMap[phone];
       saveLocalCache();
       if (db) {
         try {
-          await setDoc(doc(db, "rexall_settings", "store_config"), stampedConfig, { merge: true });
+          await deleteDoc(doc(db, "rexall_customers", phone));
         } catch (err) {}
       }
     }
 
-    // Gradual 90-Day Decay: deduct 25 points per 90 days of inactivity down to 0, never deleting customer record
-    async function evaluateCustomerExpiry(customer) {
-      if (!customer) return null;
-      const now = Date.now();
-      const baseActivity = parseTimestampMs(
-        customer.lastActivity || customer.createdAt,
-        now
-      );
-      const elapsed = Math.max(0, now - baseActivity);
-      const currentPts = Math.max(0, Number(customer.points || 0));
-      const expectedExpiry = baseActivity + NINETY_DAYS_MS;
-
-      if (elapsed >= NINETY_DAYS_MS && currentPts > 0) {
-        const cyclesPassed = Math.floor(elapsed / NINETY_DAYS_MS);
-        const pointsToDeduct = Math.min(currentPts, cyclesPassed * DECAY_STEP_POINTS);
-        const updatedPoints = Math.max(0, currentPts - pointsToDeduct);
-        const advancedActivity = baseActivity + cyclesPassed * NINETY_DAYS_MS;
-        const nextExpiry = advancedActivity + NINETY_DAYS_MS;
-
-        const updated = {
-          ...customer,
-          points: updatedPoints,
-          lastActivity: advancedActivity,
-          expiresAt: nextExpiry,
-          history: [
-            {
-              type: "EXPIRY_DECAY",
-              label: `90-Day Inactivity Deduction (-${pointsToDeduct} pts)`,
-              points: -pointsToDeduct,
-              date: new Date().toLocaleDateString()
-            },
-            ...(Array.isArray(customer.history) ? customer.history : [])
-          ]
-        };
-        await persistCustomerToCloud(updated);
-        return updated;
+    async function persistAdToCloud(ad) {
+      const idx = adsList.findIndex((item) => item.id === ad.id);
+      if (idx >= 0) adsList[idx] = ad;
+      else adsList.unshift(ad);
+      saveLocalCache();
+      if (db) {
+        try {
+          await setDoc(doc(db, "rexall_ads", ad.id), ad);
+        } catch (err) {}
       }
-
-      if (Number(customer.expiresAt || 0) !== expectedExpiry) {
-        const normalized = {
-          ...customer,
-          lastActivity: baseActivity,
-          expiresAt: expectedExpiry
-        };
-        await persistCustomerToCloud(normalized);
-        return normalized;
-      }
-
-      return customer;
     }
 
-    function populateSettingsInputs() {
-      const adminNameEl = document.getElementById("settingAdminName");
-      const adminPinEl = document.getElementById("settingAdminPin");
-      const storeEmailEl = document.getElementById("settingStoreEmail");
-      const svcEl = document.getElementById("settingEmailJsService");
-      const tplEl = document.getElementById("settingEmailJsTemplate");
-      const keyEl = document.getElementById("settingEmailJsPublicKey");
+    async function removeAdFromCloud(adId) {
+      adsList = adsList.filter((item) => item.id !== adId);
+      saveLocalCache();
+      if (db) {
+        try {
+          await deleteDoc(doc(db, "rexall_ads", adId));
+        } catch (err) {}
+      }
+    }
 
-      if (adminNameEl) adminNameEl.value = storeConfig.adminName || "aaravarayah";
-      if (adminPinEl) adminPinEl.value = storeConfig.adminPin || "123456";
-      if (storeEmailEl) storeEmailEl.value = storeConfig.storeEmail || "hanallc07@gmail.com";
-      if (svcEl) svcEl.value = storeConfig.emailJsServiceId || "";
-      if (tplEl) tplEl.value = storeConfig.emailJsTemplateId || "";
-      if (keyEl) keyEl.value = storeConfig.emailJsPublicKey || "";
+    async function persistEmailLogToCloud(logEntry) {
+      emailLogsList.unshift(logEntry);
+      emailLogsList = emailLogsList.slice(0, 40);
+      saveLocalCache();
+      if (db) {
+        try {
+          await setDoc(doc(db, "rexall_email_logs", logEntry.id), logEntry);
+        } catch (err) {}
+      }
+    }
 
-      const fbTitle = document.getElementById("fallbackAdTitle");
-      const fbText = document.getElementById("fallbackAdText");
-      const fbImg = document.getElementById("fallbackAdImage");
-      if (fbTitle) fbTitle.value = storeConfig.fallbackAdTitle || "";
-      if (fbText) fbText.value = storeConfig.fallbackAdText || "";
-      if (fbImg) fbImg.value = storeConfig.fallbackAdImage || "";
+    async function persistSettingsToCloud() {
+      saveLocalCache();
+      if (db) {
+        try {
+          await setDoc(doc(db, "rexall_settings", "store_config"), {
+            ...storeConfig,
+            buildSyncVersion: APP_BUILD_VERSION,
+            updatedAt: Date.now()
+          });
+        } catch (err) {}
+      }
     }
 
     function initFirebaseSync() {
@@ -1102,41 +947,45 @@
         onSnapshot(
           collection(db, "rexall_customers"),
           (snap) => {
-            setCloudStatusConnected(true);
             const nextMap = {};
             snap.forEach((docSnap) => {
               const data = docSnap.data();
-              const phone = normalizePhone(data.phone || docSnap.id);
-              if (phone) nextMap[phone] = { ...data, phone };
+              if (data && data.phone) nextMap[data.phone] = data;
             });
             customersMap = nextMap;
             saveLocalCache();
+            setCloudStatusConnected(true);
             refreshAllViews();
           },
           () => setCloudStatusConnected(false)
         );
 
         onSnapshot(
-          collection(db, "rexall_subscriptions"),
+          collection(db, "rexall_ads"),
           (snap) => {
-            setCloudStatusConnected(true);
-            const list = [];
-            snap.forEach((docSnap) => list.push({ id: docSnap.id, ...docSnap.data() }));
-            list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-            subscriptionsList = list;
+            const nextAds = [];
+            snap.forEach((docSnap) => {
+              const data = docSnap.data();
+              if (data && data.id) nextAds.push(data);
+            });
+            adsList = nextAds;
             saveLocalCache();
-            refreshAllViews();
+            renderScrollingLocalAds();
+            renderAdminAdsList();
           },
-          () => setCloudStatusConnected(false)
+          () => {}
         );
 
         onSnapshot(
           collection(db, "rexall_email_logs"),
           (snap) => {
-            const logs = [];
-            snap.forEach((docSnap) => logs.push({ id: docSnap.id, ...docSnap.data() }));
-            logs.sort((a, b) => (b.sentAt || 0) - (a.sentAt || 0));
-            emailLogsList = logs;
+            const nextLogs = [];
+            snap.forEach((docSnap) => {
+              const data = docSnap.data();
+              if (data && data.id) nextLogs.push(data);
+            });
+            nextLogs.sort((a, b) => (b.sentAt || 0) - (a.sentAt || 0));
+            emailLogsList = nextLogs;
             saveLocalCache();
             renderEmailLogs();
           },
@@ -1150,7 +999,6 @@
               storeConfig = { ...storeConfig, ...docSnap.data() };
               saveLocalCache();
               populateSettingsInputs();
-              renderPublicSpotlight();
             }
           },
           () => {}
@@ -1160,85 +1008,197 @@
       }
     }
 
-    // Customer Lookup & Registration (+25 Welcome, +25 Referral Bonus for both)
-    window.handleCustomerLookup = async function (event) {
-      event.preventDefault();
-      const feedback = document.getElementById("authFeedbackMessage");
-      feedback.classList.add("hidden");
-      const raw = document.getElementById("loginPhoneInput").value;
-      const phone = normalizePhone(raw);
-      if (phone.length !== 10) {
-        feedback.textContent = "Please enter a valid 10-digit mobile phone number.";
-        feedback.classList.remove("hidden");
+    function populateSettingsInputs() {
+      const nameEl = document.getElementById("settingAdminName");
+      const pinEl = document.getElementById("settingAdminPin");
+      const emailEl = document.getElementById("settingStoreEmail");
+      const webhookEl = document.getElementById("settingMailerWebhookUrl");
+      const r1El = document.getElementById("ratePriority1");
+      const r2El = document.getElementById("ratePriority2");
+      const r3El = document.getElementById("ratePriority3");
+
+      if (nameEl) nameEl.value = storeConfig.adminName || "aaravarayah";
+      if (pinEl) pinEl.value = storeConfig.adminPin || "123456";
+      if (emailEl) emailEl.value = storeConfig.storeEmail || "hanallc07@gmail.com";
+      if (webhookEl) webhookEl.value = storeConfig.mailerWebhookUrl || "";
+      if (r1El) r1El.value = Number(storeConfig.priority1Rate ?? 60);
+      if (r2El) r2El.value = Number(storeConfig.priority2Rate ?? 40);
+      if (r3El) r3El.value = Number(storeConfig.priority3Rate ?? 25);
+    }
+
+    // Smooth Right-to-Left Priority Scrolling Local Ads
+    function renderScrollingLocalAds() {
+      const section = document.getElementById("localAdBannerSection");
+      const track = document.getElementById("adMarqueeTrack");
+      const countLabel = document.getElementById("activeAdCountLabel");
+      if (!section || !track) return;
+
+      const now = Date.now();
+      const activeAds = adsList
+        .filter((ad) => parseValidTimestamp(ad.expiresAt, 0) > now)
+        .sort((a, b) => {
+          const pA = Number(a.priority || 2);
+          const pB = Number(b.priority || 2);
+          if (pA !== pB) return pA - pB;
+          return (b.createdAt || 0) - (a.createdAt || 0);
+        });
+
+      if (!activeAds.length) {
+        section.classList.add("hidden");
+        track.innerHTML = "";
         return;
       }
 
-      if (customersMap[phone]) {
-        currentCustomerPhone = phone;
-        localStorage.setItem("rexall_current_phone", phone);
-        await evaluateCustomerExpiry(customersMap[phone]);
-        renderCustomerDashboard();
-      } else {
-        pendingRegistrationPhone = phone;
-        document.getElementById("newMemberForm").classList.remove("hidden");
+      section.classList.remove("hidden");
+      if (countLabel) {
+        countLabel.textContent = `${activeAds.length} Active Sponsor${activeAds.length > 1 ? "s" : ""}`;
       }
+
+      const buildCard = (ad) => {
+        const prio = Number(ad.priority || 2);
+        const badgeStyle =
+          prio === 1
+            ? "bg-amber-600 text-white"
+            : prio === 2
+            ? "bg-emerald-700 text-white"
+            : "bg-slate-700 text-white";
+        const prioLabel =
+          prio === 1 ? "VIP Sponsor • #1" : prio === 2 ? "Featured Partner" : "Community Partner";
+        const initials = escapeHtml((ad.businessName || "AD").slice(0, 2).toUpperCase());
+        const validDate = new Date(parseValidTimestamp(ad.expiresAt, now)).toLocaleDateString();
+
+        return `
+          <div class="shrink-0 w-80 sm:w-96 rounded-2xl bg-white border border-amber-200/90 p-3.5 shadow-2xs flex items-center gap-3.5">
+            <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-900 font-black text-base flex items-center justify-center shrink-0">
+              ${initials}
+            </div>
+            <div class="min-w-0 flex-1 space-y-0.5">
+              <div class="flex items-center justify-between gap-1.5">
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wider ${badgeStyle}">
+                  ${prioLabel}
+                </span>
+                <span class="text-[10px] font-semibold text-slate-400">Thru ${validDate}</span>
+              </div>
+              <p class="text-sm font-black text-slate-900 truncate">${escapeHtml(ad.businessName)}</p>
+              <p class="text-[11px] font-medium text-slate-600 truncate">${escapeHtml(ad.address)}</p>
+              <p class="text-xs font-extrabold text-emerald-700">Call: ${escapeHtml(ad.phone)}</p>
+            </div>
+          </div>
+        `;
+      };
+
+      const singlePassHtml = activeAds.map(buildCard).join("");
+      track.innerHTML = singlePassHtml + singlePassHtml;
+      const durationSeconds = Math.max(22, activeAds.length * 14);
+      track.style.setProperty("--marquee-duration", `${durationSeconds}s`);
+    }
+
+    // Customer Lookup, Registration (with +25 Welcome + 25 Referral) & Dashboard
+    window.showLoginView = function () {
+      activeCustomerPhone = null;
+      pendingRegisterPhone = null;
+      document.getElementById("loginView").classList.remove("hidden");
+      document.getElementById("registerView").classList.add("hidden");
+      document.getElementById("dashboardView").classList.add("hidden");
+      document.getElementById("loginMessage").classList.add("hidden");
     };
 
-    window.cancelRegistrationForm = function () {
-      pendingRegistrationPhone = "";
-      document.getElementById("newMemberForm").classList.add("hidden");
+    window.signOutCustomer = function () {
+      document.getElementById("loginPhoneInput").value = "";
+      showLoginView();
+    };
+
+    window.handleCustomerLookup = async function (event) {
+      event.preventDefault();
+      const raw = document.getElementById("loginPhoneInput").value;
+      const digits = normalizePhone(raw);
+      const msgEl = document.getElementById("loginMessage");
+
+      if (digits.length !== 10) {
+        msgEl.textContent = "Please enter a valid 10-digit mobile phone number.";
+        msgEl.classList.remove("hidden");
+        return;
+      }
+      msgEl.classList.add("hidden");
+
+      if (customersMap[digits]) {
+        activeCustomerPhone = digits;
+        const evalRes = evaluateCustomerPointsPolicy(customersMap[digits]);
+        if (evalRes && evalRes.changed) {
+          await persistCustomerToCloud(evalRes.customer);
+        }
+        renderCustomerDashboard();
+      } else {
+        pendingRegisterPhone = digits;
+        document.getElementById("registerPhoneDisplay").textContent = formatPhone(digits);
+        document.getElementById("registerNameInput").value = "";
+        document.getElementById("registerReferralInput").value = "";
+        document.getElementById("registerErrorMsg").classList.add("hidden");
+        document.getElementById("loginView").classList.add("hidden");
+        document.getElementById("registerView").classList.remove("hidden");
+      }
     };
 
     window.handleNewMemberRegister = async function (event) {
       event.preventDefault();
-      const name = document.getElementById("regNameInput").value.trim();
-      const refPhone = normalizePhone(document.getElementById("regReferralPhoneInput").value);
-      const phone = pendingRegistrationPhone || normalizePhone(document.getElementById("loginPhoneInput").value);
-      if (!name || phone.length !== 10) return;
+      if (!pendingRegisterPhone) return;
+
+      const fullName = document.getElementById("registerNameInput").value.trim();
+      const refDigits = normalizePhone(document.getElementById("registerReferralInput").value);
+      const errEl = document.getElementById("registerErrorMsg");
+
+      if (!fullName) {
+        errEl.textContent = "Please enter your full name.";
+        errEl.classList.remove("hidden");
+        return;
+      }
+
+      if (refDigits && refDigits === pendingRegisterPhone) {
+        errEl.textContent = "You cannot use your own mobile number as a referral.";
+        errEl.classList.remove("hidden");
+        return;
+      }
 
       const now = Date.now();
-      let startingPoints = 25;
+      const todayStr = new Date(now).toLocaleDateString();
       const history = [
         {
-          type: "WELCOME",
-          label: "New Member Registration Bonus",
+          title: "Welcome Bonus (New VIP Registration)",
           points: 25,
-          date: new Date(now).toLocaleDateString()
+          date: todayStr
         }
       ];
+      let startingPoints = 25;
 
-      // Check valid referrer (must be an existing member and not self)
-      if (refPhone && refPhone.length === 10 && refPhone !== phone && customersMap[refPhone]) {
+      // Referral Bonus: +25 to new registrant + 25 to referring friend
+      if (refDigits.length === 10 && customersMap[refDigits]) {
         startingPoints += 25;
         history.unshift({
-          type: "REFERRAL_BONUS",
-          label: `Friend Referral Bonus (Referred by ${formatPhoneDisplay(refPhone)})`,
+          title: `Friend Referral Bonus (Referred by ${formatPhone(refDigits)})`,
           points: 25,
-          date: new Date(now).toLocaleDateString()
+          date: todayStr
         });
 
-        const referrer = customersMap[refPhone];
-        const updatedReferrer = {
-          ...referrer,
-          points: Number(referrer.points || 0) + 25,
-          lastActivity: now,
-          expiresAt: now + NINETY_DAYS_MS,
-          history: [
-            {
-              type: "FRIEND_REFERRED",
-              label: `Referral Reward (${name} joined)`,
-              points: 25,
-              date: new Date(now).toLocaleDateString()
-            },
-            ...(Array.isArray(referrer.history) ? referrer.history : [])
-          ]
-        };
+        const referrer = customersMap[refDigits];
+        const refEval = evaluateCustomerPointsPolicy(referrer);
+        const updatedReferrer = refEval ? refEval.customer : referrer;
+        updatedReferrer.points = Number(updatedReferrer.points || 0) + 25;
+        updatedReferrer.lastActivity = now;
+        updatedReferrer.expiresAt = now + NINETY_DAYS_MS;
+        updatedReferrer.history = [
+          {
+            title: `Friend Referral Reward (${fullName} • ${formatPhone(pendingRegisterPhone)})`,
+            points: 25,
+            date: todayStr
+          },
+          ...(Array.isArray(updatedReferrer.history) ? updatedReferrer.history : [])
+        ];
         await persistCustomerToCloud(updatedReferrer);
       }
 
       const newCustomer = {
-        phone,
-        name,
+        phone: pendingRegisterPhone,
+        name: fullName,
         points: startingPoints,
         createdAt: now,
         lastActivity: now,
@@ -1248,88 +1208,80 @@
 
       await persistCustomerToCloud(newCustomer);
 
-      await sendAutomatedBackgroundEmail({
-        toEmail: storeConfig.storeEmail || "hanallc07@gmail.com",
+      const ownerEmail = storeConfig.storeEmail || "hanallc07@gmail.com";
+      const refDisplay = refDigits.length === 10 ? formatPhone(refDigits) : "None";
+      await dispatchWelcomeOrAlertEmail({
+        businessName: `New Customer Registration: ${fullName}`,
+        toEmail: ownerEmail,
         ccEmail: "",
-        subject: `New Rexall VIP Member: ${name} (${formatPhoneDisplay(phone)})`,
-        messageBody: `New VIP Member Registered:\nName: ${name}\nPhone: ${formatPhoneDisplay(phone)}\nStarting Points: ${startingPoints} pts`
+        subject: `New VIP Customer Registered: ${fullName} (${formatPhone(pendingRegisterPhone)})`,
+        messageBody:
+          `A new customer registered on Rexall Discount Reward:\n\n` +
+          `• Name: ${fullName}\n` +
+          `• Mobile Number: ${formatPhone(pendingRegisterPhone)}\n` +
+          `• Starting Points: ${startingPoints} pts ($${(startingPoints / 100).toFixed(2)} credit value)\n` +
+          `• Referred By: ${refDisplay}\n` +
+          `• Registered Date: ${new Date(now).toLocaleString()}\n` +
+          `• Points 90-Day Cycle Expiry: ${new Date(newCustomer.expiresAt).toLocaleDateString()}\n\n` +
+          `Store Links:\n` +
+          `• GitHub Pages: ${STORE_APP_LINKS.github}\n` +
+          `• Cloudflare: ${STORE_APP_LINKS.cloudflare}\n` +
+          `• Netlify: ${STORE_APP_LINKS.netlify}`
       });
 
-      currentCustomerPhone = phone;
-      pendingRegistrationPhone = "";
-      localStorage.setItem("rexall_current_phone", phone);
-      document.getElementById("newMemberForm").classList.add("hidden");
-      document.getElementById("regNameInput").value = "";
-      document.getElementById("regReferralPhoneInput").value = "";
+      activeCustomerPhone = pendingRegisterPhone;
+      pendingRegisterPhone = null;
       renderCustomerDashboard();
     };
 
-    window.signOutCustomer = function () {
-      currentCustomerPhone = "";
-      localStorage.removeItem("rexall_current_phone");
-      document.getElementById("customerDashboardSection").classList.add("hidden");
-      document.getElementById("customerAuthSection").classList.remove("hidden");
-      document.getElementById("loginPhoneInput").value = "";
-    };
+    function renderCustomerDashboard() {
+      if (!activeCustomerPhone || !customersMap[activeCustomerPhone]) return;
+      const evalRes = evaluateCustomerPointsPolicy(customersMap[activeCustomerPhone]);
+      const cust = evalRes.customer;
 
-    async function renderCustomerDashboard() {
-      const authSec = document.getElementById("customerAuthSection");
-      const dashSec = document.getElementById("customerDashboardSection");
-      if (!currentCustomerPhone || !customersMap[currentCustomerPhone]) {
-        authSec.classList.remove("hidden");
-        dashSec.classList.add("hidden");
-        return;
-      }
+      document.getElementById("loginView").classList.add("hidden");
+      document.getElementById("registerView").classList.add("hidden");
+      document.getElementById("dashboardView").classList.remove("hidden");
 
-      const customer = await evaluateCustomerExpiry(customersMap[currentCustomerPhone]);
-      if (!customer) return;
-
-      authSec.classList.add("hidden");
-      dashSec.classList.remove("hidden");
-
-      const pts = Math.max(0, Number(customer.points || 0));
+      const pts = Math.max(0, Number(cust.points || 0));
       const creditDollars = (pts / 100).toFixed(2);
-      const baseMs = parseTimestampMs(customer.lastActivity || customer.createdAt, Date.now());
-      const ninetyExpiryDate = new Date(baseMs + NINETY_DAYS_MS);
-      const daysRemaining = Math.max(0, Math.ceil((ninetyExpiryDate.getTime() - Date.now()) / (24 * 60 * 60 * 1000)));
+      const redeemableHundreds = Math.floor(pts / 100) * 100;
+      const redeemableDollars = (redeemableHundreds / 100).toFixed(2);
+      const ptsNeededForNextDollar = 100 - (pts % 100);
 
-      document.getElementById("dashCustomerName").textContent = customer.name;
-      document.getElementById("dashCustomerPhone").textContent = formatPhoneDisplay(customer.phone);
-      document.getElementById("dashAvailablePoints").textContent = pts;
-      document.getElementById("dashCreditValue").textContent = `$${creditDollars}`;
+      document.getElementById("dashCustomerName").textContent = cust.name;
+      document.getElementById("dashCustomerPhone").textContent = formatPhone(cust.phone);
+      document.getElementById("dashCustomerPoints").textContent = pts.toLocaleString();
+      document.getElementById("dashCustomerCredit").textContent = `$${creditDollars}`;
 
-      const qualBanner = document.getElementById("dashQualificationBanner");
-      if (qualBanner) {
-        const redeemableBlocks = Math.floor(pts / 100);
-        if (redeemableBlocks >= 1) {
-          qualBanner.textContent = `You qualify for $${redeemableBlocks.toFixed(2)} Off (${redeemableBlocks * 100} pts)! Ask cashier at checkout to redeem.`;
-        } else {
-          const needed = 100 - pts;
-          qualBanner.textContent = `You have ${pts} pts — ${needed} more pts to qualify for $1.00 Off store credit (cashier redeems at checkout).`;
-        }
+      const qualEl = document.getElementById("dashQualificationBanner");
+      if (redeemableHundreds >= 100) {
+        qualEl.innerHTML = `You currently qualify for <strong>$${redeemableDollars} Store Credit (${redeemableHundreds} pts)</strong>! Ask the cashier at checkout to redeem your points.`;
+      } else {
+        qualEl.innerHTML = `You have <strong>${pts} pts</strong>. Earn <strong>${ptsNeededForNextDollar} more pts</strong> ($${(ptsNeededForNextDollar / 2).toFixed(2)} spend) to unlock your next <strong>$1.00 Off</strong> store credit!`;
       }
 
-      document.getElementById("dashExpiryInfo").textContent =
-        `Points expire in ${daysRemaining} days (${ninetyExpiryDate.toLocaleDateString()}) • -25 pts per 90d inactive`;
+      const expDateStr = new Date(evalRes.nextExpiryMs).toLocaleDateString();
+      document.getElementById("dashExpiryNotice").textContent =
+        `Points expire in ${evalRes.daysLeft} days (${expDateStr}) • -25 pts per 90d inactive`;
 
-      const historyListEl = document.getElementById("dashHistoryList");
-      const items = Array.isArray(customer.history) ? customer.history : [];
-      if (!items.length) {
-        historyListEl.innerHTML = `<p class="py-4 text-xs text-slate-500">No points activity recorded yet.</p>`;
+      const histList = document.getElementById("dashHistoryList");
+      const history = Array.isArray(cust.history) ? cust.history : [];
+      if (!history.length) {
+        histList.innerHTML = `<p class="py-4 text-xs text-slate-500">No points activity recorded yet.</p>`;
       } else {
-        historyListEl.innerHTML = items
+        histList.innerHTML = history
           .map((item) => {
-            const pVal = Number(item.points || 0);
-            const isPositive = pVal >= 0;
+            const p = Number(item.points || 0);
+            const sign = p >= 0 ? "+" : "";
+            const color = p >= 0 ? "text-emerald-700" : "text-rose-600";
             return `
               <div class="py-3 flex items-center justify-between gap-3">
                 <div>
-                  <p class="text-xs sm:text-sm font-bold text-slate-900">${escapeHtml(item.label || "Points Activity")}</p>
+                  <p class="text-xs sm:text-sm font-bold text-slate-900">${escapeHtml(item.title || "Points Activity")}</p>
                   <p class="text-[11px] text-slate-400">${escapeHtml(item.date || "")}</p>
                 </div>
-                <span class="text-xs sm:text-sm font-extrabold ${isPositive ? "text-emerald-600" : "text-rose-600"}">
-                  ${isPositive ? "+" : ""}${pVal} pts
-                </span>
+                <span class="text-xs sm:text-sm font-black ${color}">${sign}${p} pts</span>
               </div>
             `;
           })
@@ -1337,40 +1289,39 @@
       }
     }
 
-    // Admin Modal & Two-Step Verification
+    // Two-Step Admin Verification & Tab Controls
     window.openAdminModal = function () {
-      document.getElementById("adminConsoleModal").classList.remove("hidden");
-      if (isAdminUnlocked) {
-        document.getElementById("adminPinLockScreen").classList.add("hidden");
-        document.getElementById("adminUnlockedBody").classList.remove("hidden");
-        refreshAllViews();
-      } else {
-        document.getElementById("adminPinLockScreen").classList.remove("hidden");
+      document.getElementById("adminModal").classList.remove("hidden");
+      if (!isAdminUnlocked) {
+        document.getElementById("adminLockScreen").classList.remove("hidden");
         document.getElementById("adminUnlockedBody").classList.add("hidden");
+        document.getElementById("adminPinError").classList.add("hidden");
         document.getElementById("adminNameInput").value = "";
         document.getElementById("adminPinInput").value = "";
-        document.getElementById("adminPinError").classList.add("hidden");
+      } else {
+        refreshAdminViews();
       }
     };
 
     window.closeAdminModal = function () {
-      document.getElementById("adminConsoleModal").classList.add("hidden");
+      document.getElementById("adminModal").classList.add("hidden");
     };
 
     window.unlockAdminConsole = function (event) {
       event.preventDefault();
-      const enteredName = (document.getElementById("adminNameInput").value || "").trim().toLowerCase();
-      const enteredPin = (document.getElementById("adminPinInput").value || "").trim();
-      const validName = (storeConfig.adminName || "aaravarayah").trim().toLowerCase();
-      const validPin = (storeConfig.adminPin || "123456").trim();
+      const enteredName = document.getElementById("adminNameInput").value.trim().toLowerCase();
+      const enteredPin = document.getElementById("adminPinInput").value.trim();
+
+      const validName = String(storeConfig.adminName || "aaravarayah").trim().toLowerCase();
+      const validPin = String(storeConfig.adminPin || "123456").trim();
 
       if (enteredName === validName && enteredPin === validPin) {
         isAdminUnlocked = true;
         document.getElementById("adminPinError").classList.add("hidden");
-        document.getElementById("adminPinLockScreen").classList.add("hidden");
+        document.getElementById("adminLockScreen").classList.add("hidden");
         document.getElementById("adminUnlockedBody").classList.remove("hidden");
         populateSettingsInputs();
-        refreshAllViews();
+        refreshAdminViews();
       } else {
         document.getElementById("adminPinError").classList.remove("hidden");
       }
@@ -1378,44 +1329,60 @@
 
     window.switchAdminTab = function (tabName) {
       const tabs = {
-        customers: { btn: "tabBtnCustomers", panel: "adminTabCustomers" },
-        ads: { btn: "tabBtnAds", panel: "adminTabAds" },
-        emails: { btn: "tabBtnEmails", panel: "adminTabEmails" }
+        customers: ["adminTabCustomers", "tabBtnCustomers"],
+        ads: ["adminTabAds", "tabBtnAds"],
+        email: ["adminTabEmail", "tabBtnEmail"]
       };
-      Object.entries(tabs).forEach(([key, ids]) => {
-        const btn = document.getElementById(ids.btn);
-        const panel = document.getElementById(ids.panel);
-        if (!btn || !panel) return;
+      Object.entries(tabs).forEach(([key, [panelId, btnId]]) => {
+        const panel = document.getElementById(panelId);
+        const btn = document.getElementById(btnId);
         if (key === tabName) {
-          btn.className = "px-4 py-2.5 rounded-t-xl text-xs font-extrabold border-b-2 border-emerald-600 text-emerald-700 bg-white whitespace-nowrap";
           panel.classList.remove("hidden");
+          btn.className = "px-4 py-2 rounded-xl text-xs font-extrabold bg-slate-900 text-white transition";
         } else {
-          btn.className = "px-4 py-2.5 rounded-t-xl text-xs font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap";
           panel.classList.add("hidden");
+          btn.className = "px-4 py-2 rounded-xl text-xs font-extrabold bg-slate-100 text-slate-700 hover:bg-slate-200 transition";
         }
       });
     };
 
-    // Tab 1: Cashier POS, Admin-Only Redemption, Admin-Only Phone Update & Full History
-    function renderAdminCustomerList() {
+    function refreshAdminViews() {
+      renderAdminCustomerList();
+      renderSelectedAdminCustomerBox();
+      renderAdminAdsList();
+      renderEmailLogs();
+    }
+
+    function refreshAllViews() {
+      renderScrollingLocalAds();
+      if (activeCustomerPhone && customersMap[activeCustomerPhone]) {
+        renderCustomerDashboard();
+      }
+      if (isAdminUnlocked) {
+        refreshAdminViews();
+      }
+    }
+
+    // Tab 1: Cashier POS, Admin Redemption, Admin Phone Edit & Full Customer Transaction History
+    window.renderAdminCustomerList = function () {
       const listEl = document.getElementById("adminCustomerList");
-      const countEl = document.getElementById("adminCustomerCount");
+      const badgeEl = document.getElementById("totalMembersBadge");
       if (!listEl) return;
 
       const query = (document.getElementById("adminCustomerSearch")?.value || "").trim().toLowerCase();
-      const all = Object.values(customersMap).sort((a, b) => (b.lastActivity || 0) - (a.lastActivity || 0));
-      if (countEl) countEl.textContent = `${all.length} Member${all.length === 1 ? "" : "s"}`;
+      const allCustomers = Object.values(customersMap).sort((a, b) => (b.lastActivity || 0) - (a.lastActivity || 0));
+      if (badgeEl) badgeEl.textContent = `${allCustomers.length} Member${allCustomers.length === 1 ? "" : "s"}`;
 
-      const filtered = query
-        ? all.filter(
-            (c) =>
-              (c.name || "").toLowerCase().includes(query) ||
-              (c.phone || "").includes(query.replace(/\D/g, ""))
-          )
-        : all;
+      const filtered = allCustomers.filter((c) => {
+        if (!query) return true;
+        return (
+          String(c.name || "").toLowerCase().includes(query) ||
+          String(c.phone || "").includes(query.replace(/\D/g, ""))
+        );
+      });
 
       if (!filtered.length) {
-        listEl.innerHTML = `<p class="p-4 text-xs text-slate-500 text-center">No matching VIP members found.</p>`;
+        listEl.innerHTML = `<p class="p-4 text-xs text-slate-500 text-center">No matching customers found.</p>`;
         return;
       }
 
@@ -1429,16 +1396,18 @@
                 isSelected ? "bg-emerald-50" : "hover:bg-slate-50"
               }"
             >
-              <div>
-                <p class="text-xs font-extrabold text-slate-900">${escapeHtml(c.name)}</p>
-                <p class="text-[11px] text-slate-500">${formatPhoneDisplay(c.phone)}</p>
+              <div class="min-w-0">
+                <p class="text-xs font-extrabold text-slate-900 truncate">${escapeHtml(c.name)}</p>
+                <p class="text-[11px] font-semibold text-slate-500">${formatPhone(c.phone)}</p>
               </div>
-              <div class="flex items-center gap-2">
-                <span class="text-xs font-black text-emerald-700">${Number(c.points || 0)} pts</span>
+              <div class="flex items-center gap-2 shrink-0">
+                <span class="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-900 text-[11px] font-black">
+                  ${Number(c.points || 0)} pts
+                </span>
                 <button
                   type="button"
-                  onclick="event.stopPropagation(); deleteCustomerFromAdmin('${c.phone}')"
-                  class="px-2 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 text-[10px] font-bold"
+                  onclick="event.stopPropagation(); adminDeleteCustomer('${c.phone}')"
+                  class="px-2 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 text-[10px] font-extrabold"
                 >
                   Delete
                 </button>
@@ -1447,60 +1416,64 @@
           `;
         })
         .join("");
-    }
-    window.renderAdminCustomerList = renderAdminCustomerList;
-
-    window.selectAdminCustomer = function (phone) {
-      selectedAdminCustomerPhone = normalizePhone(phone);
-      const feedbackEl = document.getElementById("posPhoneUpdateFeedback");
-      if (feedbackEl) feedbackEl.classList.add("hidden");
-      renderSelectedAdminCustomerPanel();
-      renderAdminCustomerList();
     };
 
-    function renderSelectedAdminCustomerPanel() {
-      const hint = document.getElementById("posNoSelectionHint");
-      const panel = document.getElementById("posActionPanel");
+    window.selectAdminCustomer = function (phone) {
+      selectedAdminCustomerPhone = phone;
+      renderAdminCustomerList();
+      renderSelectedAdminCustomerBox();
+    };
+
+    function renderSelectedAdminCustomerBox() {
+      const box = document.getElementById("posSelectedCustomerBox");
+      const historyPanel = document.getElementById("adminCustomerHistoryPanel");
+      const historyList = document.getElementById("adminCustomerHistoryList");
+      const historyTitle = document.getElementById("adminHistoryPanelTitle");
+      const historyBadge = document.getElementById("adminHistoryCountBadge");
+      if (!box) return;
+
       if (!selectedAdminCustomerPhone || !customersMap[selectedAdminCustomerPhone]) {
-        if (hint) hint.classList.remove("hidden");
-        if (panel) panel.classList.add("hidden");
+        box.innerHTML = `Click any customer on the left to add points, redeem store credit, update their phone number, or inspect their full transaction history.`;
+        if (historyPanel) historyPanel.classList.add("hidden");
         return;
       }
 
-      const c = customersMap[selectedAdminCustomerPhone];
-      if (hint) hint.classList.add("hidden");
-      if (panel) panel.classList.remove("hidden");
+      const cust = customersMap[selectedAdminCustomerPhone];
+      const pts = Number(cust.points || 0);
+      box.innerHTML = `
+        <div class="flex items-center justify-between gap-2">
+          <div>
+            <p class="text-sm font-black text-slate-900">${escapeHtml(cust.name)}</p>
+            <p class="text-xs font-semibold text-slate-600">${formatPhone(cust.phone)}</p>
+          </div>
+          <div class="text-right">
+            <p class="text-base font-black text-emerald-700">${pts} pts</p>
+            <p class="text-[11px] font-bold text-amber-700">$${(pts / 100).toFixed(2)} Credit</p>
+          </div>
+        </div>
+      `;
 
-      const baseMs = parseTimestampMs(c.lastActivity || c.createdAt, Date.now());
-      const expDate = new Date(baseMs + NINETY_DAYS_MS);
-      const daysLeft = Math.max(0, Math.ceil((expDate.getTime() - Date.now()) / (24 * 60 * 60 * 1000)));
+      if (historyPanel && historyList) {
+        historyPanel.classList.remove("hidden");
+        const history = Array.isArray(cust.history) ? cust.history : [];
+        if (historyTitle) historyTitle.textContent = `Transaction History — ${cust.name} (${formatPhone(cust.phone)})`;
+        if (historyBadge) historyBadge.textContent = `${history.length} record${history.length === 1 ? "" : "s"}`;
 
-      document.getElementById("posSelectedName").textContent = c.name;
-      document.getElementById("posSelectedPhone").textContent = formatPhoneDisplay(c.phone);
-      document.getElementById("posSelectedPoints").textContent = `${Number(c.points || 0)} pts`;
-      document.getElementById("posSelectedExpiry").textContent = `Expires in ${daysLeft} days (${expDate.toLocaleDateString()})`;
-
-      const posHistoryEl = document.getElementById("posSelectedHistoryList");
-      const posCountEl = document.getElementById("posHistoryCountBadge");
-      const records = Array.isArray(c.history) ? c.history : [];
-      if (posCountEl) posCountEl.textContent = `${records.length} record${records.length === 1 ? "" : "s"}`;
-      if (posHistoryEl) {
-        if (!records.length) {
-          posHistoryEl.innerHTML = `<p class="py-3 text-xs text-slate-500">No transaction history yet.</p>`;
+        if (!history.length) {
+          historyList.innerHTML = `<p class="py-3 text-xs text-slate-500">No transaction records yet.</p>`;
         } else {
-          posHistoryEl.innerHTML = records
+          historyList.innerHTML = history
             .map((item) => {
-              const ptsVal = Number(item.points || 0);
-              const isPos = ptsVal >= 0;
+              const p = Number(item.points || 0);
+              const sign = p >= 0 ? "+" : "";
+              const color = p >= 0 ? "text-emerald-700" : "text-rose-600";
               return `
-                <div class="py-2 flex items-center justify-between gap-2">
+                <div class="py-2.5 flex items-center justify-between gap-2 text-xs">
                   <div>
-                    <p class="text-xs font-bold text-slate-900">${escapeHtml(item.label || "Activity")}</p>
-                    <p class="text-[10px] text-slate-500">${escapeHtml(item.date || "")}</p>
+                    <p class="font-bold text-slate-900">${escapeHtml(item.title || "Activity")}</p>
+                    <p class="text-[10px] text-slate-400">${escapeHtml(item.date || "")}</p>
                   </div>
-                  <span class="text-xs font-extrabold ${isPos ? "text-emerald-600" : "text-rose-600"}">
-                    ${isPos ? "+" : ""}${ptsVal} pts
-                  </span>
+                  <span class="font-black ${color}">${sign}${p} pts</span>
                 </div>
               `;
             })
@@ -1509,317 +1482,339 @@
       }
     }
 
-    window.handlePosAddPurchase = async function (event) {
-      event.preventDefault();
-      if (!selectedAdminCustomerPhone || !customersMap[selectedAdminCustomerPhone]) return;
-      const dollars = parseFloat(document.getElementById("posPurchaseDollars").value || "0");
-      if (!(dollars > 0)) return;
+    window.adminAddPurchasePoints = async function () {
+      const statusEl = document.getElementById("posStatusMsg");
+      if (!selectedAdminCustomerPhone || !customersMap[selectedAdminCustomerPhone]) {
+        statusEl.textContent = "Select a customer from the left list first.";
+        statusEl.classList.remove("hidden");
+        return;
+      }
 
-      const earnedPts = Math.round(dollars * 2);
+      const dollars = parseFloat(document.getElementById("posPurchaseDollars").value);
+      if (Number.isNaN(dollars) || dollars <= 0) {
+        statusEl.textContent = "Enter a valid purchase dollar amount.";
+        statusEl.classList.remove("hidden");
+        return;
+      }
+
+      const earnedPts = Math.floor(dollars * 2);
+      const cust = customersMap[selectedAdminCustomerPhone];
       const now = Date.now();
-      const c = customersMap[selectedAdminCustomerPhone];
-      const updated = {
-        ...c,
-        points: Number(c.points || 0) + earnedPts,
-        lastActivity: now,
-        expiresAt: now + NINETY_DAYS_MS,
-        history: [
-          {
-            type: "PURCHASE",
-            label: `In-Store Purchase ($${dollars.toFixed(2)})`,
-            points: earnedPts,
-            date: new Date(now).toLocaleDateString()
-          },
-          ...(Array.isArray(c.history) ? c.history : [])
-        ]
-      };
+      cust.points = Number(cust.points || 0) + earnedPts;
+      cust.lastActivity = now;
+      cust.expiresAt = now + NINETY_DAYS_MS;
+      cust.history = [
+        {
+          title: `In-Store Purchase ($${dollars.toFixed(2)})`,
+          points: earnedPts,
+          date: new Date(now).toLocaleDateString()
+        },
+        ...(Array.isArray(cust.history) ? cust.history : [])
+      ];
 
+      await persistCustomerToCloud(cust);
       document.getElementById("posPurchaseDollars").value = "";
-      await persistCustomerToCloud(updated);
+      statusEl.textContent = `Added +${earnedPts} pts ($${dollars.toFixed(2)}) to ${cust.name} and synced across all 3 web apps.`;
+      statusEl.classList.remove("hidden");
       refreshAllViews();
     };
 
-    window.handlePosRedeem = async function (event) {
-      event.preventDefault();
-      if (!selectedAdminCustomerPhone || !customersMap[selectedAdminCustomerPhone]) return;
-      const redeemPts = parseInt(document.getElementById("posRedeemPointsInput").value || "0", 10);
-      const c = customersMap[selectedAdminCustomerPhone];
-      if (redeemPts < 100 || redeemPts % 100 !== 0 || Number(c.points || 0) < redeemPts) return;
+    window.adminRedeemPoints = async function () {
+      const statusEl = document.getElementById("posStatusMsg");
+      if (!selectedAdminCustomerPhone || !customersMap[selectedAdminCustomerPhone]) {
+        statusEl.textContent = "Select a customer from the left list first.";
+        statusEl.classList.remove("hidden");
+        return;
+      }
 
-      const dollarOff = (redeemPts / 100).toFixed(2);
+      const redeemPts = parseInt(document.getElementById("posRedeemPointsInput").value, 10);
+      const cust = customersMap[selectedAdminCustomerPhone];
+      if (Number.isNaN(redeemPts) || redeemPts < 100 || redeemPts % 100 !== 0) {
+        statusEl.textContent = "Enter points to redeem in multiples of 100 (e.g. 100, 200).";
+        statusEl.classList.remove("hidden");
+        return;
+      }
+      if (Number(cust.points || 0) < redeemPts) {
+        statusEl.textContent = `${cust.name} only has ${cust.points || 0} points available.`;
+        statusEl.classList.remove("hidden");
+        return;
+      }
+
+      const creditOff = (redeemPts / 100).toFixed(2);
       const now = Date.now();
-      const updated = {
-        ...c,
-        points: Number(c.points || 0) - redeemPts,
-        lastActivity: now,
-        expiresAt: now + NINETY_DAYS_MS,
-        history: [
-          {
-            type: "REDEEM",
-            label: `Redeemed $${dollarOff} Store Credit (Cashier POS)`,
-            points: -redeemPts,
-            date: new Date(now).toLocaleDateString()
-          },
-          ...(Array.isArray(c.history) ? c.history : [])
-        ]
-      };
+      cust.points = Number(cust.points || 0) - redeemPts;
+      cust.lastActivity = now;
+      cust.expiresAt = now + NINETY_DAYS_MS;
+      cust.history = [
+        {
+          title: `Store Credit Redeemed ($${creditOff} Off at Register)`,
+          points: -redeemPts,
+          date: new Date(now).toLocaleDateString()
+        },
+        ...(Array.isArray(cust.history) ? cust.history : [])
+      ];
 
+      await persistCustomerToCloud(cust);
       document.getElementById("posRedeemPointsInput").value = "";
-      await persistCustomerToCloud(updated);
+      statusEl.textContent = `Redeemed ${redeemPts} pts ($${creditOff} Off) for ${cust.name} and updated their account.`;
+      statusEl.classList.remove("hidden");
       refreshAllViews();
     };
 
-    window.handleAdminUpdateCustomerPhone = async function (event) {
-      event.preventDefault();
-      if (!selectedAdminCustomerPhone || !customersMap[selectedAdminCustomerPhone]) return;
-      const feedbackEl = document.getElementById("posPhoneUpdateFeedback");
-      const newPhone = normalizePhone(document.getElementById("posNewPhoneInput")?.value || "");
-
-      if (newPhone.length !== 10) {
-        if (feedbackEl) {
-          feedbackEl.textContent = "Please enter a valid 10-digit phone number.";
-          feedbackEl.className = "text-[11px] font-bold text-rose-600";
-        }
+    window.adminUpdateCustomerPhone = async function () {
+      const statusEl = document.getElementById("posStatusMsg");
+      if (!selectedAdminCustomerPhone || !customersMap[selectedAdminCustomerPhone]) {
+        statusEl.textContent = "Select a customer from the left list first.";
+        statusEl.classList.remove("hidden");
         return;
       }
 
-      if (newPhone === selectedAdminCustomerPhone) {
-        if (feedbackEl) {
-          feedbackEl.textContent = "This is already the customer's current phone number.";
-          feedbackEl.className = "text-[11px] font-bold text-amber-700";
-        }
+      const newDigits = normalizePhone(document.getElementById("adminNewCustomerPhoneInput").value);
+      if (newDigits.length !== 10) {
+        statusEl.textContent = "Enter a valid 10-digit new mobile phone number.";
+        statusEl.classList.remove("hidden");
         return;
       }
-
-      if (customersMap[newPhone]) {
-        if (feedbackEl) {
-          feedbackEl.textContent = `Phone ${formatPhoneDisplay(newPhone)} already belongs to ${customersMap[newPhone].name}.`;
-          feedbackEl.className = "text-[11px] font-bold text-rose-600";
-        }
+      if (newDigits === selectedAdminCustomerPhone) {
+        statusEl.textContent = "That is already the customer's current mobile number.";
+        statusEl.classList.remove("hidden");
+        return;
+      }
+      if (customersMap[newDigits]) {
+        statusEl.textContent = "Another customer account already uses that mobile number.";
+        statusEl.classList.remove("hidden");
         return;
       }
 
       const oldPhone = selectedAdminCustomerPhone;
-      const existing = customersMap[oldPhone];
-      const updatedCustomer = {
-        ...existing,
-        phone: newPhone,
-        history: [
-          {
-            type: "PHONE_UPDATED",
-            label: `Phone updated by Store Admin (${formatPhoneDisplay(oldPhone)} → ${formatPhoneDisplay(newPhone)})`,
-            points: 0,
-            date: new Date().toLocaleDateString()
-          },
-          ...(Array.isArray(existing.history) ? existing.history : [])
-        ]
-      };
-
-      await persistCustomerToCloud(updatedCustomer);
-      await deleteCustomerFromCloud(oldPhone);
-
-      selectedAdminCustomerPhone = newPhone;
-      if (currentCustomerPhone === oldPhone) {
-        currentCustomerPhone = newPhone;
-        localStorage.setItem("rexall_current_phone", newPhone);
-      }
-
-      document.getElementById("posNewPhoneInput").value = "";
-      if (feedbackEl) {
-        feedbackEl.textContent = `Updated to ${formatPhoneDisplay(newPhone)} & synced across all 3 apps!`;
-        feedbackEl.className = "text-[11px] font-bold text-emerald-700";
-      }
-      refreshAllViews();
-    };
-
-    window.deleteCustomerFromAdmin = async function (phone) {
-      const clean = normalizePhone(phone);
-      if (!clean) return;
-      await deleteCustomerFromCloud(clean);
-      if (selectedAdminCustomerPhone === clean) selectedAdminCustomerPhone = "";
-      if (currentCustomerPhone === clean) signOutCustomer();
-      refreshAllViews();
-    };
-
-    window.handleDeleteSelectedCustomer = async function () {
-      if (!selectedAdminCustomerPhone) return;
-      await deleteCustomerFromAdmin(selectedAdminCustomerPhone);
-    };
-
-    // Tab 2: Local Business Subscriptions & Auto-Takeover Spotlight
-    window.updateSubscriptionPriceFromDuration = function () {
-      const days = parseInt(document.getElementById("subDurationSelect").value || "30", 10);
-      const priceMap = { 30: "50.00", 60: "90.00", 90: "125.00", 365: "400.00" };
-      document.getElementById("subAmountPaid").value = priceMap[days] || "50.00";
-    };
-
-    window.handleAddBusinessSubscription = async function (event) {
-      event.preventDefault();
-      const businessName = document.getElementById("subBusinessName").value.trim();
-      const businessEmail = document.getElementById("subBusinessEmail").value.trim();
-      const businessPhone = document.getElementById("subBusinessPhone").value.trim();
-      const ccEmail = document.getElementById("subCcEmail").value.trim() || storeConfig.storeEmail || "hanallc07@gmail.com";
-      const durationDays = parseInt(document.getElementById("subDurationSelect").value || "30", 10);
-      const amountPaid = parseFloat(document.getElementById("subAmountPaid").value || "50").toFixed(2);
-      const paymentMethod = document.getElementById("subPaymentMethod").value;
-      const headline = document.getElementById("subHeadline").value.trim();
-      const imageUrl = document.getElementById("subImageUrl").value.trim();
-
+      const cust = { ...customersMap[oldPhone] };
       const now = Date.now();
-      const expiresAt = now + durationDays * 24 * 60 * 60 * 1000;
-      const subId = `sub_${now}`;
+      cust.phone = newDigits;
+      cust.history = [
+        {
+          title: `Mobile Number Updated by Admin (${formatPhone(oldPhone)} → ${formatPhone(newDigits)})`,
+          points: 0,
+          date: new Date(now).toLocaleDateString()
+        },
+        ...(Array.isArray(cust.history) ? cust.history : [])
+      ];
 
-      const subObj = {
-        id: subId,
+      await persistCustomerToCloud(cust);
+      await removeCustomerFromCloud(oldPhone);
+
+      if (activeCustomerPhone === oldPhone) activeCustomerPhone = newDigits;
+      selectedAdminCustomerPhone = newDigits;
+      document.getElementById("adminNewCustomerPhoneInput").value = "";
+      statusEl.textContent = `Updated mobile number to ${formatPhone(newDigits)} across all 3 web apps.`;
+      statusEl.classList.remove("hidden");
+      refreshAllViews();
+    };
+
+    window.adminDeleteCustomer = async function (phone) {
+      const cust = customersMap[phone];
+      if (!cust) return;
+      if (!confirm(`Delete customer ${cust.name} (${formatPhone(phone)}) across all 3 web apps?`)) return;
+
+      await removeCustomerFromCloud(phone);
+      if (selectedAdminCustomerPhone === phone) selectedAdminCustomerPhone = null;
+      if (activeCustomerPhone === phone) showLoginView();
+      refreshAllViews();
+    };
+
+    // Tab 2: Priority Pricing, Local Ads, Expiration & In-Store Renewal
+    window.autoCalculateAdPrice = function () {
+      const prio = Number(document.getElementById("adPriorityTier")?.value || 2);
+      const days = Number(document.getElementById("adDurationDays")?.value || 30);
+      const base30 =
+        prio === 1
+          ? Number(storeConfig.priority1Rate ?? 60)
+          : prio === 2
+          ? Number(storeConfig.priority2Rate ?? 40)
+          : Number(storeConfig.priority3Rate ?? 25);
+
+      let total = base30;
+      if (days === 60) total = Math.round(base30 * 2 * 0.95);
+      else if (days === 90) total = Math.round(base30 * 3 * 0.9);
+      else if (days === 365) total = Math.round(base30 * 10);
+
+      const priceInput = document.getElementById("adAmountPaid");
+      if (priceInput) priceInput.value = total.toFixed(2);
+    };
+
+    window.savePriorityRateSchedule = async function () {
+      storeConfig.priority1Rate = Number(document.getElementById("ratePriority1").value || 60);
+      storeConfig.priority2Rate = Number(document.getElementById("ratePriority2").value || 40);
+      storeConfig.priority3Rate = Number(document.getElementById("ratePriority3").value || 25);
+      await persistSettingsToCloud();
+      autoCalculateAdPrice();
+      const statusEl = document.getElementById("adActionStatus");
+      statusEl.textContent = "Priority tier pricing rates saved and synced across all 3 web apps.";
+      statusEl.classList.remove("hidden");
+    };
+
+    window.saveLocalBusinessAd = async function (event) {
+      event.preventDefault();
+      const now = Date.now();
+      const businessName = document.getElementById("adBizName").value.trim();
+      const phone = document.getElementById("adBizPhone").value.trim();
+      const address = document.getElementById("adBizAddress").value.trim();
+      const email = document.getElementById("adBizEmail").value.trim();
+      const ccEmail = document.getElementById("adBizCcEmail").value.trim();
+      const priority = Number(document.getElementById("adPriorityTier").value || 2);
+      const durationDays = Number(document.getElementById("adDurationDays").value || 30);
+      const amountPaid = parseFloat(document.getElementById("adAmountPaid").value || "0").toFixed(2);
+      const paymentMethod = document.getElementById("adPaymentMethod").value;
+
+      const expiresAt = now + durationDays * DAY_MS;
+      const newAd = {
+        id: `ad_${now}`,
         businessName,
-        businessEmail,
-        businessPhone,
+        phone,
+        address,
+        email,
         ccEmail,
+        priority,
         durationDays,
         amountPaid,
         paymentMethod,
-        headline,
-        imageUrl,
         createdAt: now,
-        expiresAt,
-        status: "ACTIVE"
+        expiresAt
       };
 
-      await persistSubscriptionToCloud(subObj);
+      await persistAdToCloud(newAd);
 
-      const subject = `Your Local Ad is Live on Rexall Discount Reward (${businessName})`;
-      const messageBody =
+      const validDateStr = new Date(expiresAt).toLocaleDateString();
+      const msgBody =
         `Hello ${businessName},\n\n` +
-        `Thank you for advertising with Rexall Discount Reward (9807 Lorain Ave, Cleveland, OH)!\n\n` +
-        `Subscription Details:\n` +
-        `- Offer Headline: ${headline}\n` +
-        `- Plan Validity: ${durationDays} Days (Expires ${new Date(expiresAt).toLocaleDateString()})\n` +
-        `- Payment Received: $${amountPaid} (${paymentMethod})\n\n` +
-        `View your live ad across all 3 Rexall Discount Reward web apps:\n` +
-        `1. GitHub Pages: ${APP_MIRROR_LINKS.github}\n` +
-        `2. Cloudflare: ${APP_MIRROR_LINKS.cloudflare}\n` +
-        `3. Netlify: ${APP_MIRROR_LINKS.netlify}\n\n` +
-        `Thank you,\nRexall Discount Store Team`;
+        `Welcome to Rexall Discount Reward! Your Priority #${priority} local business ad is now LIVE in our customer scroll banner through ${validDateStr} (${durationDays} days).\n` +
+        `Listing Details: ${address} • ${phone}\n` +
+        `Payment Recorded: $${amountPaid} (${paymentMethod}).\n\n` +
+        `View your live business listing on any of our 3 store web apps:\n` +
+        `• GitHub Pages: ${STORE_APP_LINKS.github}\n` +
+        `• Cloudflare: ${STORE_APP_LINKS.cloudflare}\n` +
+        `• Netlify: ${STORE_APP_LINKS.netlify}\n\n` +
+        `Rexall Discount • 9807 Lorain Ave, Cleveland, OH • 216-961-1323`;
 
-      const deliveryMode = await sendAutomatedBackgroundEmail({
-        toEmail: businessEmail,
-        ccEmail,
-        subject,
-        messageBody
-      });
-
-      await persistEmailLogToCloud({
-        id: `log_${now}`,
+      await dispatchWelcomeOrAlertEmail({
         businessName,
-        toEmail: businessEmail,
+        toEmail: email,
         ccEmail,
-        subject,
-        messageBody,
-        deliveryMode,
-        sentAt: now
+        subject: `Welcome to Rexall Discount Reward — Your Ad (Priority #${priority}) is Live`,
+        messageBody: msgBody
       });
 
-      document.getElementById("subBusinessName").value = "";
-      document.getElementById("subBusinessEmail").value = "";
-      document.getElementById("subBusinessPhone").value = "";
-      document.getElementById("subHeadline").value = "";
-      document.getElementById("subImageUrl").value = "";
+      event.target.reset();
+      document.getElementById("adPriorityTier").value = "2";
+      document.getElementById("adDurationDays").value = "30";
+      autoCalculateAdPrice();
 
-      const statusEl = document.getElementById("subFormStatusText");
-      statusEl.textContent = `Published across all 3 web apps! (${deliveryMode})`;
-      setTimeout(() => {
-        statusEl.textContent = "";
-      }, 6000);
+      const statusEl = document.getElementById("adActionStatus");
+      statusEl.textContent = `${businessName} added to Priority #${priority} scroll banner ($${amountPaid} • ${paymentMethod}) and welcome email dispatched/logged with all 3 links!`;
+      statusEl.classList.remove("hidden");
 
-      refreshAllViews();
+      renderScrollingLocalAds();
+      renderAdminAdsList();
     };
 
-    window.deleteSubscriptionItem = async function (subId) {
-      await deleteSubscriptionFromCloud(subId);
-      refreshAllViews();
-    };
+    window.renewLocalBusinessAd = async function (adId) {
+      const ad = adsList.find((item) => item.id === adId);
+      if (!ad) return;
 
-    window.handleSaveFallbackAd = async function (event) {
-      event.preventDefault();
-      storeConfig.fallbackAdTitle = document.getElementById("fallbackAdTitle").value.trim();
-      storeConfig.fallbackAdText = document.getElementById("fallbackAdText").value.trim();
-      storeConfig.fallbackAdImage = document.getElementById("fallbackAdImage").value.trim();
-      await persistStoreConfigToCloud();
-      renderPublicSpotlight();
-    };
+      const prioSelect = document.getElementById(`renewPrio_${adId}`);
+      const daysSelect = document.getElementById(`renewDays_${adId}`);
+      const paySelect = document.getElementById(`renewPay_${adId}`);
 
-    // Tab 3: Admin Credentials & EmailJS Settings
-    window.handleSaveEmailSettings = async function (event) {
-      event.preventDefault();
-      const newAdminName = document.getElementById("settingAdminName").value.trim();
-      const newAdminPin = document.getElementById("settingAdminPin").value.trim();
-      if (!newAdminName || !/^\d{6}$/.test(newAdminPin)) {
-        const fb = document.getElementById("emailSettingsFeedback");
-        fb.textContent = "Admin Name is required and Secret Code must be 6 digits.";
-        fb.className = "text-xs font-bold text-rose-600";
-        return;
-      }
+      const newPriority = Number(prioSelect?.value || ad.priority || 2);
+      const addDays = Number(daysSelect?.value || 30);
+      const paymentMethod = paySelect?.value || "Cash at store";
 
-      storeConfig.adminName = newAdminName;
-      storeConfig.adminPin = newAdminPin;
-      storeConfig.storeEmail = document.getElementById("settingStoreEmail").value.trim() || "hanallc07@gmail.com";
-      storeConfig.emailJsServiceId = document.getElementById("settingEmailJsService").value.trim();
-      storeConfig.emailJsTemplateId = document.getElementById("settingEmailJsTemplate").value.trim();
-      storeConfig.emailJsPublicKey = document.getElementById("settingEmailJsPublicKey").value.trim();
-      await persistStoreConfigToCloud();
+      const base30 =
+        newPriority === 1
+          ? Number(storeConfig.priority1Rate ?? 60)
+          : newPriority === 2
+          ? Number(storeConfig.priority2Rate ?? 40)
+          : Number(storeConfig.priority3Rate ?? 25);
+      let renewalPrice = base30;
+      if (addDays === 60) renewalPrice = Math.round(base30 * 2 * 0.95);
+      else if (addDays === 90) renewalPrice = Math.round(base30 * 3 * 0.9);
+      else if (addDays === 365) renewalPrice = Math.round(base30 * 10);
 
-      const fb = document.getElementById("emailSettingsFeedback");
-      fb.textContent = "Credentials & settings saved and synced to all 3 web apps!";
-      fb.className = "text-xs font-bold text-emerald-700";
-      setTimeout(() => {
-        fb.textContent = "";
-      }, 4500);
-    };
-
-    async function sendAutomatedBackgroundEmail({ toEmail, ccEmail, subject, messageBody }) {
-      const { emailJsServiceId, emailJsTemplateId, emailJsPublicKey } = storeConfig;
-      if (
-        typeof emailjs !== "undefined" &&
-        emailJsServiceId &&
-        emailJsTemplateId &&
-        emailJsPublicKey
-      ) {
-        try {
-          emailjs.init({ publicKey: emailJsPublicKey });
-          await emailjs.send(emailJsServiceId, emailJsTemplateId, {
-            to_email: toEmail,
-            cc_email: ccEmail,
-            reply_to: storeConfig.storeEmail || "hanallc07@gmail.com",
-            subject,
-            message: messageBody,
-            github_url: APP_MIRROR_LINKS.github,
-            cloudflare_url: APP_MIRROR_LINKS.cloudflare,
-            netlify_url: APP_MIRROR_LINKS.netlify
-          });
-          return "Sent Automatically via EmailJS";
-        } catch (err) {
-          return "Logged for 1-Click Copy (Check EmailJS keys)";
-        }
-      }
-      return "Logged for 1-Click Copy (Connect free EmailJS in Tab 3 for auto-send)";
-    }
-
-    function renderSubscriptionsAndAlerts() {
       const now = Date.now();
-      const activeSubs = subscriptionsList.filter((s) => Number(s.expiresAt || 0) > now);
-      const expiringSoon = activeSubs.filter((s) => Number(s.expiresAt || 0) - now <= FIVE_DAYS_MS);
+      const baseStart = Math.max(now, parseValidTimestamp(ad.expiresAt, now));
+      const newExpiresAt = baseStart + addDays * DAY_MS;
 
-      const alertBox = document.getElementById("expiringSoonAlertBox");
-      const alertCount = document.getElementById("expiringSoonCount");
-      const alertList = document.getElementById("expiringSoonList");
-      if (alertBox && alertCount && alertList) {
-        if (expiringSoon.length > 0) {
+      const updatedAd = {
+        ...ad,
+        priority: newPriority,
+        durationDays: addDays,
+        amountPaid: renewalPrice.toFixed(2),
+        paymentMethod,
+        expiresAt: newExpiresAt,
+        renewedAt: now
+      };
+
+      await persistAdToCloud(updatedAd);
+
+      const validDateStr = new Date(newExpiresAt).toLocaleDateString();
+      await dispatchWelcomeOrAlertEmail({
+        businessName: ad.businessName,
+        toEmail: ad.email,
+        ccEmail: ad.ccEmail || "",
+        subject: `Rexall Discount Ad Renewed (Priority #${newPriority}) — ${ad.businessName}`,
+        messageBody:
+          `Hello ${ad.businessName},\n\n` +
+          `Your Priority #${newPriority} local ad on Rexall Discount Reward has been renewed through ${validDateStr} (+${addDays} days).\n` +
+          `Renewal Payment: $${renewalPrice.toFixed(2)} (${paymentMethod}).\n\n` +
+          `• GitHub Pages: ${STORE_APP_LINKS.github}\n` +
+          `• Cloudflare: ${STORE_APP_LINKS.cloudflare}\n` +
+          `• Netlify: ${STORE_APP_LINKS.netlify}`
+      });
+
+      const statusEl = document.getElementById("adActionStatus");
+      statusEl.textContent = `Renewed ${ad.businessName} at Priority #${newPriority} through ${validDateStr} ($${renewalPrice.toFixed(2)} • ${paymentMethod}).`;
+      statusEl.classList.remove("hidden");
+
+      renderScrollingLocalAds();
+      renderAdminAdsList();
+    };
+
+    window.deleteLocalBusinessAd = async function (adId) {
+      if (!confirm("Remove this local business ad across all 3 web apps?")) return;
+      await removeAdFromCloud(adId);
+      renderScrollingLocalAds();
+      renderAdminAdsList();
+    };
+
+    function renderAdminAdsList() {
+      const container = document.getElementById("adminAdsList");
+      const badge = document.getElementById("adCountBadge");
+      const alertBox = document.getElementById("adExpiryAlertBox");
+      const alertList = document.getElementById("adExpiryAlertList");
+      if (!container) return;
+
+      const now = Date.now();
+      const sorted = [...adsList].sort((a, b) => {
+        const pA = Number(a.priority || 2);
+        const pB = Number(b.priority || 2);
+        if (pA !== pB) return pA - pB;
+        return (b.expiresAt || 0) - (a.expiresAt || 0);
+      });
+
+      if (badge) badge.textContent = `${sorted.length} business ad${sorted.length === 1 ? "" : "s"}`;
+
+      const expiringSoon = sorted.filter((ad) => {
+        const exp = parseValidTimestamp(ad.expiresAt, 0);
+        const daysLeft = Math.ceil((exp - now) / DAY_MS);
+        return daysLeft >= 0 && daysLeft <= 5;
+      });
+
+      if (alertBox && alertList) {
+        if (expiringSoon.length) {
           alertBox.classList.remove("hidden");
-          alertCount.textContent = expiringSoon.length;
           alertList.innerHTML = expiringSoon
-            .map((s) => {
-              const daysLeft = Math.max(1, Math.ceil((s.expiresAt - now) / (24 * 60 * 60 * 1000)));
-              return `<div>&bull; <strong>${escapeHtml(s.businessName)}</strong> (${escapeHtml(s.businessEmail)}) — expires in <strong>${daysLeft} day${daysLeft === 1 ? "" : "s"}</strong> (${new Date(s.expiresAt).toLocaleDateString()})</div>`;
+            .map((ad) => {
+              const daysLeft = Math.max(0, Math.ceil((parseValidTimestamp(ad.expiresAt, now) - now) / DAY_MS));
+              return `<p>&bull; <strong>${escapeHtml(ad.businessName)}</strong> (Priority #${ad.priority || 2}) expires in <strong>${daysLeft} day(s)</strong> (${new Date(ad.expiresAt).toLocaleDateString()}) — ${escapeHtml(ad.phone)}</p>`;
             })
             .join("");
         } else {
@@ -1827,77 +1822,116 @@
         }
       }
 
-      const totalCountEl = document.getElementById("subTotalCount");
-      const listEl = document.getElementById("businessSubscriptionsList");
-      if (totalCountEl) totalCountEl.textContent = `${subscriptionsList.length} Total`;
-      if (!listEl) return;
-
-      if (!subscriptionsList.length) {
-        listEl.innerHTML = `<p class="text-xs text-slate-500">No business subscriptions added yet.</p>`;
+      if (!sorted.length) {
+        container.innerHTML = `<p class="text-xs text-slate-500 p-4 rounded-xl bg-slate-50 border border-slate-200">No local business ads yet. Add your first sponsor above!</p>`;
         return;
       }
 
-      listEl.innerHTML = subscriptionsList
-        .map((s) => {
-          const isExpired = Number(s.expiresAt || 0) <= now;
-          const daysLeft = Math.max(0, Math.ceil((Number(s.expiresAt || 0) - now) / (24 * 60 * 60 * 1000)));
-          const isExpiring5Days = !isExpired && daysLeft <= 5;
-          return `
-            <div class="p-3.5 rounded-2xl border ${isExpired ? "bg-slate-50 border-slate-200 opacity-75" : isExpiring5Days ? "bg-amber-50/70 border-amber-300" : "bg-emerald-50/40 border-emerald-200"} flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div class="space-y-0.5">
-                <div class="flex flex-wrap items-center gap-2">
-                  <span class="text-xs font-black text-slate-900">${escapeHtml(s.businessName)}</span>
-                  <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold ${isExpired ? "bg-slate-200 text-slate-700" : isExpiring5Days ? "bg-amber-500 text-slate-950" : "bg-emerald-600 text-white"}">
-                    ${isExpired ? "EXPIRED (Auto-Takeover Active)" : isExpiring5Days ? `EXPIRES IN ${daysLeft}D` : `ACTIVE (${daysLeft}d left)`}
-                  </span>
-                </div>
-                <p class="text-xs font-semibold text-slate-700">${escapeHtml(s.headline)}</p>
-                <p class="text-[11px] text-slate-500">
-                  ${escapeHtml(s.businessEmail)} &bull; Paid $${escapeHtml(s.amountPaid)} (${escapeHtml(s.paymentMethod)}) &bull; ${s.durationDays}d plan
-                </p>
-              </div>
-              <button
-                type="button"
-                onclick="deleteSubscriptionItem('${s.id}')"
-                class="self-start sm:self-center px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-[11px] font-bold"
-              >
-                Remove
-              </button>
-            </div>
-          `;
-        })
-        .join("");
-    }
+      container.innerHTML = sorted
+        .map((ad) => {
+          const exp = parseValidTimestamp(ad.expiresAt, 0);
+          const isExpired = exp <= now;
+          const daysLeft = Math.max(0, Math.ceil((exp - now) / DAY_MS));
+          const prio = Number(ad.priority || 2);
 
-    function renderEmailLogs() {
-      const container = document.getElementById("emailDispatchLogList");
-      if (!container) return;
-      if (!emailLogsList.length) {
-        container.innerHTML = `<p class="text-xs text-slate-500">No business emails logged yet.</p>`;
-        return;
-      }
-
-      container.innerHTML = emailLogsList
-        .map((log, idx) => {
           return `
-            <div class="p-3.5 rounded-xl bg-white border border-slate-200 space-y-2">
-              <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="p-3.5 rounded-2xl border ${isExpired ? "bg-rose-50/50 border-rose-200" : "bg-white border-slate-200"} space-y-2.5">
+              <div class="flex flex-wrap items-start justify-between gap-2">
                 <div>
-                  <p class="text-xs font-extrabold text-slate-900">${escapeHtml(log.businessName)} &rarr; ${escapeHtml(log.toEmail)}</p>
-                  <p class="text-[10px] font-semibold text-emerald-700">${escapeHtml(log.deliveryMode)} &bull; ${new Date(log.sentAt).toLocaleString()}</p>
+                  <div class="flex items-center gap-2">
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-slate-900 text-white">
+                      Priority #${prio}
+                    </span>
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
+                      isExpired ? "bg-rose-100 text-rose-700" : "bg-emerald-100 text-emerald-800"
+                    }">
+                      ${isExpired ? "Expired (Off Scroll)" : `Active • ${daysLeft}d left`}
+                    </span>
+                  </div>
+                  <p class="text-sm font-black text-slate-900 mt-1">${escapeHtml(ad.businessName)}</p>
+                  <p class="text-xs text-slate-600">${escapeHtml(ad.address)} &bull; ${escapeHtml(ad.phone)}</p>
+                  <p class="text-[11px] text-slate-500 mt-0.5">
+                    Last Paid: <strong>$${escapeHtml(ad.amountPaid || "0.00")}</strong> (${escapeHtml(ad.paymentMethod || "Cash at store")}) &bull; Valid thru ${new Date(exp).toLocaleDateString()}
+                  </p>
                 </div>
                 <button
                   type="button"
-                  onclick="copyEmailLogByIndex(${idx})"
-                  class="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-[11px] font-bold"
+                  onclick="deleteLocalBusinessAd('${ad.id}')"
+                  class="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 text-[11px] font-extrabold"
                 >
-                  Copy Email &amp; 3 Links
+                  Delete
+                </button>
+              </div>
+
+              <div class="pt-2 border-t border-slate-100 flex flex-wrap items-center gap-2 text-xs">
+                <span class="font-bold text-slate-700">In-Store Renew:</span>
+                <select id="renewPrio_${ad.id}" class="px-2.5 py-1.5 rounded-lg bg-slate-50 border border-slate-200 font-bold text-slate-900">
+                  <option value="1" ${prio === 1 ? "selected" : ""}>Priority 1 ($${storeConfig.priority1Rate ?? 60}/30d)</option>
+                  <option value="2" ${prio === 2 ? "selected" : ""}>Priority 2 ($${storeConfig.priority2Rate ?? 40}/30d)</option>
+                  <option value="3" ${prio === 3 ? "selected" : ""}>Priority 3 ($${storeConfig.priority3Rate ?? 25}/30d)</option>
+                </select>
+                <select id="renewDays_${ad.id}" class="px-2.5 py-1.5 rounded-lg bg-slate-50 border border-slate-200 font-bold text-slate-900">
+                  <option value="30">+30 Days</option>
+                  <option value="60">+60 Days (5% Off)</option>
+                  <option value="90">+90 Days (10% Off)</option>
+                  <option value="365">+1 Year (2 Mo Free)</option>
+                </select>
+                <select id="renewPay_${ad.id}" class="px-2.5 py-1.5 rounded-lg bg-slate-50 border border-slate-200 font-bold text-slate-900">
+                  <option value="Cash at store">Cash at store</option>
+                  <option value="Card at store">Card at store</option>
+                </select>
+                <button
+                  type="button"
+                  onclick="renewLocalBusinessAd('${ad.id}')"
+                  class="px-3.5 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold transition"
+                >
+                  Activate / Renew Now
                 </button>
               </div>
             </div>
           `;
         })
         .join("");
+    }
+
+    async function dispatchWelcomeOrAlertEmail({ businessName, toEmail, ccEmail, subject, messageBody }) {
+      let deliveryMode = "Logged in Admin (1-Click Copy Ready)";
+
+      if (storeConfig.mailerWebhookUrl && toEmail) {
+        try {
+          const resp = await fetch(storeConfig.mailerWebhookUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              business_name: businessName,
+              to_email: toEmail,
+              cc_email: ccEmail || "",
+              reply_to: storeConfig.storeEmail || "hanallc07@gmail.com",
+              subject,
+              message: messageBody,
+              github_url: STORE_APP_LINKS.github,
+              cloudflare_url: STORE_APP_LINKS.cloudflare,
+              netlify_url: STORE_APP_LINKS.netlify
+            })
+          });
+          if (resp.ok) {
+            deliveryMode = "Sent via Welcome Mailer Webhook";
+          }
+        } catch (err) {}
+      }
+
+      const logEntry = {
+        id: `log_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+        businessName,
+        toEmail,
+        ccEmail: ccEmail || "",
+        subject,
+        messageBody,
+        deliveryMode,
+        sentAt: Date.now()
+      };
+      await persistEmailLogToCloud(logEntry);
+      renderEmailLogs();
     }
 
     window.copyEmailLogByIndex = async function (idx) {
@@ -1909,73 +1943,70 @@
       } catch (e) {}
     };
 
-    function renderPublicSpotlight() {
-      const section = document.getElementById("publicSpotlightSection");
-      const body = document.getElementById("publicSpotlightBody");
-      const tag = document.getElementById("spotlightExpiryTag");
-      if (!section || !body) return;
-
-      const now = Date.now();
-      const activeSubs = subscriptionsList.filter((s) => Number(s.expiresAt || 0) > now);
-
-      if (activeSubs.length > 0) {
-        const featured = activeSubs[0];
-        section.classList.remove("hidden");
-        if (tag) tag.textContent = `Valid thru ${new Date(featured.expiresAt).toLocaleDateString()}`;
-        body.innerHTML = `
-          ${
-            featured.imageUrl
-              ? `<img src="${escapeHtml(featured.imageUrl)}" alt="${escapeHtml(featured.businessName)}" class="w-24 h-24 rounded-2xl object-cover border border-slate-200 shrink-0" />`
-              : `<div class="w-16 h-16 rounded-2xl bg-amber-100 text-amber-900 flex items-center justify-center font-black text-xl shrink-0">${escapeHtml(featured.businessName.slice(0, 2).toUpperCase())}</div>`
-          }
-          <div class="text-center sm:text-left space-y-1">
-            <h3 class="text-base sm:text-lg font-black text-slate-900">${escapeHtml(featured.businessName)}</h3>
-            <p class="text-xs sm:text-sm font-semibold text-slate-700">${escapeHtml(featured.headline)}</p>
-            ${featured.businessPhone ? `<p class="text-xs font-bold text-emerald-700">Call: ${escapeHtml(featured.businessPhone)}</p>` : ""}
-          </div>
-        `;
-      } else if (storeConfig.fallbackAdTitle || storeConfig.fallbackAdText) {
-        section.classList.remove("hidden");
-        if (tag) tag.textContent = "Store Spotlight";
-        body.innerHTML = `
-          ${
-            storeConfig.fallbackAdImage
-              ? `<img src="${escapeHtml(storeConfig.fallbackAdImage)}" alt="Store Deal" class="w-20 h-20 rounded-2xl object-cover border border-slate-200 shrink-0" />`
-              : `<div class="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-black text-lg shrink-0">VIP</div>`
-          }
-          <div class="text-center sm:text-left space-y-1">
-            <h3 class="text-base font-black text-slate-900">${escapeHtml(storeConfig.fallbackAdTitle || "Rexall Discount Daily Deals")}</h3>
-            <p class="text-xs sm:text-sm font-medium text-slate-600">${escapeHtml(storeConfig.fallbackAdText || "")}</p>
-          </div>
-        `;
-      } else {
-        section.classList.add("hidden");
+    function renderEmailLogs() {
+      const logContainer = document.getElementById("emailDispatchLogList");
+      if (!logContainer) return;
+      if (!emailLogsList.length) {
+        logContainer.innerHTML = `<p class="text-xs text-slate-500">No subscription emails logged yet. Add or renew a business ad above to generate one automatically.</p>`;
+        return;
       }
+
+      logContainer.innerHTML = emailLogsList
+        .map(
+          (log, idx) => `
+            <div class="p-3 rounded-xl bg-white border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div class="space-y-0.5">
+                <p class="text-xs font-extrabold text-slate-900">${escapeHtml(log.businessName || "Local Business")} &rarr; ${escapeHtml(log.toEmail || "")}</p>
+                <p class="text-[11px] text-slate-500">${escapeHtml(log.deliveryMode || "")} &bull; ${log.sentAt ? new Date(log.sentAt).toLocaleString() : ""}</p>
+              </div>
+              <button
+                type="button"
+                onclick="copyEmailLogByIndex(${idx})"
+                class="self-start sm:self-center px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-[11px] font-bold transition"
+              >
+                Copy Email &amp; 3 Links
+              </button>
+            </div>
+          `
+        )
+        .join("");
     }
 
-    function refreshAllViews() {
-      renderPublicSpotlight();
-      if (currentCustomerPhone) {
-        renderCustomerDashboard();
-      }
-      renderAdminCustomerList();
-      renderSelectedAdminCustomerPanel();
-      renderSubscriptionsAndAlerts();
-      renderEmailLogs();
-    }
+    // Tab 3: Save Admin Credentials & Welcome Mailer Webhook Across All 3 Web Apps
+    window.saveStoreSettings = async function (event) {
+      event.preventDefault();
+      const newName = document.getElementById("settingAdminName").value.trim();
+      const newPin = document.getElementById("settingAdminPin").value.trim();
+      const msgEl = document.getElementById("settingsSavedMsg");
 
-    window.addEventListener("DOMContentLoaded", () => {
-      initFirebaseSync();
-      populateSettingsInputs();
-      refreshAllViews();
-    });
+      if (!newName || !/^\d{6}$/.test(newPin)) {
+        msgEl.textContent = "Admin Name is required and Secret Code must be exactly 6 digits.";
+        msgEl.className = "text-xs font-bold text-rose-600";
+        msgEl.classList.remove("hidden");
+        return;
+      }
+
+      storeConfig.adminName = newName;
+      storeConfig.adminPin = newPin;
+      storeConfig.storeEmail = document.getElementById("settingStoreEmail").value.trim() || "hanallc07@gmail.com";
+      storeConfig.mailerWebhookUrl = document.getElementById("settingMailerWebhookUrl").value.trim();
+
+      await persistSettingsToCloud();
+      msgEl.textContent = "Admin security credentials & mailer settings saved and synced across GitHub Pages, Cloudflare, and Netlify!";
+      msgEl.className = "text-xs font-bold text-emerald-700";
+      msgEl.classList.remove("hidden");
+    };
 
     document.addEventListener("visibilitychange", () => {
       if (!document.hidden) {
-        populateSettingsInputs();
         refreshAllViews();
       }
     });
+
+    initFirebaseSync();
+    populateSettingsInputs();
+    autoCalculateAdPrice();
+    renderScrollingLocalAds();
   </script>
 </body>
 </html>
