@@ -58,10 +58,16 @@
       </div>
 
       <div class="flex items-center gap-2">
-        <span id="cloudStatusBadge" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-          Cloud Synced
-        </span>
+        <button
+          type="button"
+          id="cloudStatusBadge"
+          onclick="forceCloudSyncNow()"
+          title="Click to force sync with cloud"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 transition cursor-pointer"
+        >
+          <span class="w-2 h-2 rounded-full bg-slate-400 animate-pulse"></span>
+          Connecting...
+        </button>
         <button
           type="button"
           onclick="openAdminModal()"
@@ -278,13 +284,22 @@
           <h2 class="text-base sm:text-lg font-extrabold tracking-tight">Store Admin &amp; Cloud Sync Console</h2>
           <p class="text-[11px] text-slate-300">Changes here automatically update GitHub Pages, Cloudflare, and Netlify</p>
         </div>
-        <button
-          type="button"
-          onclick="closeAdminModal()"
-          class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold transition"
-        >
-          Close &times;
-        </button>
+        <div class="flex items-center gap-2">
+          <button
+            type="button"
+            onclick="forceCloudSyncNow()"
+            class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition"
+          >
+            Sync Now
+          </button>
+          <button
+            type="button"
+            onclick="closeAdminModal()"
+            class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold transition"
+          >
+            Close &times;
+          </button>
+        </div>
       </div>
 
       <!-- Step 1: Hidden Two-Step Admin Verification Gate -->
@@ -336,6 +351,9 @@
 
       <!-- Step 2: Unlocked Admin Dashboard -->
       <div id="adminUnlockedBody" class="hidden p-5 sm:p-6 space-y-5 max-h-[82vh] overflow-y-auto">
+
+        <!-- Cloud Sync Diagnostic Alert (Only shown if Firestore rules block writes) -->
+        <div id="cloudDiagnosticBanner" class="hidden p-3 rounded-2xl bg-rose-50 border border-rose-200 text-xs text-rose-800 font-semibold"></div>
 
         <!-- Navigation Tabs -->
         <div class="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-3">
@@ -726,18 +744,20 @@
       doc,
       setDoc,
       deleteDoc,
+      getDocs,
+      getDoc,
       onSnapshot
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    const APP_BUILD_VERSION = "2026.11.25.05";
+    const APP_BUILD_VERSION = "2026.11.25.07";
 
     const FIREBASE_CONFIG = {
-      apiKey: "AIzaSyDummyKeyForRexallRewardProject",
+      apiKey: "AIzaSyD_eAv4AHiYCg6zif08hbv4pvYxtlic3j8",
       authDomain: "rexall-reward.firebaseapp.com",
       projectId: "rexall-reward",
-      storageBucket: "rexall-reward.appspot.com",
-      messagingSenderId: "102938475610",
-      appId: "1:102938475610:web:rexallrewardapp"
+      storageBucket: "rexall-reward.firebasestorage.app",
+      messagingSenderId: "822129140931",
+      appId: "1:822129140931:web:4be79d901dc16422836e76"
     };
 
     const STORE_APP_LINKS = {
@@ -837,15 +857,25 @@
       };
     }
 
-    function setCloudStatusConnected(connected) {
+    function setCloudStatusConnected(connected, errMsg = "") {
       const badge = document.getElementById("cloudStatusBadge");
-      if (!badge) return;
-      if (connected) {
-        badge.className = "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200";
-        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500"></span> Cloud Synced`;
-      } else {
-        badge.className = "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200";
-        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500"></span> Local Sync Mode`;
+      const diag = document.getElementById("cloudDiagnosticBanner");
+      if (badge) {
+        if (connected) {
+          badge.className = "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition cursor-pointer";
+          badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500"></span> Cloud Synced`;
+        } else {
+          badge.className = "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 transition cursor-pointer";
+          badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-500"></span> Cloud Blocked (Click Retry)`;
+        }
+      }
+      if (diag) {
+        if (!connected && errMsg) {
+          diag.textContent = `Firestore Sync Notice: ${errMsg}. Make sure Firestore Rules allow read/write on rexall_ads, rexall_customers, rexall_settings, and rexall_email_logs.`;
+          diag.classList.remove("hidden");
+        } else {
+          diag.classList.add("hidden");
+        }
       }
     }
 
@@ -871,6 +901,19 @@
       } catch (err) {}
     }
 
+    function applyAdsSnapshot(nextAds) {
+      adsList = nextAds;
+      saveLocalCache();
+      renderScrollingLocalAds();
+      renderAdminAdsList();
+    }
+
+    function applyCustomersSnapshot(nextMap) {
+      customersMap = nextMap;
+      saveLocalCache();
+      refreshAllViews();
+    }
+
     async function persistCustomerToCloud(cust) {
       if (!cust || !cust.phone) return;
       customersMap[cust.phone] = cust;
@@ -878,7 +921,10 @@
       if (db) {
         try {
           await setDoc(doc(db, "rexall_customers", cust.phone), cust);
-        } catch (err) {}
+          setCloudStatusConnected(true);
+        } catch (err) {
+          setCloudStatusConnected(false, err?.message || "Customer write blocked");
+        }
       }
     }
 
@@ -888,7 +934,10 @@
       if (db) {
         try {
           await deleteDoc(doc(db, "rexall_customers", phone));
-        } catch (err) {}
+          setCloudStatusConnected(true);
+        } catch (err) {
+          setCloudStatusConnected(false, err?.message || "Customer delete blocked");
+        }
       }
     }
 
@@ -897,20 +946,30 @@
       if (idx >= 0) adsList[idx] = ad;
       else adsList.unshift(ad);
       saveLocalCache();
+      renderScrollingLocalAds();
+      renderAdminAdsList();
       if (db) {
         try {
           await setDoc(doc(db, "rexall_ads", ad.id), ad);
-        } catch (err) {}
+          setCloudStatusConnected(true);
+        } catch (err) {
+          setCloudStatusConnected(false, err?.message || "Ad write blocked by Firestore Rules");
+        }
       }
     }
 
     async function removeAdFromCloud(adId) {
       adsList = adsList.filter((item) => item.id !== adId);
       saveLocalCache();
+      renderScrollingLocalAds();
+      renderAdminAdsList();
       if (db) {
         try {
           await deleteDoc(doc(db, "rexall_ads", adId));
-        } catch (err) {}
+          setCloudStatusConnected(true);
+        } catch (err) {
+          setCloudStatusConnected(false, err?.message || "Ad delete blocked");
+        }
       }
     }
 
@@ -921,6 +980,7 @@
       if (db) {
         try {
           await setDoc(doc(db, "rexall_email_logs", logEntry.id), logEntry);
+          setCloudStatusConnected(true);
         } catch (err) {}
       }
     }
@@ -934,15 +994,77 @@
             buildSyncVersion: APP_BUILD_VERSION,
             updatedAt: Date.now()
           });
-        } catch (err) {}
+          setCloudStatusConnected(true);
+        } catch (err) {
+          setCloudStatusConnected(false, err?.message || "Settings write blocked");
+        }
       }
     }
 
+    // Active pull + real-time listeners so Cloudflare and GitHub Pages stay 100% synced
+    window.forceCloudSyncNow = async function () {
+      if (!db) {
+        try {
+          const app = initializeApp(FIREBASE_CONFIG);
+          db = getFirestore(app);
+        } catch (err) {
+          setCloudStatusConnected(false, err?.message || "Firebase init failed");
+          return;
+        }
+      }
+
+      try {
+        const [adsSnap, custSnap, settingsSnap, logsSnap] = await Promise.all([
+          getDocs(collection(db, "rexall_ads")),
+          getDocs(collection(db, "rexall_customers")),
+          getDoc(doc(db, "rexall_settings", "store_config")),
+          getDocs(collection(db, "rexall_email_logs"))
+        ]);
+
+        const nextAds = [];
+        adsSnap.forEach((docSnap) => {
+          const data = docSnap.data();
+          if (data && data.id) nextAds.push(data);
+        });
+        applyAdsSnapshot(nextAds);
+
+        const nextMap = {};
+        custSnap.forEach((docSnap) => {
+          const data = docSnap.data();
+          if (data && data.phone) nextMap[data.phone] = data;
+        });
+        applyCustomersSnapshot(nextMap);
+
+        if (settingsSnap.exists()) {
+          storeConfig = { ...storeConfig, ...settingsSnap.data() };
+          saveLocalCache();
+          populateSettingsInputs();
+        }
+
+        const nextLogs = [];
+        logsSnap.forEach((docSnap) => {
+          const data = docSnap.data();
+          if (data && data.id) nextLogs.push(data);
+        });
+        nextLogs.sort((a, b) => (b.sentAt || 0) - (a.sentAt || 0));
+        emailLogsList = nextLogs.slice(0, 40);
+        saveLocalCache();
+        renderEmailLogs();
+
+        setCloudStatusConnected(true);
+      } catch (err) {
+        setCloudStatusConnected(false, err?.message || "Cloud read error");
+      }
+    };
+
     function initFirebaseSync() {
       loadLocalCache();
+      renderScrollingLocalAds();
       try {
         const app = initializeApp(FIREBASE_CONFIG);
         db = getFirestore(app);
+
+        window.forceCloudSyncNow();
 
         onSnapshot(
           collection(db, "rexall_customers"),
@@ -952,12 +1074,10 @@
               const data = docSnap.data();
               if (data && data.phone) nextMap[data.phone] = data;
             });
-            customersMap = nextMap;
-            saveLocalCache();
             setCloudStatusConnected(true);
-            refreshAllViews();
+            applyCustomersSnapshot(nextMap);
           },
-          () => setCloudStatusConnected(false)
+          (err) => setCloudStatusConnected(false, err?.message || "Customers listener error")
         );
 
         onSnapshot(
@@ -968,12 +1088,10 @@
               const data = docSnap.data();
               if (data && data.id) nextAds.push(data);
             });
-            adsList = nextAds;
-            saveLocalCache();
-            renderScrollingLocalAds();
-            renderAdminAdsList();
+            setCloudStatusConnected(true);
+            applyAdsSnapshot(nextAds);
           },
-          () => {}
+          (err) => setCloudStatusConnected(false, err?.message || "Ads listener error")
         );
 
         onSnapshot(
@@ -985,7 +1103,7 @@
               if (data && data.id) nextLogs.push(data);
             });
             nextLogs.sort((a, b) => (b.sentAt || 0) - (a.sentAt || 0));
-            emailLogsList = nextLogs;
+            emailLogsList = nextLogs.slice(0, 40);
             saveLocalCache();
             renderEmailLogs();
           },
@@ -999,12 +1117,13 @@
               storeConfig = { ...storeConfig, ...docSnap.data() };
               saveLocalCache();
               populateSettingsInputs();
+              renderAdminAdsList();
             }
           },
           () => {}
         );
       } catch (err) {
-        setCloudStatusConnected(false);
+        setCloudStatusConnected(false, err?.message || "Firebase init error");
       }
     }
 
@@ -1110,6 +1229,7 @@
 
     window.handleCustomerLookup = async function (event) {
       event.preventDefault();
+      await window.forceCloudSyncNow();
       const raw = document.getElementById("loginPhoneInput").value;
       const digits = normalizePhone(raw);
       const msgEl = document.getElementById("loginMessage");
@@ -1290,8 +1410,9 @@
     }
 
     // Two-Step Admin Verification & Tab Controls
-    window.openAdminModal = function () {
+    window.openAdminModal = async function () {
       document.getElementById("adminModal").classList.remove("hidden");
+      await window.forceCloudSyncNow();
       if (!isAdminUnlocked) {
         document.getElementById("adminLockScreen").classList.remove("hidden");
         document.getElementById("adminUnlockedBody").classList.add("hidden");
@@ -1514,7 +1635,7 @@
 
       await persistCustomerToCloud(cust);
       document.getElementById("posPurchaseDollars").value = "";
-      statusEl.textContent = `Added +${earnedPts} pts ($${dollars.toFixed(2)}) to ${cust.name} and synced across all 3 web apps.`;
+      statusEl.textContent = `Added +${earnedPts} pts ($${dollars.toFixed(2)}) to ${cust.name} and synced across all web apps.`;
       statusEl.classList.remove("hidden");
       refreshAllViews();
     };
@@ -1605,7 +1726,7 @@
       if (activeCustomerPhone === oldPhone) activeCustomerPhone = newDigits;
       selectedAdminCustomerPhone = newDigits;
       document.getElementById("adminNewCustomerPhoneInput").value = "";
-      statusEl.textContent = `Updated mobile number to ${formatPhone(newDigits)} across all 3 web apps.`;
+      statusEl.textContent = `Updated mobile number to ${formatPhone(newDigits)} across all web apps.`;
       statusEl.classList.remove("hidden");
       refreshAllViews();
     };
@@ -1613,7 +1734,7 @@
     window.adminDeleteCustomer = async function (phone) {
       const cust = customersMap[phone];
       if (!cust) return;
-      if (!confirm(`Delete customer ${cust.name} (${formatPhone(phone)}) across all 3 web apps?`)) return;
+      if (!confirm(`Delete customer ${cust.name} (${formatPhone(phone)}) across all web apps?`)) return;
 
       await removeCustomerFromCloud(phone);
       if (selectedAdminCustomerPhone === phone) selectedAdminCustomerPhone = null;
@@ -1648,7 +1769,7 @@
       await persistSettingsToCloud();
       autoCalculateAdPrice();
       const statusEl = document.getElementById("adActionStatus");
-      statusEl.textContent = "Priority tier pricing rates saved and synced across all 3 web apps.";
+      statusEl.textContent = "Priority tier pricing rates saved and synced across all web apps.";
       statusEl.classList.remove("hidden");
     };
 
@@ -1689,7 +1810,7 @@
         `Welcome to Rexall Discount Reward! Your Priority #${priority} local business ad is now LIVE in our customer scroll banner through ${validDateStr} (${durationDays} days).\n` +
         `Listing Details: ${address} • ${phone}\n` +
         `Payment Recorded: $${amountPaid} (${paymentMethod}).\n\n` +
-        `View your live business listing on any of our 3 store web apps:\n` +
+        `View your live business listing on any of our store web apps:\n` +
         `• GitHub Pages: ${STORE_APP_LINKS.github}\n` +
         `• Cloudflare: ${STORE_APP_LINKS.cloudflare}\n` +
         `• Netlify: ${STORE_APP_LINKS.netlify}\n\n` +
@@ -1709,7 +1830,7 @@
       autoCalculateAdPrice();
 
       const statusEl = document.getElementById("adActionStatus");
-      statusEl.textContent = `${businessName} added to Priority #${priority} scroll banner ($${amountPaid} • ${paymentMethod}) and welcome email dispatched/logged with all 3 links!`;
+      statusEl.textContent = `${businessName} added to Priority #${priority} scroll banner ($${amountPaid} • ${paymentMethod}) and synced across Cloudflare & GitHub Pages!`;
       statusEl.classList.remove("hidden");
 
       renderScrollingLocalAds();
@@ -1779,7 +1900,7 @@
     };
 
     window.deleteLocalBusinessAd = async function (adId) {
-      if (!confirm("Remove this local business ad across all 3 web apps?")) return;
+      if (!confirm("Remove this local business ad across all web apps?")) return;
       await removeAdFromCloud(adId);
       renderScrollingLocalAds();
       renderAdminAdsList();
@@ -2004,7 +2125,7 @@
         .join("");
     }
 
-    // Tab 3: Save Admin Credentials & Welcome Mailer Webhook Across All 3 Web Apps
+    // Tab 3: Save Admin Credentials & Welcome Mailer Webhook Across All Web Apps
     window.saveStoreSettings = async function (event) {
       event.preventDefault();
       const newName = document.getElementById("settingAdminName").value.trim();
@@ -2024,14 +2145,14 @@
       storeConfig.mailerWebhookUrl = document.getElementById("settingMailerWebhookUrl").value.trim();
 
       await persistSettingsToCloud();
-      msgEl.textContent = "Admin security credentials & mailer settings saved and synced across GitHub Pages, Cloudflare, and Netlify!";
+      msgEl.textContent = "Admin security credentials & mailer settings saved and synced across Cloudflare and GitHub Pages!";
       msgEl.className = "text-xs font-bold text-emerald-700";
       msgEl.classList.remove("hidden");
     };
 
     document.addEventListener("visibilitychange", () => {
       if (!document.hidden) {
-        refreshAllViews();
+        window.forceCloudSyncNow();
       }
     });
 
