@@ -1896,6 +1896,7 @@
 
     async function dispatchWelcomeOrAlertEmail({ businessName, toEmail, ccEmail, subject, messageBody }) {
       let deliveryMode = "Logged in Admin (1-Click Copy Ready)";
+      let sentViaService = false;
 
       if (storeConfig.mailerWebhookUrl && toEmail) {
         try {
@@ -1916,6 +1917,37 @@
           });
           if (resp.ok) {
             deliveryMode = "Sent via Welcome Mailer Webhook";
+            sentViaService = true;
+          }
+        } catch (err) {}
+      }
+
+      if (!sentViaService && toEmail) {
+        try {
+          const payload = {
+            _subject: subject,
+            _template: "box",
+            business_or_event: businessName,
+            recipient_email: toEmail,
+            message: messageBody,
+            github_pages_url: STORE_APP_LINKS.github,
+            cloudflare_url: STORE_APP_LINKS.cloudflare,
+            netlify_url: STORE_APP_LINKS.netlify
+          };
+          if (ccEmail) {
+            payload._cc = ccEmail;
+          }
+
+          const fsResp = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(toEmail)}`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Accept": "application/json"
+            },
+            body: JSON.stringify(payload)
+          });
+          if (fsResp.ok) {
+            deliveryMode = `Sent to ${toEmail} (Check inbox/activation if first time)`;
           }
         } catch (err) {}
       }
